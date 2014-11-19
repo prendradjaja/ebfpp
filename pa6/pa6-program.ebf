@@ -1,15 +1,27 @@
-; This program was written for PA6 part 2 demonstrating how the lacking of 
-; certain constructs in the language greatly increases the complexity of 
-; writing certain programs. This is what we intend to primarily address for 
+; This program was written for PA6 part 2 demonstrating how the lacking of
+; certain constructs in the language greatly increases the complexity of
+; writing certain programs. This is what we intend to primarily address for
 ; our final project by adding in support for these constructs.
 
-{read ,>,}                      ; Macro definition for common operation
+;;; First, read in the input. This should be placed in memory as an array of
+;;; two-member {int count; char character;} structs.
 
-&read 46-[46+ 2> &read 46-]     ; Get input and create formatted array.
- 
-<
-3<
-[                               ; Iterate over array read in and output
-48-[>.<-]                       ; expanded version of input. 
-3<
-]
+{read_struct   ; Macro definition for reading input into one struct.
+  ,48-         ; Read first member of struct, interpreting as a single-digit
+               ; decimal number.
+  >,           ; Read second member of struct.
+}
+
+&read_struct
+46-[46+        ; While not 46 (ASCII code for period, indicating end of input)
+  >            ; Move to head of next struct.
+  &read_struct
+46-]
+
+;;; Then output the reversed, decoded result.
+
+<              ; Move to head of (last+1)'th struct.
+
+2<[            ; Iterate backwards across the array.
+  [>.<-]       ; Output that many of the character.
+2<]
