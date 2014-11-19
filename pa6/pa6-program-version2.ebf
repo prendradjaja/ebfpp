@@ -13,6 +13,6 @@
 <
 2<
 [@count                               ; Iterate over array read in and output
-48-[$letter.-]                  ; expanded version of input. 
+48-[$letter.<-]                  ; expanded version of input. 
 2<
 ]
