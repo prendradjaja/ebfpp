@@ -4,9 +4,14 @@
 ; our final project by adding in support for these constructs.
 
 ;;; First, read in the input. This should be placed in memory as an array of
-;;; two-member {int count; char character;} structs.
+;;; two-member structs, as follows:
+;;;   struct {
+;;;     int count;
+;;;     char character;
+;;;   }
 
-{read_struct   ; Macro definition for reading input into one struct.
+;;; Macro definition for reading input into one struct.
+{read_struct
   ,48-         ; Read first member of struct, interpreting as a single-digit
                ; decimal number.
   >,           ; Read second member of struct.
@@ -23,5 +28,5 @@
 <              ; Move to head of (last+1)'th struct.
 
 2<[            ; Iterate backwards across the array.
-  [>.<-]       ; Output that many of the character.
+  (->.)        ; Output that many of the character.
 2<]
