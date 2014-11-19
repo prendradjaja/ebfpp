@@ -3,7 +3,7 @@
 ; writing certain programs. This is what we intend to primarily address for 
 ; our final project by adding in support for these constructs.
 
-{ read  ,>, }                   ; Macro definition for common operation 
+{read ,>,}                      ; Macro definition for common operation
 
 &read 46-[46+ 2> &read 46-]     ; Get input and create formatted array.
  
