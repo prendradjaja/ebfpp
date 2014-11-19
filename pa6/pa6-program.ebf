@@ -1,14 +1,12 @@
-; This program was written for PA6 part 2 demonstrating how the lacking of
-; certain constructs in the language greatly increases the complexity of
-; writing certain programs. This is what we intend to primarily address for
-; our final project by adding in support for these constructs.
+; This version of the program does not use EBF's variables.
 
-;;; First, read in the input. This should be placed in memory as an array of
-;;; two-member structs, as follows:
-;;;   struct {
-;;;     int count;
-;;;     char character;
-;;;   }
+;;; First, read in the input.
+; This should be placed in memory as an array of
+; two-member structs, as follows:
+;   struct {
+;     int count;
+;     char character;
+;   }
 
 ;;; Macro definition for reading input into one struct.
 {read_struct
