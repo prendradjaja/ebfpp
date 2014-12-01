@@ -1,0 +1,11 @@
+;;macro definitions
+{read $eof_flag+$input(-),[+[->-]]>[@eof_flag->]}
+{print .}
+var :input
+var :eof_flag
+;;main program
+&read
+$input(
+  &print
+  &read
+)

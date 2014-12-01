@@ -1,0 +1,8 @@
+{read ^1eof_flag+^0input(-),[+[->-]]>[->] *-1}
+:num1
+:num2
+$num1 &read
+$num2 &read
+$num1 48-
+$num1(-$num2+)
+$num2 .
