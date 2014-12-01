@@ -136,7 +136,6 @@ function writeToOutput(msg)
 
 /**
  * Read the output window.
- *
  */
 function readFromOutput()
 {
