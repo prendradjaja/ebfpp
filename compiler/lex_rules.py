@@ -19,47 +19,47 @@ literals = '.,+-<>[](){}:$@!&^*~|'
 # variables
 
 def t_DEF_VAR(t):
-    r':(?P<id>[A-Za-z0-9_]+)'
-    t.value = t.lexer.lexmatch.group('id')
+    r':[A-Za-z0-9_]+'
+    t.value = t.value[1:]
     return t
 def t_GO_VAR(t):
-    r'\$(?P<id>[A-Za-z0-9_]+)'
-    t.value = t.lexer.lexmatch.group('id')
+    r'\$[A-Za-z0-9_]+'
+    t.value = t.value[1:]
     return t
 def t_AT_VAR(t):
-    r'@(?P<id>[A-Za-z0-9_]+)'
-    t.value = t.lexer.lexmatch.group('id')
+    r'@[A-Za-z0-9_]+'
+    t.value = t.value[1:]
     return t
 def t_DEALLOC_VAR(t):
-    r'!(?P<id>[A-Za-z0-9_]+)'
-    t.value = t.lexer.lexmatch.group('id')
+    r'![A-Za-z0-9_]+'
+    t.value = t.value[1:]
     return t
 
 # macro
 
 def t_LBRACE_ID(t):
-    r'{(?P<id>[A-Za-z0-9_]+)'
-    t.value = t.lexer.lexmatch.group('id')
+    r'{[A-Za-z0-9_]+'
+    t.value = t.value[1:]
     return t
 def t_PUT_MACRO(t):
-    r'&(?P<id>[A-Za-z0-9_]+)'
-    t.value = t.lexer.lexmatch.group('id')
+    r'&[A-Za-z0-9_]+'
+    t.value = t.value[1:]
     return t
 def t_GO_OFFSET(t):
-    r'\^(?P<num>\d+)'
-    t.value = int(t.lexer.lexmatch.group('num'))
+    r'\^\d+'
+    t.value = int(t.value[1:])
     return t
 def t_AT_OFFSET(t):
-    r'\*(?P<sign>[-+])(?P<num>\d+)'
-    sign_as_number = int(t.lexer.lexmatch.group('sign') + '1')
-    t.value = sign_as_number * int(t.lexer.lexmatch.group('num'))
+    r'\*[-+]\d+'
+    sign_as_number = int(t.value[1] + '1')
+    t.value = sign_as_number * int(t.value[2:])
     return t
 
 # syntax sugar
 
 def t_MULTIPLIER(t):
-    r'(?P<num>\d+)(?P<cmd>[-+<>])'
-    t.value = t.lexer.lexmatch.group('cmd'), int(t.lexer.lexmatch.group('num'))
+    r'\d+[-+<>]'
+    t.value = t.value[-1], int(t.value[:-1])
     return t
 def t_STORE_STR(t):
     r'~"(?P<str1>[^"]*)"|~\'(?P<str2>[^\']*)\''
