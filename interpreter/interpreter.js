@@ -17,28 +17,35 @@ session = null;
 function initSession(code)
 {
     session = {
-        "tokens" : code,
+        "tokens" :  code,
         "pointer" : 0,
+        "pc":       0,
         "memory" :  Array.apply(null, new Array(256))
                     .map(Number.prototype.valueOf,0),
-        "pc": 0,
-        "pcMark": new Array()
+        "bracketPcStack": new Array(),
+        "macroPcStack": new Array(),
+        "vars":     new Array(),
+        "varOffset":0,
+        "macros":   new Array()
     }
-
-    tokens = session.tokens
-    memory = session.memory
-    pcMark = session.pcMark
+    tokens  = session.tokens
+    memory  = session.memory
+    bracketPcStack  = session.bracketPcStack
+    macroPcStack = session.macroPcStack
+    vars    = session.vars
 }
 
 /**
  * Run the interpreter. Behavior of the interpreter is determined by the step
  * argument. 
  *
- * @param   step    True if user is 'step'ing through code. Interpret
- *                  only next instruction and terminate. False to interpret
+ * @param   step    True if user is 'step'ing through code. Interpret next 
+ *                  instruction and terminate. False to interpret
  *                  entire program, equivalent of 'run'ing program. 
+ * @param   macro   Code body of a macro or undefined if we're not interpreting
+ *                  a macro.
  */
-function interpret(step)
+function interpret(step, macro)
 {
     sigRun();
     while(true) {
@@ -54,6 +61,43 @@ function interpret(step)
                 sigBreak(session);
                 session.pc++;
                 return;
+            case 'def_var':
+                handleDefVar(inst.name);
+                session.pc++
+                break;  
+            case 'at_var':
+                handleAtVar(inst.name);
+                session.pc++;
+                break;
+            case 'go_var':
+                handleGoVar(inst.name);
+                session.pc++
+                break;
+            case 'dealloc_var':
+                handleDelVar(inst.name);
+                session.pc++
+                break;
+            case 'put_macro':
+                handlePutMacro(name);
+                session.pc++
+                break;
+            case 'def_macro':
+                handleDefMacro(inst.name,inst.body);
+                session.pc++;
+                break;
+            case 'go_offset':
+                handleGoOffset(inst.offset);
+                session.pc++;
+                break;
+            case 'at_offset':
+            case 'store_str':
+            case 'print_str':
+            case 'l_paren':
+            case 'r_paren': 
+            default:
+                alert(inst.type + " has not been implemented yet");
+                sigTerm();
+                return;
         }
         updateDisplay({
             "pc" : session.pc, 
@@ -64,11 +108,89 @@ function interpret(step)
 
         if (session.pc >= tokens.length || step) {
             if (session.pc >= tokens.length) {
-                sigTerm();
+                if(macro !== undefined) {
+                    sigTerm();
+                }
             }
             break;
         }
     }
+}
+
+/**
+ * Move memory pointer to offset from start of macro.
+ *
+ * @param   offset  Non-negative offset from start of macro.
+ */
+function handleGoOffset(offset)
+{
+    session.pointer = macroPcStack[macroPcStack.length-1].memLoc
+}
+
+/**
+ * Define a macro.
+ *
+ * @param   name    Name of macro.
+ * @param   body    Code body for macro.
+ */
+function handleDefMacro(name, body)
+{
+    macros[name] = body;
+}
+
+/**
+ * Invoke macro.
+ *
+ * @param   name    Name of macro.
+ */
+function handlePutMacro(name)
+{
+    macroPcStack.push({pc: session.pc,memLoc:session.pointer}); 
+    session.pc = 0;
+    interpret(false, macros[name]);
+    session.pc = macroPcStack.pop().pc;
+}
+
+/**
+ * Handle de-alloc of variable. Variables are removed in FIFO order.
+ *
+ * @param   name    Name of variable being removed.
+ */
+function handleDelVar(name)
+{
+    if(vars.pop(name) !== name) {
+        throw new Error("Deleted variable didn't match vars array "+name);
+    }
+}
+
+/**
+ * Move pointer to location of a named variable.
+ *
+ * @param   name    Variable name to go to.
+ */
+function handleGoVar(name)
+{
+    session.pointer = vars.indexOf(name) + session.varOffset;
+}
+
+/**
+ * Handle at_var instruction.
+ *
+ * @param   name    Name of variable we're indexing to.
+ */
+function handleAtVar(name)
+{
+    session.varOffset = session.pointer - vars.indexOf(name)
+}
+
+/**
+ * Handle variable definition instruction. 
+ *
+ * @param   name    Variable name.
+ */
+function handleDefVar(name)
+{
+    vars.push(name);
 }
 
 function interpret_bf_command(inst) {
@@ -122,7 +244,7 @@ function interpret_bf_command(inst) {
             session.pc++;
             break;
         case ']':
-            newPc = pcMark.pop()
+            newPc = bracketPcStack.pop()
             if(memory[session.pointer] > 0) {
                 session.pc = newPc;
                 break;
@@ -130,7 +252,7 @@ function interpret_bf_command(inst) {
             session.pc++;
             break;
         case '[':
-            pcMark.push(session.pc);
+            bracketPcStack.push(session.pc);
             session.pc++;
             break;
     }
