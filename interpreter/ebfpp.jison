@@ -6,6 +6,7 @@
 %%
 
 \s+                   /* skip whitespace */
+";".*                 /* skip comments */
 "+"                   return '+'
 "-"                   return '-'
 "["                   return '['
