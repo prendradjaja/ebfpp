@@ -39,6 +39,9 @@ function interpret(step)
             case 'bf_command':
                 interpret_bf_command(inst);
                 break;
+            case 'multiplier':
+                interpret_multiplier(inst);
+                break;
             case '#':
                 sigBreak(session);
                 session.pc++;
@@ -125,4 +128,20 @@ function interpret_bf_command(inst) {
             session.pc++;
             break;
     }
+}
+
+/** Deals with multiplier for BF commands.
+  * @param inst     should be multiplier type. */
+function interpret_multiplier(inst) {
+    times = inst.times;
+    var i = 0;
+    var old_pc = session.pc;
+    var node;
+    while (i < times) {
+        node = {'cmd': inst.cmd};
+        interpret_bf_command(node);
+        i++;
+    }
+    session.pc = old_pc;
+    session.pc++;
 }
