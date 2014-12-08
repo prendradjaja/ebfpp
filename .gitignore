@@ -3,3 +3,6 @@ parser.out
 parsetab.py
 *.tmp
 bff4
+*.swp
+.*.swp
+

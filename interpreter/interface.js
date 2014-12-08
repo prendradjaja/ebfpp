@@ -34,11 +34,16 @@ function init()
  */ 
 function run()
 {
-    hasInit = true;
     cls();
     sigResume();
-    initSession(readFromInput());
+    newSess();
     interpret(false);
+}
+
+function newSess()
+{
+    initSession(parser.parse(readFromInput()));
+    hasInit = true;
 }
 
 /**
@@ -78,8 +83,7 @@ function step()
         interpret(true);
     } else {
         sigResume()
-        initSession(readFromInput());
-        hasInit = true;
+        newSess();
         interpret(true);
     }
 }
