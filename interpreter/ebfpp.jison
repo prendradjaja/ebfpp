@@ -1,0 +1,241 @@
+
+/* description: Parses and executes mathematical expressions. */
+
+/* lexical grammar */
+%lex
+%%
+
+\s+                   /* skip whitespace */
+"+"                   return '+'
+"-"                   return '-'
+"["                   return '['
+"]"                   return ']'
+"<"                   return '<'
+">"                   return '>'
+"."                   return '.'
+","                   return ','
+
+":"[A-Za-z0-9_]+      return 'DEF_VAR'
+"$"[A-Za-z0-9_]+      return 'GO_VAR'
+"@"[A-Za-z0-9_]+      return 'AT_VAR'
+"!"[A-Za-z0-9_]+      return 'DEALLOC_VAR'
+
+"("                   return '('
+")"                   return ')'
+
+"{"[A-Za-z0-9_]+      return '{ID'
+"}"                   return '}'
+"&"[A-Za-z0-9_]+      return 'PUT_MACRO'
+
+"^"[0-9]+             return 'GO_OFFSET'
+"*"[-+][0-9]+         return 'AT_OFFSET'
+
+[0-9]+[-+<>]          return 'MULTIPLIER'
+'~"'[^"]*'"'          return 'STORE_STR'
+"~'"[^']*"'"          return 'STORE_STR'
+'|"'[^"]*'"'          return 'PRINT_STR'
+"|'"[^']*"'"          return 'PRINT_STR'
+
+<<EOF>>               return 'EOF'
+.                     return 'INVALID'
+
+/lex
+
+/* operator associations and precedence */
+
+// %left '+'
+// %left '*'
+
+%start file
+
+%% /* language grammar */
+
+// consolelog
+// file
+//     : p EOF
+//         { typeof console !== 'undefined' ? console.log($1) : print($1);
+//           return $1; }
+//     ;
+
+// nodepthlimit consolelog
+// file
+//     : p EOF
+//         { typeof console !== 'undefined' ? console.log(require('util').inspect($1, true, 10)) : print($1);
+//           return $1; }
+//     ;
+
+file
+    : p EOF
+        { typeof console !== 'undefined' ? console.log(require('util').inspect($1, true, 10)) : print($1);
+          return $1; }
+    ;
+
+
+
+p
+    :
+        {$$ = [];}
+    | p bf_command
+        {$$ = array_concat($1, [$2]);}
+    | p def_var
+        {$$ = array_concat($1, [$2]);}
+    | p go_var
+        {$$ = array_concat($1, [$2]);}
+    | p at_var
+        {$$ = array_concat($1, [$2]);}
+    | p dealloc_var
+        {$$ = array_concat($1, [$2]);}
+    | p l_paren
+        {$$ = array_concat($1, [$2]);}
+    | p r_paren
+        {$$ = array_concat($1, [$2]);}
+    | p def_macro
+        {$$ = array_concat($1, [$2]);}
+    | p put_macro
+        {$$ = array_concat($1, [$2]);}
+    | p go_offset
+        {$$ = array_concat($1, [$2]);}
+    | p at_offset
+        {$$ = array_concat($1, [$2]);}
+    | p multiplier
+        {$$ = array_concat($1, [$2]);}
+    | p store_str
+        {$$ = array_concat($1, [$2]);}
+    | p print_str
+        {$$ = array_concat($1, [$2]);}
+    ;
+
+bf_command
+    : '+'
+        {$$ = bf_command($1);}
+    | '-'
+        {$$ = bf_command($1);}
+    | '['
+        {$$ = bf_command($1);}
+    | ']'
+        {$$ = bf_command($1);}
+    | '<'
+        {$$ = bf_command($1);}
+    | '>'
+        {$$ = bf_command($1);}
+    | '.'
+        {$$ = bf_command($1);}
+    | ','
+        {$$ = bf_command($1);}
+    ;
+
+def_var
+    : DEF_VAR
+        {$$ = def_var($1.substring(1));}
+    ;
+
+go_var
+    : GO_VAR
+        {$$ = go_var($1.substring(1));}
+    ;
+
+at_var
+    : AT_VAR
+        {$$ = at_var($1.substring(1));}
+    ;
+
+dealloc_var
+    : DEALLOC_VAR
+        {$$ = dealloc_var($1.substring(1));}
+    ;
+
+l_paren
+    : '('
+        {$$ = l_paren();}
+    ;
+
+r_paren
+    : ')'
+        {$$ = r_paren();}
+    ;
+
+def_macro
+    : l_brace_id p '}'
+        {$$ = def_macro($1, $2);}
+    ;
+
+l_brace_id
+    : '{ID'
+        {$$ = $1.substring(1);}
+    ;
+
+put_macro
+    : PUT_MACRO
+        {$$ = put_macro($1.substring(1));}
+    ;
+
+go_offset
+    : GO_OFFSET
+        {$$ = go_offset(Number($1.substring(1)));}
+    ;
+
+at_offset
+    : AT_OFFSET
+        {$$ = at_offset(Number($1.substring(1)));}
+    ;
+
+multiplier
+    : MULTIPLIER
+        {$$ = multiplier(
+                  $1.substring($1.length-1),
+                  Number($1.substring(0, $1.length-1)));}
+    ;
+
+store_str
+    : STORE_STR
+        {$$ = store_str($1.substring(2, $1.length-1));}
+    ;
+
+print_str
+    : PRINT_STR
+        {$$ = print_str($1.substring(2, $1.length-1));}
+    ;
+
+%% /* utility */
+
+// ast_node is adapted from
+// http://stackoverflow.com/questions/8291194/how-to-implement-pythons-namedtuple-in-javascript
+
+function ast_node(nodename, fieldnamestr) {
+    var fields = fieldnamestr.split(' ');
+    return function () {
+        var arr = arguments;
+        var obj = {type: nodename};
+
+        for(var i = 0; i < arr.length; i++) {
+            obj[fields[i]] = arr[i];
+        }
+
+        return obj;
+    };
+};
+
+
+var bf_command  = ast_node('bf_command',  'cmd')          // any of the eight
+                                                          // BF commands
+var multiplier  = ast_node('multiplier',  'cmd times')    // 3+
+var def_var     = ast_node('def_var',     'name')         // :var
+var go_var      = ast_node('go_var',      'name')         // $var
+var at_var      = ast_node('at_var',      'name')         // @var
+var dealloc_var = ast_node('dealloc_var', 'name')         // !var
+var l_paren     = ast_node('l_paren',     '')             // (
+var r_paren     = ast_node('r_paren',     '')             // )
+var def_macro   = ast_node('def_macro',   'name body')    // {macro ...}
+var put_macro   = ast_node('put_macro',   'name')         // &macro
+var go_offset   = ast_node('go_offset',   'offset')       // ^0
+var at_offset   = ast_node('at_offset',   'offset')       // *-1
+var store_str   = ast_node('store_str',   'string')       // ~"hello"
+var print_str   = ast_node('print_str',   'string')       // |"hello"
+
+function array_concat(a1, a2) {
+    if(a1 instanceof Array && a2 instanceof Array) {
+        return a1.concat(a2);
+    } else {
+        throw new Error('Both arguments to array_concat must be arrays');
+    }
+}
