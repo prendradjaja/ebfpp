@@ -16,26 +16,26 @@
 "."                   return '.'
 ","                   return ','
 
-":"[A-Za-z0-9_]+      return 'DEF_VAR'
-"$"[A-Za-z0-9_]+      return 'GO_VAR'
-"@"[A-Za-z0-9_]+      return 'AT_VAR'
-"!"[A-Za-z0-9_]+      return 'DEALLOC_VAR'
+":"[A-Za-z0-9_]+      return ':ID'
+"$"[A-Za-z0-9_]+      return '$ID'
+"@"[A-Za-z0-9_]+      return '@ID'
+"!"[A-Za-z0-9_]+      return '!ID'
 
 "("                   return '('
 ")"                   return ')'
 
 "{"[A-Za-z0-9_]+      return '{ID'
 "}"                   return '}'
-"&"[A-Za-z0-9_]+      return 'PUT_MACRO'
+"&"[A-Za-z0-9_]+      return '&ID'
 
-"^"[0-9]+             return 'GO_OFFSET'
-"*"[-+][0-9]+         return 'AT_OFFSET'
+"^"[0-9]+             return '^NUM'
+"*"[-+][0-9]+         return '*_SIGN_NUM'
 
-[0-9]+[-+<>]          return 'MULTIPLIER'
-'~"'[^"]*'"'          return 'STORE_STR'
-"~'"[^']*"'"          return 'STORE_STR'
-'|"'[^"]*'"'          return 'PRINT_STR'
-"|'"[^']*"'"          return 'PRINT_STR'
+[0-9]+[-+<>]          return 'NUM_BFCHAR'
+'~"'[^"]*'"'          return '~_STR'
+"~'"[^']*"'"          return '~_STR'
+'|"'[^"]*'"'          return '|_STR'
+"|'"[^']*"'"          return '|_STR'
 
 <<EOF>>               return 'EOF'
 .                     return 'INVALID'
@@ -109,22 +109,22 @@ bf_command
     ;
 
 def_var
-    : DEF_VAR
+    : ':ID'
         {$$ = def_var($1.substring(1));}
     ;
 
 go_var
-    : GO_VAR
+    : '$ID'
         {$$ = go_var($1.substring(1));}
     ;
 
 at_var
-    : AT_VAR
+    : '@ID'
         {$$ = at_var($1.substring(1));}
     ;
 
 dealloc_var
-    : DEALLOC_VAR
+    : '!ID'
         {$$ = dealloc_var($1.substring(1));}
     ;
 
@@ -149,34 +149,34 @@ l_brace_id
     ;
 
 put_macro
-    : PUT_MACRO
+    : '&ID'
         {$$ = put_macro($1.substring(1));}
     ;
 
 go_offset
-    : GO_OFFSET
+    : '^NUM'
         {$$ = go_offset(Number($1.substring(1)));}
     ;
 
 at_offset
-    : AT_OFFSET
+    : '*_SIGN_NUM'
         {$$ = at_offset(Number($1.substring(1)));}
     ;
 
 multiplier
-    : MULTIPLIER
+    : NUM_BFCHAR
         {$$ = multiplier(
                   $1.substring($1.length-1),
                   Number($1.substring(0, $1.length-1)));}
     ;
 
 store_str
-    : STORE_STR
+    : '~_STR'
         {$$ = store_str($1.substring(2, $1.length-1));}
     ;
 
 print_str
-    : PRINT_STR
+    : '|_STR'
         {$$ = print_str($1.substring(2, $1.length-1));}
     ;
 
