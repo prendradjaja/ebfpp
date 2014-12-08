@@ -2,37 +2,45 @@
  * @file    interpreter.js
  * @author  John Wilkey
  *
- * @brief   This file implements the interpretation of BF code handed to it by
- *          the interface.js file.
+ * This file implements the interpretation of BF code handed to it by
+ * the interface.js file.
  */
+
+/** Contains an interpreter session. Null until initSession() is called. */
 session = null;
 
-/**
- * Initialize a new session.
+/** 
+ * Initialize a new interpreter session. 
+ *
+ * @param   code    Input AST of EBF++ program.
  */
 function initSession(code)
 {
     session = {
         "tokens" : code,
         "pointer" : 0,
-        "memory" : Array.apply(null, new Array(256)).map(Number.prototype.valueOf,0),
+        "memory" :  Array.apply(null, new Array(256))
+                    .map(Number.prototype.valueOf,0),
         "pc": 0,
-        "pc_mark": new Array()
+        "pcMark": new Array()
     }
 
     tokens = session.tokens
     memory = session.memory
-    pc_mark = session.pc_mark
+    pcMark = session.pcMark
 }
 
 /**
- * @brief Run the interpreter on the given input.
- * 
- * @param   code    Code to interpret.
+ * Run the interpreter. Behavior of the interpreter is determined by the step
+ * argument. 
+ *
+ * @param   step    True if user is 'step'ing through code. Interpret
+ *                  only next instruction and terminate. False to interpret
+ *                  entire program, equivalent of 'run'ing program. 
  */
 function interpret(step)
 {
-    isRunning(true);
+    sigRun();
     while(true) {
         var inst = tokens[session.pc]
         switch (inst.type) {
@@ -57,7 +65,6 @@ function interpret(step)
         if (session.pc >= tokens.length || step) {
             if (session.pc >= tokens.length) {
                 sigTerm();
-                isRunning(false);
             }
             break;
         }
@@ -111,20 +118,19 @@ function interpret_bf_command(inst) {
             session.pc++;
             break;
         case '.':
-            writeToOutput(
-                String.fromCharCode(memory[session.pointer]));
+            writeToOutput(String.fromCharCode(memory[session.pointer]));
             session.pc++;
             break;
         case ']':
-            new_pc = pc_mark.pop()
+            newPc = pcMark.pop()
             if(memory[session.pointer] > 0) {
-                session.pc = new_pc;
+                session.pc = newPc;
                 break;
             }
             session.pc++;
             break;
         case '[':
-            pc_mark.push(session.pc);
+            pcMark.push(session.pc);
             session.pc++;
             break;
     }

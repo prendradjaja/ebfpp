@@ -1,18 +1,18 @@
 ﻿/**
  * @file interpreter.js
  *
- * @brief Interpreter driver program for CS164 Final Project
+ * GUI EBF++ interpreter controller. 
  */
+
+/** True if interpreter session has been created. */
 var hasInit = false
 
 /**
- * Called from body.onload DOM event. Initialize anything you want to run
- * before anything else runs in here.
+ * Called from body.onload DOM event. Used to initialize event handlers
+ * and anything you want to run before the interpreter runs. 
  */
 function init()
 {
-    //
-    // Initialize handlers for button events in the DOM.
     var id_run = document.getElementById('run');
     var id_restart = document.getElementById('restart');
     var id_step = document.getElementById('step');
@@ -26,56 +26,50 @@ function init()
     id_restart.addEventListener('click', restart, false);
     id_step.addEventListener('click', step, false);
     id_res.addEventListener('click', hardRestart, false);
-    isRunning(false);
+    running(false);
 }
 
-/**
- * Handler for the run action.
- */ 
+/** Handler for the run action.  */ 
 function run()
 {
     cls();
     sigResume();
-    newSess();
+    newSession();
     interpret(false);
 }
 
-function newSess()
+/**
+ * Construct a new session. This is called in response to either 
+ * the run or step buttons being pressed after loading new code.
+ */          
+function newSession()
 {
     initSession(parser.parse(readFromInput()));
     hasInit = true;
 }
 
-/**
- * Resume from a breakpoint.
- */
+/** Resume from a breakpoint.  */
 function contin()
 {
     sigResume();
     interpret(false);
 }
 
-/**
- * Hander for the restart action.
- */
+/** Hander for the restart action. */
 function restart()
 {
     cls();
     location.reload();
 }
 
-/**
- * Reset everything (i.e., clear program and all other panes.
- */
+/** Reset everything (i.e., clear program and all other panes. */
 function hardRestart()
 {
     cls(true);
     location.reload();
 }
 
-/**
- * Handler for the STEP button
- */
+/** Handler for the STEP button. */
 function step()
 {
     if (hasInit) {
@@ -83,13 +77,16 @@ function step()
         interpret(true);
     } else {
         sigResume()
-        newSess();
+        newSession();
         interpret(true);
     }
 }
 
 /**
- * Load sample programs from a user-selected menu
+ * Load sample programs from a user-selected menu.
+ *
+ * @param   num     Index of sample file number. Convention: SampleX.txt
+ *                  for num X. 
  */
 function loadSample(num)
 {
@@ -138,9 +135,7 @@ function writeToOutput(msg)
     document.getElementById('output').value += msg;
 }
 
-/**
- * Read the output window.
- */
+/** Read the output window. */
 function readFromOutput()
 {
     return document.getElementById('output').value;
@@ -163,17 +158,13 @@ function cls(hard)
     setPtr(0);
 }
 
-/**
- * Read the contents of the input box and return them as a string array.
- */
+/** Read the contents of the input box and return as a string array  */
 function readFromInput()
 {
     return document.getElementById('in_code').value;
 }
 
-/**
- * Change the pointer address indicator
- */
+/** Change the pointer address indicator  */
 function mvPtr(dir, val)
 {
     var indicator = document.getElementById('pointer_loc');
@@ -189,7 +180,9 @@ function mvPtr(dir, val)
 }
 
 /**
- * Set the pointer to a specified location on the display.
+ * Set the pointer to a specified location in the program tape.
+ *
+ * @param   loc     Program counter location to set breakpoint.
  */
 function setPtr(loc)
 {
@@ -198,6 +191,9 @@ function setPtr(loc)
 
 /**
  * Update the memory contents displayed on the screen to the new contents.
+ *
+ * @param   val         Value of updated cell.
+ * @param   datastore   Current interpreter session object.
  */
 function updateMemDisp(val, datastore)
 {
@@ -248,24 +244,29 @@ function sigBreak(state)
     signal("Stopped at breakpoint. PC: " + state.pc, "notify")
 }
 
-/**
- * Signal a resume from breakpoint.
- */
+/** Signal a resume from breakpoint. */
 function sigResume()
 {
     signal("Running", "info")
 }
 
-/**
- * Signal the end of the program.
- */
+/** Signal the end of the program. */
 function sigTerm()
 {
     signal("DONE", "info")
+    running(false);
+}
+
+/** Signal that the interpreter is running. */
+function sigRun()
+{
+    running(true);
 }
 
 /**
  * Update displayed data.
+ *
+ * @param   datastore   Current interpreter session object.
  */
 function updateDisplay(datastore)
 {
@@ -276,9 +277,9 @@ function updateDisplay(datastore)
 /**
  * Set GUI indicators that the program is running or not.
  *
- * @param   y   True if running, false otherwise.
+ * @param   y   True if interpreter session is running, false otherwise.
  */
-function isRunning(y)
+function running(y)
 {
     var runButton = document.getElementById("run")
     var contBtn = document.getElementById('continue');
@@ -286,7 +287,9 @@ function isRunning(y)
     
     if (y) {
         reldBtn.innerHTML = "STOP"
-        document.getElementById("in_code").setAttribute("style", "background:#eee");
+        document
+            .getElementById("in_code")
+            .setAttribute("style", "background:#eee");
         document.getElementById("in_code").setAttribute("readonly", "true")
         contBtn.removeAttribute("style");
         runButton.setAttribute("style", "color:#e3e3e3; cursor:default;")
@@ -299,14 +302,16 @@ function isRunning(y)
         contBtn.removeEventListener("click", contin, false);
         contBtn.setAttribute("style", "color:#e3e3e3; cursor: default;");
         document.getElementById("in_code").removeAttribute("readonly")
-        document.getElementById("in_code").setAttribute("style", "background:#fff");
+        document
+            .getElementById("in_code")
+            .setAttribute("style", "background:#fff");
         runButton.removeEventListener("click", restart, false);
         runButton.addEventListener("click", run, false);
     }
 }
 
 /**
- * Write a message to the signalling area.
+ * Write a message to the signalling area of the GUI.
  *
  * @param   msg     Message to write.
  * @param   lv      Message level (NOTIFY, INFO, NONE)
