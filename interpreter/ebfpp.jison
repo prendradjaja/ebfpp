@@ -50,27 +50,10 @@
 
 %% /* language grammar */
 
-// consolelog
-// file
-//     : p EOF
-//         { typeof console !== 'undefined' ? console.log($1) : print($1);
-//           return $1; }
-//     ;
-
-// nodepthlimit consolelog
-// file
-//     : p EOF
-//         { typeof console !== 'undefined' ? console.log(require('util').inspect($1, true, 10)) : print($1);
-//           return $1; }
-//     ;
-
 file
     : p EOF
-        { typeof console !== 'undefined' ? console.log(require('util').inspect($1, true, 10)) : print($1);
-          return $1; }
+        { return $1; }
     ;
-
-
 
 p
     :
