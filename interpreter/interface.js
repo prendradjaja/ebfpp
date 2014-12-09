@@ -44,7 +44,7 @@ function run()
  */          
 function newSession()
 {
-    initSession(parser.parse(readFromInput()));
+    initSession(parser.parse(readFromCodeWindow()));
     hasInit = true;
 }
 
@@ -158,10 +158,16 @@ function cls(hard)
     setPtr(0);
 }
 
-/** Read the contents of the input box and return as a string array  */
-function readFromInput()
+/** Read the contents of the code box and return as a string array  */
+function readFromCodeWindow()
 {
     return document.getElementById('in_code').value;
+}
+
+/** Read the contents of the input box and return as a string array */
+function readFromInput()
+{
+    return document.getElementById('input').value;
 }
 
 /** Change the pointer address indicator  */
@@ -287,9 +293,7 @@ function running(y)
     
     if (y) {
         reldBtn.innerHTML = "STOP"
-        document
-            .getElementById("in_code")
-            .setAttribute("style", "background:#eee");
+        document.getElementById("in_code").style.background = "#eee";
         document.getElementById("in_code").setAttribute("readonly", "true")
         contBtn.removeAttribute("style");
         runButton.setAttribute("style", "color:#e3e3e3; cursor:default;")
@@ -302,9 +306,7 @@ function running(y)
         contBtn.removeEventListener("click", contin, false);
         contBtn.setAttribute("style", "color:#e3e3e3; cursor: default;");
         document.getElementById("in_code").removeAttribute("readonly")
-        document
-            .getElementById("in_code")
-            .setAttribute("style", "background:#fff");
+        document.getElementById("in_code").style.background = "#fff";
         runButton.removeEventListener("click", restart, false);
         runButton.addEventListener("click", run, false);
     }

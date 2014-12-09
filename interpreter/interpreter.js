@@ -17,16 +17,17 @@ session = null;
 function initSession(code)
 {
     session = {
-        "tokens" :  code,
-        "pointer" : 0,
-        "pc":       0,
-        "memory" :  Array.apply(null, new Array(256))
-                    .map(Number.prototype.valueOf,0),
-        "bracketPcStack": new Array(),
-        "macroPcStack": new Array(),
-        "vars":     new Array(),
-        "varOffset":0,
-        "macros":   new Array()
+        "tokens" :          code,
+        "pointer" :         0,
+        "pc":               0,
+        "bracketPcStack":   new Array(),
+        "macroPcStack":     new Array(),
+        "vars":             new Array(),
+        "varOffset":        0,
+        "macros":           new Array(),
+        "inWinOff":         0,
+        "memory":           Array.apply(null, new Array(256))
+                            .map(Number.prototype.valueOf, 0)
     }
     tokens  = session.tokens
     memory  = session.memory
@@ -90,14 +91,28 @@ function interpret(step, macro)
                 session.pc++;
                 break;
             case 'at_offset':
+                handleAtOff(inst.offset);
+                session.pc++;
+                break;
             case 'store_str':
+                handleStoreStr(inst.string);
+                session.pc++;
+                break;
             case 'print_str':
+                handlePrintStr(inst.string);
+                session.pc++;
+                break;
             case 'l_paren':
-            case 'r_paren': 
+                handleLeftP();
+                session.pc++;
+                break;
+            case 'r_paren':
+                handleRightP();
+                session.pc++;
+                break;
+            // TODO: Implement ++ instructions here.
             default:
-                alert(inst.type + " has not been implemented yet");
-                sigTerm();
-                return;
+                throw new Error("ERR No command attached to " + inst.type);
         }
         updateDisplay({
             "pc" : session.pc, 
@@ -108,13 +123,49 @@ function interpret(step, macro)
 
         if (session.pc >= tokens.length || step) {
             if (session.pc >= tokens.length) {
-                if(macro !== undefined) {
+                if(macro === undefined) {
                     sigTerm();
                 }
             }
             break;
         }
     }
+}
+
+/**
+ * Handle the store string instruction.
+ *
+ * @param   string  Input string to store.
+ */
+function handleStoreStr(string)
+{
+    //TODO Implement me
+    throw new ("ERR_NOT_IMPLEMENTED");
+}
+
+/**
+ * Handle the print string instruction.
+ *
+ * @param   string  String to print.
+ */
+function handlePrintStr(string)
+{
+    //TODO Implement me
+    throw new ("ERR_NOT_IMPLEMENTED");
+}
+
+/** Handle Left paren instruction.  */
+function handleLeftP()
+{
+    //TODO Implement me
+    throw new ("ERR_NOT_IMPLEMENTED");
+}
+
+/** Handle right paren instruction.  */
+function handleRightP()
+{
+    //TODO Implement me
+    throw new ("ERR_NOT_IMPLEMENTED");
 }
 
 /**
@@ -184,6 +235,17 @@ function handleAtVar(name)
 }
 
 /**
+ * Handle at_offset instruction.
+ *
+ * @param   offset  Offset to index to.
+ */
+function handleAtOff(offset)
+{
+    // TODO: Implement me
+    throw new Error("ERR_NOT_IMPLEMENTED");
+}
+
+/**
  * Handle variable definition instruction. 
  *
  * @param   name    Variable name.
@@ -234,9 +296,14 @@ function interpret_bf_command(inst) {
             session.pc++;
             break;
         case ',':
-            var content = prompt("Enter a single character input")
-            var c = content[0]
-            memory[session.pointer] = c.charCodeAt(0)
+            var inputWinContent = readFromInput();
+            if (inputWinContent.length > 0) {
+                memory[session.pointer] = inputWinContent.charCodeAt(session.inWinOff++);
+            } else {
+                var content = prompt("Enter a single character input")
+                var c = content[0]
+                memory[session.pointer] = c.charCodeAt(0)
+            }
             session.pc++;
             break;
         case '.':
