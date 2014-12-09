@@ -66,7 +66,7 @@ function restart()
 function hardRestart()
 {
     cls(true);
-    location.reload();
+    location.reload(true);
 }
 
 /** Handler for the STEP button. */
@@ -151,8 +151,8 @@ function cls(hard)
 {
     if (hard) {
         document.getElementById('in_code').value = "";
+        document.getElementById('input').value = "";
     }
-
     signal("", "none")
     document.getElementById('output').value = "";
     setPtr(0);
