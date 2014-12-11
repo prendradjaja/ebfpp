@@ -1,7 +1,7 @@
 ﻿/**
- * @file interpreter.js
+ * @file interface.js
  *
- * GUI EBF++ interpreter controller. 
+ * Interpreter GUI logic.
  */
 
 /** True if interpreter session has been created. */
@@ -209,8 +209,12 @@ function updateMemDisp(val, datastore)
     var inst_1 = document.getElementById('inst');
     document.getElementById("pc_inf").innerHTML = session.pc
     var nextInst = session.tokens[session.pc]
-    inst_1.innerHTML = nextInst === undefined ? 'NONE' : nextInst
-
+    inst_1.innerHTML = 
+        nextInst === undefined 
+        ? 'NONE' 
+        : (nextInst.type === 'bf_command') 
+            ? nextInst.cmd 
+            : nextInst.type
 
     var resStr = ""
 
@@ -226,17 +230,19 @@ function updateMemDisp(val, datastore)
         resStr += '&nbsp&nbsp&nbsp&nbsp&nbsp'
     }
 
-    
-    var x = session.tokens.join(" ")
-    x = x.substr(0, 2 * session.pc)
-        + (x[2 * session.pc] = ' _'
-        + x[2 * session.pc] + ' ')
-        + x.substr(2 * session.pc+1)
-    inst.innerHTML = x;
-
-    var scrollPos = (2 * session.pc / x.length) * inst.scrollLeftMax
+    var instructions = 
+        _.map(
+            session.tokens.slice(0),
+            function(x) { return x.type === 'bf_command' ? x.cmd : x.type; }
+        );
+    instructions.splice(session.pc,0,'#');
+    inst.innerHTML = instructions.join(" ")
+    var scrollPos = 
+        (3*session.pc / instructions.join(" ").length) * inst.scrollLeftMax
     inst.scrollLeft = scrollPos
     mmap.innerHTML = resStr
+    scrollPos = (datastore.pointer/255)*mmap.scrollLeftMax;
+    mmap.scrollLeft = scrollPos;
     indicator.innerHTML = val;
 }
 
