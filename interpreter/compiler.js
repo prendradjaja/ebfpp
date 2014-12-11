@@ -93,7 +93,11 @@ function compile_def_var(node) {
 }
 
 function compile_go_var(node) {
-    return move_pointer(variables.indexOf(node.name));
+    var index = variables.indexOf(node.name);
+    if (index === -1) {
+        crash_with_error('Cannot go to nonexistent variable: ' + node.name);
+    }
+    return move_pointer(index);
 }
 
 function compile_at_var(node) {
