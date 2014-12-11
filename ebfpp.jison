@@ -16,56 +16,43 @@
 "."                   return '.'
 ","                   return ','
 
-":"[A-Za-z0-9_]+      return ':ID'
-"$"[A-Za-z0-9_]+      return '$ID'
-"@"[A-Za-z0-9_]+      return '@ID'
-"!"[A-Za-z0-9_]+      return '!ID'
+"&{"                  return '&{'
 
+":"                   return ':'
+"$"                   return '$'
+"@"                   return '@'
+"!"                   return '!'
 "("                   return '('
 ")"                   return ')'
-
-"{"[A-Za-z0-9_]+      return '{ID'
-"%"[A-Za-z0-9_]+      return '%ID'
-"&"[A-Za-z0-9_]+      return '&ID'
-"&{"[A-Za-z0-9_]+     return '&{ID'
-
+"%"                   return '%'
+"&"                   return '&'
 "{"                   return '{'
 "}"                   return '}'
-
-"^"[0-9]+             return '^NUM'
-"*"[-+][0-9]+         return '*_SIGN_NUM'
-
-[0-9]+[-+<>]          return 'NUM_BFCHAR'
-'~"'[^"]*'"'          return '~_STR'
-"~'"[^']*"'"          return '~_STR'
-'|"'[^"]*'"'          return '|_STR'
-"|'"[^']*"'"          return '|_STR'
-
-'::'[A-Za-z0-9_]+     return '::ID'
-':'[0-9]+             return ':NUM'
-'$!'[A-Za-z0-9_]+     return '$!ID'
-':='[A-Za-z0-9_]+     return ':=ID'
-'$$'[A-Za-z0-9_]+     return '$$ID'
+"^"                   return '^'
+"*"                   return '*'
 
 "\\\\"                return '\\\\'
 "\\"                  return '\\'
 "/"                   return '/'
 
-"$"                   return '$'
-":"                   return ':'
-
-[A-Za-z0-9_]+         return 'ID'
 [0-9]+                return 'NUM'
+[A-Za-z_][A-Za-z0-9_]* return 'ID'
+
+'~"'[^"]*'"'          return '~_STR'
+"~'"[^']*"'"          return '~_STR'
+'|"'[^"]*'"'          return '|_STR'
+"|'"[^']*"'"          return '|_STR'
+
+/* '::'[A-Za-z0-9_]+     return '::ID' */
+/* ':'[0-9]+             return ':NUM' */
+/* '$!'[A-Za-z0-9_]+     return '$!ID' */
+/* ':='[A-Za-z0-9_]+     return ':=ID' */
+/* '$$'[A-Za-z0-9_]+     return '$$ID' */
 
 <<EOF>>               return 'EOF'
 .                     return 'INVALID'
 
 /lex
-
-/* operator associations and precedence */
-
-// %left '+'
-// %left '*'
 
 %start file
 
@@ -102,42 +89,39 @@ instruction
     ;
 
 bf_command
+    : bf_char
+        {$$ = bf_command($1);}
+    ;
+
+bf_char
     : '+'
-        {$$ = bf_command($1);}
     | '-'
-        {$$ = bf_command($1);}
     | '['
-        {$$ = bf_command($1);}
     | ']'
-        {$$ = bf_command($1);}
     | '<'
-        {$$ = bf_command($1);}
     | '>'
-        {$$ = bf_command($1);}
     | '.'
-        {$$ = bf_command($1);}
     | ','
-        {$$ = bf_command($1);}
     ;
 
 def_var
-    : ':ID'
-        {$$ = def_var($1.substring(1));}
+    : ':' ID
+        {$$ = def_var($2);}
     ;
 
 go_var
-    : '$ID'
-        {$$ = go_var($1.substring(1));}
+    : '$' ID
+        {$$ = go_var($2);}
     ;
 
 at_var
-    : '@ID'
-        {$$ = at_var($1.substring(1));}
+    : '@' ID
+        {$$ = at_var($2);}
     ;
 
 dealloc_var
-    : '!ID'
-        {$$ = dealloc_var($1.substring(1));}
+    : '!' ID
+        {$$ = dealloc_var($2);}
     ;
 
 l_paren
@@ -156,23 +140,18 @@ def_macro
     ;
 
 def_macro_no_args
-    : l_brace_id program '}'
-        {$$ = def_macro($1, [], $2);}
+    : '{' ID program '}'
+        {$$ = def_macro($2, [], $3);}
     ;
 
 def_macro_with_args
-    : l_brace_id id_list '\\\\' program '}'
-        {$$ = def_macro($1, $2, $4);}
-    ;
-
-l_brace_id
-    : '{ID'
-        {$$ = $1.substring(1);}
+    : '{' ID id_list '\\\\' program '}'
+        {$$ = def_macro($2, $3, $5);}
     ;
 
 put_argument
-    : '%ID'
-        {$$ = put_argument($1.substring(1));}
+    : '%' ID
+        {$$ = put_argument($2);}
     ;
 
 put_macro
@@ -181,30 +160,33 @@ put_macro
     ;
 
 put_macro_no_args
-    : '&ID'
-        {$$ = put_macro($1.substring(1), []);}
+    : '&' ID
+        {$$ = put_macro($2, []);}
     ;
 
 put_macro_with_args
-    : '&{ID' arg_list '}'
-        {$$ = put_macro($1.substring(2), $2);}
+    : '&{' ID arg_list '}'
+        {$$ = put_macro($2, $3);}
     ;
 
 go_offset
-    : '^NUM'
-        {$$ = go_offset(Number($1.substring(1)));}
+    : '^' NUM
+        {$$ = go_offset(Number($2));}
     ;
 
 at_offset
-    : '*_SIGN_NUM'
-        {$$ = at_offset(Number($1.substring(1)));}
+    : '*' sign NUM
+        {$$ = at_offset(Number($2 + $3));}
+    ;
+
+sign
+    : '+'
+    | '-'
     ;
 
 multiplier
-    : NUM_BFCHAR
-        {$$ = multiplier(
-                  $1.substring($1.length-1),
-                  Number($1.substring(0, $1.length-1)));}
+    : NUM bf_char
+        {$$ = multiplier($2, Number($1));}
     ;
 
 store_str
