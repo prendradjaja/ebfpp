@@ -1,7 +1,7 @@
 ﻿/**
- * @file interpreter.js
+ * @file interface.js
  *
- * GUI EBF++ interpreter controller. 
+ * Interpreter GUI logic.
  */
 
 /** True if interpreter session has been created. */
