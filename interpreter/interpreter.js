@@ -99,7 +99,13 @@ function interpret(step, macro)
                 session.pc++;
                 break;
             case 'print_str':
-                handlePrintStr(inst.string);
+                // NOTE that I changed the semantics of this instruction since
+                // the given semantics seems (1) Pointless and (2) trivial if
+                // implemented in the interpreter versus a compiler.
+                // This version seems much more useful in general. It behaves
+                // like printf for the beginning of a cell range. 
+                // Lets discuss this. 
+                handlePrintStr();
                 session.pc++;
                 break;
             case 'l_paren':
@@ -139,29 +145,28 @@ function interpret(step, macro)
  */
 function handleStoreStr(string)
 {
-    //TODO Implement me
-    throw new ("ERR_NOT_IMPLEMENTED");
+    for(var i in string) {
+        memory[session.pointer++] = string[i].charCodeAt();
+    }
 }
 
-/**
- * Handle the print string instruction.
- *
- * @param   string  String to print.
- */
-function handlePrintStr(string)
+/** Handle the print string instruction. */
+function handlePrintStr()
 {
-    //TODO Implement me
-    throw new ("ERR_NOT_IMPLEMENTED");
+    var nextChar;
+    while((nextChar=String.fromCharCode(memory[session.pointer++]))!='\u0000') {
+        writeToOutput(nextChar);
+    }
 }
 
-/** Handle Left paren instruction.  */
+/** Handle Left paren instruction. */
 function handleLeftP()
 {
     //TODO Implement me
     throw new ("ERR_NOT_IMPLEMENTED");
 }
 
-/** Handle right paren instruction.  */
+/** Handle right paren instruction. */
 function handleRightP()
 {
     //TODO Implement me
@@ -241,8 +246,7 @@ function handleAtVar(name)
  */
 function handleAtOff(offset)
 {
-    // TODO: Implement me
-    throw new Error("ERR_NOT_IMPLEMENTED");
+    session.varOffset += offset
 }
 
 /**
