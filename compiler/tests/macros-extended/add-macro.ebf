@@ -1,0 +1,8 @@
+:a:b
+
+{add \ src \ dst \\
+    %src (- %dst +)}
+
+&{add / $a / $b}
+.
+&{add / $b / $b}
