@@ -17,6 +17,11 @@
 ","                   return ','
 
 "&{"                  return '&{'
+"::"                  return '::'
+"$:"                  return '$:'
+"$!"                  return '$!'
+":="                  return ':='
+"$$"                  return '$$'
 
 ":"                   return ':'
 "$"                   return '$'
@@ -42,12 +47,6 @@
 "~'"[^']*"'"          return '~_STR'
 '|"'[^"]*'"'          return '|_STR'
 "|'"[^']*"'"          return '|_STR'
-
-/* '::'[A-Za-z0-9_]+     return '::ID' */
-/* ':'[0-9]+             return ':NUM' */
-/* '$!'[A-Za-z0-9_]+     return '$!ID' */
-/* ':='[A-Za-z0-9_]+     return ':=ID' */
-/* '$$'[A-Za-z0-9_]+     return '$$ID' */
 
 <<EOF>>               return 'EOF'
 .                     return 'INVALID'
@@ -86,6 +85,12 @@ instruction
     | multiplier
     | store_str
     | print_str
+    | def_array_size
+    | def_array_init
+    | goto_index_static
+    | goto_index_dynamic
+    | def_struct
+    | goto_member
     ;
 
 bf_command
@@ -199,6 +204,37 @@ print_str
         {$$ = print_str($1.substring(2, $1.length-1));}
     ;
 
+def_array_size
+    : '::' ID ID NUM
+        {$$ = def_array_size($2, $3, Number($4));}
+    ;
+
+def_array_init
+    : '::' ID ID '{' array_values '}'
+        {$$ = def_array_init($2, $3, $5);}
+    ;
+
+goto_index_static
+    : '$:' ID NUM
+        {$$ = goto_index_static($2, Number($3));}
+    ;
+
+goto_index_dynamic
+    : '$!' ID
+        {$$ = goto_index_dynamic($2);}
+    ;
+
+def_struct
+    : ':=' ID '{' member_name_list '}'
+        {$$ = def_struct($2, $4);}
+    ;
+
+goto_member
+    : '$$' ID
+        {$$ = goto_member($2);}
+    ;
+
+// todo: change name to reflect that it's specifically for macros
 id_list
     : nonempty_id_list
     | /* empty */
@@ -223,6 +259,30 @@ nonempty_arg_list
         {$$ = array_concat($1, [$3]);}
     | '/' program
         {$$ = [$2];}
+    ;
+
+/* doesn't support size zero arrays */
+array_values
+    : array_values '/' struct_values
+        {$$ = array_concat($1, [$3]);}
+    | struct_values
+        {$$ = [$1];}
+    ;
+
+/* doesn't support size zero structs */
+struct_values
+    : struct_values NUM
+        {$$ = array_concat($1, [Number($2)]);}
+    | NUM
+        {$$ = [Number($1)];}
+    ;
+
+/* doesn't support size zero structs */
+member_name_list
+    : member_name_list ID
+        {$$ = array_concat($1, [$2]);}
+    | ID
+        {$$ = [$1];}
     ;
 
 
@@ -262,6 +322,12 @@ var go_offset   = ast_node('go_offset',   'offset')       // ^0
 var at_offset   = ast_node('at_offset',   'offset')       // *-1
 var store_str   = ast_node('store_str',   'string')       // ~"hello"
 var print_str   = ast_node('print_str',   'string')       // |"hello"
+var def_array_size = ast_node('def_array_size', 'name element_type size') // ::arr size
+var def_array_init = ast_node('def_array_init', 'name element_type values') // ::arr {values}
+var goto_index_static = ast_node('goto_index_static', 'name index') //
+var goto_index_dynamic = ast_node('goto_index_dynamic', 'name') //
+var def_struct = ast_node('def_struct', 'name member_names') //
+var goto_member = ast_node('goto_member', 'name') //
 
 function array_concat(a1, a2) {
     if(a1 instanceof Array && a2 instanceof Array) {
