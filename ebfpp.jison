@@ -72,43 +72,33 @@
 %% /* language grammar */
 
 file
-    : p EOF
+    : program EOF
         { return $1; }
     ;
 
-p
+program
     :
         {$$ = [];}
-    | p bf_command
+    | program instruction
         {$$ = array_concat($1, [$2]);}
-    | p def_var
-        {$$ = array_concat($1, [$2]);}
-    | p go_var
-        {$$ = array_concat($1, [$2]);}
-    | p at_var
-        {$$ = array_concat($1, [$2]);}
-    | p dealloc_var
-        {$$ = array_concat($1, [$2]);}
-    | p l_paren
-        {$$ = array_concat($1, [$2]);}
-    | p r_paren
-        {$$ = array_concat($1, [$2]);}
-    | p def_macro
-        {$$ = array_concat($1, [$2]);}
-    | p put_argument
-        {$$ = array_concat($1, [$2]);}
-    | p put_macro
-        {$$ = array_concat($1, [$2]);}
-    | p go_offset
-        {$$ = array_concat($1, [$2]);}
-    | p at_offset
-        {$$ = array_concat($1, [$2]);}
-    | p multiplier
-        {$$ = array_concat($1, [$2]);}
-    | p store_str
-        {$$ = array_concat($1, [$2]);}
-    | p print_str
-        {$$ = array_concat($1, [$2]);}
+    ;
+
+instruction
+    : bf_command
+    | def_var
+    | go_var
+    | at_var
+    | dealloc_var
+    | l_paren
+    | r_paren
+    | def_macro
+    | put_argument
+    | put_macro
+    | go_offset
+    | at_offset
+    | multiplier
+    | store_str
+    | print_str
     ;
 
 bf_command
@@ -166,12 +156,12 @@ def_macro
     ;
 
 def_macro_no_args
-    : l_brace_id p '}'
+    : l_brace_id program '}'
         {$$ = def_macro($1, [], $2);}
     ;
 
 def_macro_with_args
-    : l_brace_id id_list '\\\\' p '}'
+    : l_brace_id id_list '\\\\' program '}'
         {$$ = def_macro($1, $2, $4);}
     ;
 
@@ -247,9 +237,9 @@ arg_list
     ;
 
 nonempty_arg_list
-    : nonempty_arg_list '/' p
+    : nonempty_arg_list '/' program
         {$$ = array_concat($1, [$3]);}
-    | '/' p
+    | '/' program
         {$$ = [$2];}
     ;
 
