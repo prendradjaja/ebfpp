@@ -12,6 +12,7 @@
 <script type="text/javascript" src="layout/scripts/galleryviewthemes/jquery.galleryview.2.1.1.min.js"></script>
 <script type="text/javascript" src="layout/scripts/galleryviewthemes/jquery.galleryview.setup.js"></script>
 <script src="ebfpp.js" type="text/javascript"></script>
+<script src="underscore.js" type="text/javascript"></script>
 <script type="text/javascript" src="interface.js"></script>
 <script type="text/javascript" src="interpreter.js"></script>
 <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
@@ -75,7 +76,7 @@
         width: 84%;">
           Input Program
       </p>
-      <textarea id='in_code' name="in_code" cols="75" rows="15"></textarea>
+      <textarea id='in_code' name="in_code" style="width:87%;font-family:monospace; font-weight:bold" rows="15"></textarea>
       <br><br> 
       <p style="
         font-weight: bold;
@@ -87,7 +88,19 @@
         width: 84%;">
           Output
       </p>
-      <textarea readonly id='output' name="output" style="background:#eee" cols="75" rows="5"></textarea>
+      <textarea readonly id='output' name="output" style="background:#eee;width:87%" rows="5"></textarea>
+      <br><br> 
+      <p style="
+        font-weight: bold;
+        border: 1px solid #ddd;
+        padding: 2px; 
+        padding-left: 20px; 
+        background: #eeeeee; 
+        border-radius: 5px; 
+        width: 84%;">
+          Input
+      </p>
+      <textarea id='input' name="input" style="background:#fff;width:87%" rows="5"></textarea>
       <br><br>
       <p style="
         border: 1px solid #ddd;
@@ -99,7 +112,7 @@
         width: 84%;">
          Debug Area 
       </p>
-      <textarea readonly id='debug' name='debug' cols="75" style="background: #eee" rows="2"></textarea>
+      <textarea readonly id='debug' name='debug' style="width:87%;background: #eee" rows="4"></textarea>
     </div>
     <div class="contentr" id="proc_env">
       <p id="proc_env_p" style="
