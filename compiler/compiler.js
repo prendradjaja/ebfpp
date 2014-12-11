@@ -1,7 +1,7 @@
 /* global require, process, console */
 'use strict';
 
-var parser = require('../interpreter/ebfpp.js');
+var parser = require('../ebfpp.js');
 var fs = require('fs');
 var _ = require('underscore');
 
