@@ -25,10 +25,12 @@
 ")"                   return ')'
 
 "{"[A-Za-z0-9_]+      return '{ID'
-"}"                   return '}'
 "%"[A-Za-z0-9_]+      return '%ID'
 "&"[A-Za-z0-9_]+      return '&ID'
 "&{"[A-Za-z0-9_]+     return '&{ID'
+
+"{"                   return '{'
+"}"                   return '}'
 
 "^"[0-9]+             return '^NUM'
 "*"[-+][0-9]+         return '*_SIGN_NUM'
@@ -39,11 +41,21 @@
 '|"'[^"]*'"'          return '|_STR'
 "|'"[^']*"'"          return '|_STR'
 
+'::'[A-Za-z0-9_]+     return '::ID'
+':'[0-9]+             return ':NUM'
+'$!'[A-Za-z0-9_]+     return '$!ID'
+':='[A-Za-z0-9_]+     return ':=ID'
+'$$'[A-Za-z0-9_]+     return '$$ID'
+
 "\\\\"                return '\\\\'
 "\\"                  return '\\'
 "/"                   return '/'
 
+"$"                   return '$'
+":"                   return ':'
+
 [A-Za-z0-9_]+         return 'ID'
+[0-9]+                return 'NUM'
 
 <<EOF>>               return 'EOF'
 .                     return 'INVALID'
