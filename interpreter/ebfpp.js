@@ -72,12 +72,12 @@
   }
 */
 var parser = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[2,2],$V1=[1,18],$V2=[1,19],$V3=[1,20],$V4=[1,21],$V5=[1,22],$V6=[1,23],$V7=[1,24],$V8=[1,25],$V9=[1,26],$Va=[1,27],$Vb=[1,28],$Vc=[1,29],$Vd=[1,30],$Ve=[1,31],$Vf=[1,39],$Vg=[1,33],$Vh=[1,34],$Vi=[1,35],$Vj=[1,36],$Vk=[1,37],$Vl=[1,38],$Vm=[5,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,40,41,42],$Vn=[20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,36,37,38,39,40,41,42];
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[5,21,22,23,24,25,26,27,28,29,30,31,32,33,34,38,41,42,45,46,48,49,50,51,52,57],$V1=[2,2],$V2=[1,19],$V3=[1,20],$V4=[1,21],$V5=[1,22],$V6=[1,23],$V7=[1,24],$V8=[1,25],$V9=[1,26],$Va=[1,27],$Vb=[1,28],$Vc=[1,29],$Vd=[1,30],$Ve=[1,31],$Vf=[1,32],$Vg=[1,46],$Vh=[1,35],$Vi=[1,44],$Vj=[1,45],$Vk=[1,38],$Vl=[1,39],$Vm=[1,40],$Vn=[1,41],$Vo=[1,42],$Vp=[40,54],$Vq=[38,57];
 var parser = {trace: function trace() { },
 yy: {},
-symbols_: {"error":2,"file":3,"p":4,"EOF":5,"bf_command":6,"def_var":7,"go_var":8,"at_var":9,"dealloc_var":10,"l_paren":11,"r_paren":12,"def_macro":13,"put_macro":14,"go_offset":15,"at_offset":16,"multiplier":17,"store_str":18,"print_str":19,"+":20,"-":21,"[":22,"]":23,"<":24,">":25,".":26,",":27,":ID":28,"$ID":29,"@ID":30,"!ID":31,"(":32,")":33,"l_brace_id":34,"}":35,"{ID":36,"&ID":37,"^NUM":38,"*_SIGN_NUM":39,"NUM_BFCHAR":40,"~_STR":41,"|_STR":42,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"EOF",20:"+",21:"-",22:"[",23:"]",24:"<",25:">",26:".",27:",",28:":ID",29:"$ID",30:"@ID",31:"!ID",32:"(",33:")",35:"}",36:"{ID",37:"&ID",38:"^NUM",39:"*_SIGN_NUM",40:"NUM_BFCHAR",41:"~_STR",42:"|_STR"},
-productions_: [0,[3,2],[4,0],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[7,1],[8,1],[9,1],[10,1],[11,1],[12,1],[13,3],[34,1],[14,1],[15,1],[16,1],[17,1],[18,1],[19,1]],
+symbols_: {"error":2,"file":3,"p":4,"EOF":5,"bf_command":6,"def_var":7,"go_var":8,"at_var":9,"dealloc_var":10,"l_paren":11,"r_paren":12,"def_macro":13,"put_argument":14,"put_macro":15,"go_offset":16,"at_offset":17,"multiplier":18,"store_str":19,"print_str":20,"+":21,"-":22,"[":23,"]":24,"<":25,">":26,".":27,",":28,":ID":29,"$ID":30,"@ID":31,"!ID":32,"(":33,")":34,"def_macro_no_args":35,"def_macro_with_args":36,"l_brace_id":37,"}":38,"id_list":39,"\\\\\\\\":40,"{ID":41,"%ID":42,"put_macro_no_args":43,"put_macro_with_args":44,"&ID":45,"&{ID":46,"arg_list":47,"^NUM":48,"*_SIGN_NUM":49,"NUM_BFCHAR":50,"~_STR":51,"|_STR":52,"nonempty_id_list":53,"\\\\":54,"ID":55,"nonempty_arg_list":56,"/":57,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"EOF",21:"+",22:"-",23:"[",24:"]",25:"<",26:">",27:".",28:",",29:":ID",30:"$ID",31:"@ID",32:"!ID",33:"(",34:")",38:"}",40:"\\\\\\\\",41:"{ID",42:"%ID",45:"&ID",46:"&{ID",48:"^NUM",49:"*_SIGN_NUM",50:"NUM_BFCHAR",51:"~_STR",52:"|_STR",54:"\\\\",55:"ID",57:"/"},
+productions_: [0,[3,2],[4,0],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[4,2],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[7,1],[8,1],[9,1],[10,1],[11,1],[12,1],[13,1],[13,1],[35,3],[36,5],[37,1],[14,1],[15,1],[15,1],[43,1],[44,3],[16,1],[17,1],[18,1],[19,1],[20,1],[39,1],[39,0],[53,3],[53,2],[47,1],[47,0],[56,3],[56,2]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
@@ -86,62 +86,77 @@ switch (yystate) {
 case 1:
  return $$[$0-1]; 
 break;
-case 2:
+case 2: case 48: case 52:
 this.$ = [];
 break;
-case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 16:
+case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17:
 this.$ = array_concat($$[$0-1], [$$[$0]]);
 break;
-case 17: case 18: case 19: case 20: case 21: case 22: case 23: case 24:
+case 18: case 19: case 20: case 21: case 22: case 23: case 24: case 25:
 this.$ = bf_command($$[$0]);
 break;
-case 25:
+case 26:
 this.$ = def_var($$[$0].substring(1));
 break;
-case 26:
+case 27:
 this.$ = go_var($$[$0].substring(1));
 break;
-case 27:
+case 28:
 this.$ = at_var($$[$0].substring(1));
 break;
-case 28:
+case 29:
 this.$ = dealloc_var($$[$0].substring(1));
 break;
-case 29:
+case 30:
 this.$ = l_paren();
 break;
-case 30:
+case 31:
 this.$ = r_paren();
 break;
-case 31:
-this.$ = def_macro($$[$0-2], $$[$0-1]);
-break;
-case 32:
-this.$ = $$[$0].substring(1);
-break;
-case 33:
-this.$ = put_macro($$[$0].substring(1));
-break;
 case 34:
-this.$ = go_offset(Number($$[$0].substring(1)));
+this.$ = def_macro($$[$0-2], [], $$[$0-1]);
 break;
 case 35:
-this.$ = at_offset(Number($$[$0].substring(1)));
+this.$ = def_macro($$[$0-4], $$[$0-3], $$[$0-1]);
 break;
 case 36:
+this.$ = $$[$0].substring(1);
+break;
+case 37:
+this.$ = put_argument($$[$0].substring(1));
+break;
+case 40:
+this.$ = put_macro($$[$0].substring(1), []);
+break;
+case 41:
+this.$ = put_macro($$[$0-2].substring(2), $$[$0-1]);
+break;
+case 42:
+this.$ = go_offset(Number($$[$0].substring(1)));
+break;
+case 43:
+this.$ = at_offset(Number($$[$0].substring(1)));
+break;
+case 44:
 this.$ = multiplier(
                   $$[$0].substring($$[$0].length-1),
                   Number($$[$0].substring(0, $$[$0].length-1)));
 break;
-case 37:
+case 45:
 this.$ = store_str($$[$0].substring(2, $$[$0].length-1));
 break;
-case 38:
+case 46:
 this.$ = print_str($$[$0].substring(2, $$[$0].length-1));
+break;
+case 49: case 53:
+this.$ = array_concat($$[$0-2], [$$[$0]]);
+break;
+case 50: case 54:
+this.$ = [$$[$0]];
 break;
 }
 },
-table: [o([5,20,21,22,23,24,25,26,27,28,29,30,31,32,33,36,37,38,39,40,41,42],$V0,{3:1,4:2}),{1:[3]},{5:[1,3],6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:$V1,21:$V2,22:$V3,23:$V4,24:$V5,25:$V6,26:$V7,27:$V8,28:$V9,29:$Va,30:$Vb,31:$Vc,32:$Vd,33:$Ve,34:32,36:$Vf,37:$Vg,38:$Vh,39:$Vi,40:$Vj,41:$Vk,42:$Vl},{1:[2,1]},o($Vm,[2,3]),o($Vm,[2,4]),o($Vm,[2,5]),o($Vm,[2,6]),o($Vm,[2,7]),o($Vm,[2,8]),o($Vm,[2,9]),o($Vm,[2,10]),o($Vm,[2,11]),o($Vm,[2,12]),o($Vm,[2,13]),o($Vm,[2,14]),o($Vm,[2,15]),o($Vm,[2,16]),o($Vm,[2,17]),o($Vm,[2,18]),o($Vm,[2,19]),o($Vm,[2,20]),o($Vm,[2,21]),o($Vm,[2,22]),o($Vm,[2,23]),o($Vm,[2,24]),o($Vm,[2,25]),o($Vm,[2,26]),o($Vm,[2,27]),o($Vm,[2,28]),o($Vm,[2,29]),o($Vm,[2,30]),o($Vn,$V0,{4:40}),o($Vm,[2,33]),o($Vm,[2,34]),o($Vm,[2,35]),o($Vm,[2,36]),o($Vm,[2,37]),o($Vm,[2,38]),o($Vn,[2,32]),{6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:$V1,21:$V2,22:$V3,23:$V4,24:$V5,25:$V6,26:$V7,27:$V8,28:$V9,29:$Va,30:$Vb,31:$Vc,32:$Vd,33:$Ve,34:32,35:[1,41],36:$Vf,37:$Vg,38:$Vh,39:$Vi,40:$Vj,41:$Vk,42:$Vl},o($Vm,[2,31])],
+table: [o($V0,$V1,{3:1,4:2}),{1:[3]},{5:[1,3],6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,21:$V2,22:$V3,23:$V4,24:$V5,25:$V6,26:$V7,27:$V8,28:$V9,29:$Va,30:$Vb,31:$Vc,32:$Vd,33:$Ve,34:$Vf,35:33,36:34,37:43,41:$Vg,42:$Vh,43:36,44:37,45:$Vi,46:$Vj,48:$Vk,49:$Vl,50:$Vm,51:$Vn,52:$Vo},{1:[2,1]},o($V0,[2,3]),o($V0,[2,4]),o($V0,[2,5]),o($V0,[2,6]),o($V0,[2,7]),o($V0,[2,8]),o($V0,[2,9]),o($V0,[2,10]),o($V0,[2,11]),o($V0,[2,12]),o($V0,[2,13]),o($V0,[2,14]),o($V0,[2,15]),o($V0,[2,16]),o($V0,[2,17]),o($V0,[2,18]),o($V0,[2,19]),o($V0,[2,20]),o($V0,[2,21]),o($V0,[2,22]),o($V0,[2,23]),o($V0,[2,24]),o($V0,[2,25]),o($V0,[2,26]),o($V0,[2,27]),o($V0,[2,28]),o($V0,[2,29]),o($V0,[2,30]),o($V0,[2,31]),o($V0,[2,32]),o($V0,[2,33]),o($V0,[2,37]),o($V0,[2,38]),o($V0,[2,39]),o($V0,[2,42]),o($V0,[2,43]),o($V0,[2,44]),o($V0,[2,45]),o($V0,[2,46]),o($V0,$V1,{4:47,39:48,53:49,40:[2,48],54:[1,50]}),o($V0,[2,40]),{38:[2,52],47:51,56:52,57:[1,53]},o([21,22,23,24,25,26,27,28,29,30,31,32,33,34,38,40,41,42,45,46,48,49,50,51,52,54],[2,36]),{6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,21:$V2,22:$V3,23:$V4,24:$V5,25:$V6,26:$V7,27:$V8,28:$V9,29:$Va,30:$Vb,31:$Vc,32:$Vd,33:$Ve,34:$Vf,35:33,36:34,37:43,38:[1,54],41:$Vg,42:$Vh,43:36,44:37,45:$Vi,46:$Vj,48:$Vk,49:$Vl,50:$Vm,51:$Vn,52:$Vo},{40:[1,55]},{40:[2,47],54:[1,56]},{55:[1,57]},{38:[1,58]},{38:[2,51],57:[1,59]},o($V0,$V1,{4:60}),o($V0,[2,34]),o($V0,$V1,{4:61}),{55:[1,62]},o($Vp,[2,50]),o($V0,[2,41]),o($V0,$V1,{4:63}),o($Vq,[2,54],{6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,35:33,36:34,43:36,44:37,37:43,21:$V2,22:$V3,23:$V4,24:$V5,25:$V6,26:$V7,27:$V8,28:$V9,29:$Va,30:$Vb,31:$Vc,32:$Vd,33:$Ve,34:$Vf,41:$Vg,42:$Vh,45:$Vi,46:$Vj,48:$Vk,49:$Vl,50:$Vm,51:$Vn,52:$Vo}),{6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,21:$V2,22:$V3,23:$V4,24:$V5,25:$V6,26:$V7,27:$V8,28:$V9,29:$Va,30:$Vb,31:$Vc,32:$Vd,33:$Ve,34:$Vf,35:33,36:34,37:43,38:[1,64],41:$Vg,42:$Vh,43:36,44:37,45:$Vi,46:$Vj,48:$Vk,49:$Vl,50:$Vm,51:$Vn,52:$Vo},o($Vp,[2,49]),o($Vq,[2,53],{6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,35:33,36:34,43:36,44:37,37:43,21:$V2,22:$V3,23:$V4,24:$V5,25:$V6,26:$V7,27:$V8,28:$V9,29:$Va,30:$Vb,31:$Vc,32:$Vd,33:$Ve,34:$Vf,41:$Vg,42:$Vh,45:$Vi,46:$Vj,48:$Vk,49:$Vl,50:$Vm,51:$Vn,52:$Vo}),o($V0,[2,35])],
 defaultActions: {3:[2,1]},
 parseError: function parseError(str, hash) {
     if (hash.recoverable) {
@@ -316,8 +331,9 @@ var at_var      = ast_node('at_var',      'name')         // @var
 var dealloc_var = ast_node('dealloc_var', 'name')         // !var
 var l_paren     = ast_node('l_paren',     '')             // (
 var r_paren     = ast_node('r_paren',     '')             // )
-var def_macro   = ast_node('def_macro',   'name body')    // {macro ...}
-var put_macro   = ast_node('put_macro',   'name')         // &macro
+var def_macro   = ast_node('def_macro',   'name args body')    // {macro ...}
+var put_argument = ast_node('put_argument', 'name')       // %argument
+var put_macro   = ast_node('put_macro',   'name arg_values')    // &macro or &{macro ...}
 var go_offset   = ast_node('go_offset',   'offset')       // ^0
 var at_offset   = ast_node('at_offset',   'offset')       // *-1
 var store_str   = ast_node('store_str',   'string')       // ~"hello"
@@ -662,62 +678,74 @@ case 0:/* skip whitespace */
 break;
 case 1:/* skip comments */
 break;
-case 2:return 20
+case 2:return 21
 break;
-case 3:return 21
+case 3:return 22
 break;
-case 4:return 22
+case 4:return 23
 break;
-case 5:return 23
+case 5:return 24
 break;
-case 6:return 24
+case 6:return 25
 break;
-case 7:return 25
+case 7:return 26
 break;
-case 8:return 26
+case 8:return 27
 break;
-case 9:return 27
+case 9:return 28
 break;
-case 10:return 28
+case 10:return 29
 break;
-case 11:return 29
+case 11:return 30
 break;
-case 12:return 30
+case 12:return 31
 break;
-case 13:return 31
+case 13:return 32
 break;
-case 14:return 32
+case 14:return 33
 break;
-case 15:return 33
+case 15:return 34
 break;
-case 16:return 36
+case 16:return 41
 break;
-case 17:return 35
+case 17:return 38
 break;
-case 18:return 37
+case 18:return 42
 break;
-case 19:return 38
+case 19:return 45
 break;
-case 20:return 39
+case 20:return 46
 break;
-case 21:return 40
+case 21:return 48
 break;
-case 22:return 41
+case 22:return 49
 break;
-case 23:return 41
+case 23:return 50
 break;
-case 24:return 42
+case 24:return 51
 break;
-case 25:return 42
+case 25:return 51
 break;
-case 26:return 5
+case 26:return 52
 break;
-case 27:return 'INVALID'
+case 27:return 52
+break;
+case 28:return 40
+break;
+case 29:return 54
+break;
+case 30:return 57
+break;
+case 31:return 55
+break;
+case 32:return 5
+break;
+case 33:return 'INVALID'
 break;
 }
 },
-rules: [/^(?:\s+)/,/^(?:;.*)/,/^(?:\+)/,/^(?:-)/,/^(?:\[)/,/^(?:\])/,/^(?:<)/,/^(?:>)/,/^(?:\.)/,/^(?:,)/,/^(?::[A-Za-z0-9_]+)/,/^(?:\$[A-Za-z0-9_]+)/,/^(?:@[A-Za-z0-9_]+)/,/^(?:![A-Za-z0-9_]+)/,/^(?:\()/,/^(?:\))/,/^(?:\{[A-Za-z0-9_]+)/,/^(?:\})/,/^(?:&[A-Za-z0-9_]+)/,/^(?:\^[0-9]+)/,/^(?:\*[-+][0-9]+)/,/^(?:[0-9]+[-+<>])/,/^(?:~"[^"]*")/,/^(?:~'[^']*')/,/^(?:\|"[^"]*")/,/^(?:\|'[^']*')/,/^(?:$)/,/^(?:.)/],
-conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27],"inclusive":true}}
+rules: [/^(?:\s+)/,/^(?:;.*)/,/^(?:\+)/,/^(?:-)/,/^(?:\[)/,/^(?:\])/,/^(?:<)/,/^(?:>)/,/^(?:\.)/,/^(?:,)/,/^(?::[A-Za-z0-9_]+)/,/^(?:\$[A-Za-z0-9_]+)/,/^(?:@[A-Za-z0-9_]+)/,/^(?:![A-Za-z0-9_]+)/,/^(?:\()/,/^(?:\))/,/^(?:\{[A-Za-z0-9_]+)/,/^(?:\})/,/^(?:%[A-Za-z0-9_]+)/,/^(?:&[A-Za-z0-9_]+)/,/^(?:&\{[A-Za-z0-9_]+)/,/^(?:\^[0-9]+)/,/^(?:\*[-+][0-9]+)/,/^(?:[0-9]+[-+<>])/,/^(?:~"[^"]*")/,/^(?:~'[^']*')/,/^(?:\|"[^"]*")/,/^(?:\|'[^']*')/,/^(?:\\\\)/,/^(?:\\)/,/^(?:\/)/,/^(?:[A-Za-z0-9_]+)/,/^(?:$)/,/^(?:.)/],
+conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33],"inclusive":true}}
 });
 return lexer;
 })();

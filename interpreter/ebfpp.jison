@@ -1,5 +1,5 @@
-
-/* description: Parses and executes mathematical expressions. */
+/* Jison grammar for EBF++. Compile me with
+    jison ebfpp.jison -p slr */
 
 /* lexical grammar */
 %lex
@@ -26,7 +26,9 @@
 
 "{"[A-Za-z0-9_]+      return '{ID'
 "}"                   return '}'
+"%"[A-Za-z0-9_]+      return '%ID'
 "&"[A-Za-z0-9_]+      return '&ID'
+"&{"[A-Za-z0-9_]+     return '&{ID'
 
 "^"[0-9]+             return '^NUM'
 "*"[-+][0-9]+         return '*_SIGN_NUM'
@@ -36,6 +38,12 @@
 "~'"[^']*"'"          return '~_STR'
 '|"'[^"]*'"'          return '|_STR'
 "|'"[^']*"'"          return '|_STR'
+
+"\\\\"                return '\\\\'
+"\\"                  return '\\'
+"/"                   return '/'
+
+[A-Za-z0-9_]+         return 'ID'
 
 <<EOF>>               return 'EOF'
 .                     return 'INVALID'
@@ -74,6 +82,8 @@ p
     | p r_paren
         {$$ = array_concat($1, [$2]);}
     | p def_macro
+        {$$ = array_concat($1, [$2]);}
+    | p put_argument
         {$$ = array_concat($1, [$2]);}
     | p put_macro
         {$$ = array_concat($1, [$2]);}
@@ -139,8 +149,18 @@ r_paren
     ;
 
 def_macro
+    : def_macro_no_args
+    | def_macro_with_args
+    ;
+
+def_macro_no_args
     : l_brace_id p '}'
-        {$$ = def_macro($1, $2);}
+        {$$ = def_macro($1, [], $2);}
+    ;
+
+def_macro_with_args
+    : l_brace_id id_list '\\\\' p '}'
+        {$$ = def_macro($1, $2, $4);}
     ;
 
 l_brace_id
@@ -148,9 +168,24 @@ l_brace_id
         {$$ = $1.substring(1);}
     ;
 
+put_argument
+    : '%ID'
+        {$$ = put_argument($1.substring(1));}
+    ;
+
 put_macro
+    : put_macro_no_args
+    | put_macro_with_args
+    ;
+
+put_macro_no_args
     : '&ID'
-        {$$ = put_macro($1.substring(1));}
+        {$$ = put_macro($1.substring(1), []);}
+    ;
+
+put_macro_with_args
+    : '&{ID' arg_list '}'
+        {$$ = put_macro($1.substring(2), $2);}
     ;
 
 go_offset
@@ -179,6 +214,33 @@ print_str
     : '|_STR'
         {$$ = print_str($1.substring(2, $1.length-1));}
     ;
+
+id_list
+    : nonempty_id_list
+    | /* empty */
+        {$$ = [];}
+    ;
+
+nonempty_id_list
+    : nonempty_id_list '\\' ID
+        {$$ = array_concat($1, [$3]);}
+    | '\\' ID
+        {$$ = [$2];}
+    ;
+
+arg_list
+    : nonempty_arg_list
+    | /* empty */
+        {$$ = [];}
+    ;
+
+nonempty_arg_list
+    : nonempty_arg_list '/' p
+        {$$ = array_concat($1, [$3]);}
+    | '/' p
+        {$$ = [$2];}
+    ;
+
 
 %% /* utility */
 
@@ -209,8 +271,9 @@ var at_var      = ast_node('at_var',      'name')         // @var
 var dealloc_var = ast_node('dealloc_var', 'name')         // !var
 var l_paren     = ast_node('l_paren',     '')             // (
 var r_paren     = ast_node('r_paren',     '')             // )
-var def_macro   = ast_node('def_macro',   'name body')    // {macro ...}
-var put_macro   = ast_node('put_macro',   'name')         // &macro
+var def_macro   = ast_node('def_macro',   'name args body')    // {macro ...}
+var put_argument = ast_node('put_argument', 'name')       // %argument
+var put_macro   = ast_node('put_macro',   'name arg_values')    // &macro or &{macro ...}
 var go_offset   = ast_node('go_offset',   'offset')       // ^0
 var at_offset   = ast_node('at_offset',   'offset')       // *-1
 var store_str   = ast_node('store_str',   'string')       // ~"hello"

@@ -3,6 +3,7 @@
 
 var parser = require('./ebfpp.js');
 var fs = require('fs');
+var _ = require('underscore');
 
 function main() {
     if (process.argv.length <3) {
@@ -26,7 +27,8 @@ var variables = [];
 // - Deallocating a variable pops off the stack.
 
 var macros = {};
-// A dictionary mapping macro names to their bodies.
+// A dictionary mapping macro names to macros.
+var macro = named_list('args body');
 
 var paren_stack = [];
 // A stack of memory indices used by lparen and rparen.
@@ -34,11 +36,18 @@ var paren_stack = [];
 //   memory index is pushed to the stack.
 // - Exiting the loop pops off the stack.
 
-var anchors = [];
-// A stack of memory indices for the ^ (go_offset) command.
-// - Whenever a macro is inserted, the current memory index is pushed to the
-//   stack.
+var macro_stack = [];
+// A stack of macro_frames.
+// - Whenever a macro is inserted, a new frame is pushed to the stack.
 // - Exiting a macro pops off the stack.
+var macro_frame = named_list('anchor arg_dict');
+// anchor: The memory index where the pointer was when the macro was invoked.
+//     This is used for the ^ (go_offset) command.
+// arg_dict: A dictionary mapping argument names to values.
+
+function current_macro_frame() {
+    return macro_stack[macro_stack.length - 1];
+}
 
 function compile(program) { /*
     program: An array of nodes representing an EBF program.
@@ -64,6 +73,7 @@ function compile_node(node) { /*
         case 'l_paren':     return compile_l_paren(node);
         case 'r_paren':     return compile_r_paren(node);
         case 'def_macro':   return compile_def_macro(node);
+        case 'put_argument':   return compile_put_argument(node);
         case 'put_macro':   return compile_put_macro(node);
         case 'go_offset':   return compile_go_offset(node);
         case 'at_offset':   return compile_at_offset(node);
@@ -123,19 +133,36 @@ function compile_r_paren(node) {
 }
 
 function compile_def_macro(node) {
-    macros[node.name] = node.body;
+    macros[node.name] = macro(node.args, node.body);
     return '';
 }
 
+function compile_put_argument(node) {
+    var arg_dict = current_macro_frame().arg_dict;
+    if (node.name in arg_dict) {
+        return compile(arg_dict[node.name]);
+    } else {
+        // TODO: make this search up through parents, only giving an error if
+        // the argument name is not found in any frame.
+        crash_with_error('Bad argument name: ' + node.name);
+    }
+}
+
 function compile_put_macro(node) {
-    anchors.push(pointer);
-    var body = compile(macros[node.name]);
-    anchors.pop();
+    var macro = macros[node.name];
+    if (macro.args.length !== node.arg_values.length) {
+        crash_with_error('Incorrect number of args when trying to put a macro: ' + node.name);
+    }
+    var arg_dict = _.object(macro.args, node.arg_values);
+
+    macro_stack.push(macro_frame(pointer, arg_dict));
+    var body = compile(macros[node.name].body);
+    macro_stack.pop();
     return body;
 }
 
 function compile_go_offset(node) {
-    return move_pointer(anchors[anchors.length-1] + node.offset);
+    return move_pointer(current_macro_frame().anchor + node.offset);
 }
 
 function compile_at_offset(node) {
@@ -172,6 +199,28 @@ function repeat_string(string, times) {
 function crash_with_error(message) {
     console.error('Error: ' + message);
     process.exit(1);
+}
+
+
+// named_list is adapted from
+// http://stackoverflow.com/questions/8291194/how-to-implement-pythons-namedtuple-in-javascript
+// TODO: make ast_node use this
+
+function named_list(fieldnamestr) {
+    var fields = fieldnamestr.split(' ');
+    return function () {
+        var arr = arguments;
+        if (arr.length !== fields.length) {
+            crash_with_error('Tried to instantiate a named_list with the wrong number of arguments.');
+        }
+        var obj = {};
+
+        for(var i = 0; i < arr.length; i++) {
+            obj[fields[i]] = arr[i];
+        }
+
+        return obj;
+    };
 }
 
 main();
