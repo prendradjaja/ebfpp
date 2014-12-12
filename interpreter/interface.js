@@ -44,7 +44,7 @@ function run()
  */          
 function newSession()
 {
-    initSession(parser.parse(readFromCodeWindow()));
+    initSession(compile(readFromCodeWindow()));
     hasInit = true;
 }
 
