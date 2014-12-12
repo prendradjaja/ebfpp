@@ -22,18 +22,14 @@ function initSession(code)
         "pc":               0,
         "bracketPcStack":   new Array(),
         "macroPcStack":     new Array(),
+        "savedTokens":      new Array(),
         "vars":             new Array(),
-        "varOffset":        0,
         "macros":           new Array(),
         "inWinOff":         0,
+        "savedPcStack":     new Array(),
         "memory":           Array.apply(null, new Array(256))
                             .map(Number.prototype.valueOf, 0)
     }
-    tokens  = session.tokens
-    memory  = session.memory
-    bracketPcStack  = session.bracketPcStack
-    macroPcStack = session.macroPcStack
-    vars    = session.vars
 }
 
 /**
@@ -50,13 +46,14 @@ function interpret(step, macro)
 {
     sigRun();
     while(true) {
-        var inst = tokens[session.pc]
+        var inst = session.tokens[session.pc]
         switch (inst.type) {
             case 'bf_command':
                 interpret_bf_command(inst);
                 break;
             case 'multiplier':
-                interpret_multiplier(inst);
+                handleMult(inst);
+                session.pc++;
                 break;
             case '#':
                 sigBreak(session);
@@ -120,8 +117,8 @@ function interpret(step, macro)
                 throw new Error("ERR No command attached to " + inst.type);
         }
         updateDisplay(session);
-        if (session.pc >= tokens.length || step) {
-            if (session.pc >= tokens.length) {
+        if (session.pc >= session.tokens.length || step) {
+            if (session.pc >= session.tokens.length) {
                 if(macro === undefined) {
                     sigTerm();
                 }
@@ -139,15 +136,31 @@ function interpret(step, macro)
 function handleStoreStr(string)
 {
     for(var i in string) {
-        memory[session.pointer++] = string[i].charCodeAt();
+        session.memory[session.pointer++] = string[i].charCodeAt();
     }
+}
+
+/**
+ * Handle the multiplier instruction.
+ *
+ * @param   inst    Object containing instructions.
+ */
+function handleMult(ob)
+{
+    session.savedTokens.push(session.tokens);
+    session.tokens = compile(ob.bf_code)
+    session.savedPcStack.push(session.pc);
+    session.pc = 0;
+    interpret(false, true);
+    session.pc = session.savedPcStack.pop();
+    session.tokens = session.savedTokens.pop();
 }
 
 /** Handle the print string instruction. */
 function handlePrintStr()
 {
     var nextChar;
-    while((nextChar=String.fromCharCode(memory[session.pointer++]))!='\u0000') {
+    while((nextChar=String.fromCharCode(session.memory[session.pointer++]))!='\u0000') {
         writeToOutput(nextChar);
     }
 }
@@ -155,18 +168,18 @@ function handlePrintStr()
 /** Handle Left paren instruction. */
 function handleLeftP()
 {
-    bracketPcStack.push({pc: session.pc, ptr: session.pointer});
+    session.bracketPcStack.push({pc: session.pc, ptr: session.pointer});
     return;
 }
 
 /** Handle right paren instruction. */
 function handleRightP()
 {
-    var stackObject = bracketPcStack.pop()
+    var stackObject = session.bracketPcStack.pop()
     var newPc = stackObject.pc;
     var newPtr = stackObject.ptr;
 
-    if(memory[newPtr] > 0) {
+    if(session.memory[newPtr] > 0) {
         session.pc = newPc;
         session.pointer = newPtr;
         return;
@@ -182,7 +195,7 @@ function handleRightP()
  */
 function handleGoOffset(offset)
 {
-    session.pointer = macroPcStack[macroPcStack.length-1].memLoc
+    session.pointer = session.macroPcStack[session.macroPcStack.length-1].memLoc
 }
 
 /**
@@ -193,7 +206,7 @@ function handleGoOffset(offset)
  */
 function handleDefMacro(name, body)
 {
-    macros[name] = body;
+    session.macros[name] = body;
 }
 
 /**
@@ -203,10 +216,10 @@ function handleDefMacro(name, body)
  */
 function handlePutMacro(name)
 {
-    macroPcStack.push({pc: session.pc,memLoc:session.pointer}); 
+    session.macroPcStack.push({pc: session.pc,memLoc:session.pointer}); 
     session.pc = 0;
-    interpret(false, macros[name]);
-    session.pc = macroPcStack.pop().pc;
+    interpret(false, session.macros[name]);
+    session.pc = session.macroPcStack.pop().pc;
 }
 
 /**
@@ -216,7 +229,7 @@ function handlePutMacro(name)
  */
 function handleDelVar(name)
 {
-    if(vars.pop(name) !== name) {
+    if(session.vars.pop(name) !== name) {
         throw new Error("Deleted variable didn't match vars array "+name);
     }
 }
@@ -228,7 +241,7 @@ function handleDelVar(name)
  */
 function handleGoVar(name)
 {
-    session.pointer = vars.indexOf(name) + session.varOffset;
+    session.pointer = session.vars.indexOf(name);
 }
 
 /**
@@ -238,7 +251,9 @@ function handleGoVar(name)
  */
 function handleAtVar(name)
 {
-    session.varOffset = session.pointer - vars.indexOf(name)
+    throw new Error("ERR NOT IMPLEMENTED");
+    // TODO: Not sure about this function yet. 
+    // session.varOffset = session.pointer - vars.indexOf(name)
 }
 
 /**
@@ -248,7 +263,9 @@ function handleAtVar(name)
  */
 function handleAtOff(offset)
 {
-    session.varOffset += offset
+    throw new Error("ERR NOT IMPLEMENTED");
+    // TODO: Not sure about this function yet.
+    // session.varOffset += offset
 }
 
 /**
@@ -258,21 +275,21 @@ function handleAtOff(offset)
  */
 function handleDefVar(name)
 {
-    vars.push(name);
+    session.vars.push(name);
 }
 
 function interpret_bf_command(inst) {
     switch(inst.cmd) {
         case '+':
-            var old = memory[session.pointer]
+            var old = session.memory[session.pointer]
             var newVal = old == 255 ? 0 : old + 1;
-            memory[session.pointer] = newVal
+            session.memory[session.pointer] = newVal
             session.pc++;
             break;
         case '-':
-            var old = memory[session.pointer];
+            var old = session.memory[session.pointer];
             var newVal = old == 0 ? 255 : old-1
-            memory[session.pointer] = newVal
+            session.memory[session.pointer] = newVal
             session.pc++;
             break;
         case '<':
@@ -304,45 +321,29 @@ function interpret_bf_command(inst) {
         case ',':
             var inputWinContent = readFromInput();
             if (inputWinContent.length > 0) {
-                memory[session.pointer] = inputWinContent.charCodeAt(session.inWinOff++);
+                session.memory[session.pointer] = inputWinContent.charCodeAt(session.inWinOff++);
             } else {
                 var content = prompt("Enter a single character input")
                 var c = content[0]
-                memory[session.pointer] = c.charCodeAt(0)
+                session.memory[session.pointer] = c.charCodeAt(0)
             }
             session.pc++;
             break;
         case '.':
-            writeToOutput(String.fromCharCode(memory[session.pointer]));
+            writeToOutput(String.fromCharCode(session.memory[session.pointer]));
             session.pc++;
             break;
         case ']':
-            newPc = bracketPcStack.pop()
-            if(memory[session.pointer] > 0) {
+            newPc = session.bracketPcStack.pop()
+            if(session.memory[session.pointer] > 0) {
                 session.pc = newPc;
                 break;
             }
             session.pc++;
             break;
         case '[':
-            bracketPcStack.push(session.pc);
+            session.bracketPcStack.push(session.pc);
             session.pc++;
             break;
     }
-}
-
-/** Deals with multiplier for BF commands.
-  * @param inst     should be multiplier type. */
-function interpret_multiplier(inst) {
-    times = inst.times;
-    var i = 0;
-    var old_pc = session.pc;
-    var node;
-    while (i < times) {
-        node = {'cmd': inst.cmd};
-        interpret_bf_command(node);
-        i++;
-    }
-    session.pc = old_pc;
-    session.pc++;
 }
