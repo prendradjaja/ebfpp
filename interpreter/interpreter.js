@@ -120,13 +120,7 @@ function interpret(step, macro)
             default:
                 throw new Error("ERR No command attached to " + inst.type);
         }
-        updateDisplay({
-            "pc" : session.pc, 
-            "tokens": tokens, 
-            "memory": memory, 
-            "pointer": session.pointer
-        });
-
+        updateDisplay(session);
         if (session.pc >= tokens.length || step) {
             if (session.pc >= tokens.length) {
                 if(macro === undefined) {
