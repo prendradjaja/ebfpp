@@ -20,11 +20,11 @@ var pointer = 0;
 // for variables.
 
 var variables = [];
-// A stack (implemented as an array) of the variable names used by the
-// program.
+// A stack (implemented as an array) representing memory allocation.
 // - The index of a variable name is its location in memory.
 // - Each new variable is pushed onto the stack.
 // - Deallocating a variable pops off the stack.
+// - At the moment, arrays cannot be deallocated.
 
 var macros = {};
 // A dictionary mapping macro names to macros.
@@ -44,6 +44,16 @@ var macro_frame = named_list('anchor arg_dict');
 // anchor: The memory index where the pointer was when the macro was invoked.
 //     This is used for the ^ (go_offset) command.
 // arg_dict: A dictionary mapping argument names to values.
+
+var struct_types = {};
+// A dictionary mapping names of struct types to lists of their member names.
+
+var last_array_access = {array_name: '', index: 0};
+// Contains information on the last array access made. This is used for the
+// $$ (goto_member) command.
+
+var array_element_types = {};
+// A dictionary mapping names of arrays to the names of their element types.
 
 function current_macro_frame() {
     return macro_stack[macro_stack.length - 1];
@@ -78,6 +88,10 @@ function compile_node(node) { /*
         case 'go_offset':   return compile_go_offset(node);
         case 'at_offset':   return compile_at_offset(node);
         case 'multiplier':  return compile_multiplier(node);
+        case 'def_array_init':  return compile_def_array_init(node);
+        case 'goto_index_static':  return compile_goto_index_static(node);
+        case 'def_struct':  return compile_def_struct(node);
+        case 'goto_member': return compile_goto_member(node);
         default:
             crash_with_error('unsupported AST node in code generator: ' +
                     node.type);
@@ -174,7 +188,64 @@ function compile_multiplier(node) {
     return repeat_string(node.cmd, node.times);
 }
 
+function compile_def_array_init(node) {
+    var bf_code = '';
+    var member_names = struct_types[node.element_type];
+    var member_names_with_pad = member_names.concat('#pad0', '#pad1');
+    for (var i in node.values) {
+        var struct_values = node.values[i];
+        assert(struct_values.length == member_names.length,
+               'Tried to initialize array with wrong number of struct members: ' +
+               node.name);
+
+        // Add on two dummy "padding" variables to the end of
+        var struct_values_with_pad = struct_values.concat(0, 0);
+        for (var j in struct_values_with_pad) {
+            var value = struct_values_with_pad[j];
+            var var_name = construct_illegal_var_name(node.name, i, member_names_with_pad[j]);
+            variables.push(var_name);
+            var memory_location = variables.indexOf(var_name);
+            bf_code += move_pointer(memory_location) + repeat_string('+', value);
+        }
+    }
+    array_element_types[node.name] = node.element_type;
+    return bf_code;
+}
+
+function compile_goto_index_static(node) {
+    last_array_access.name = node.name;
+    last_array_access.index = node.index;
+    var first_member_name = struct_types[array_element_types[node.name]][0];
+    var memory_location = variables.indexOf(
+                              construct_illegal_var_name(
+                                  node.name, node.index, first_member_name));
+    return move_pointer(memory_location);
+}
+
+function compile_def_struct(node) {
+    struct_types[node.name] = node.member_names;
+    return '';
+}
+
+function compile_goto_member(node) {
+    var name = last_array_access.name;
+    var index = last_array_access.index;
+    var member_name = node.name;
+    var memory_location = variables.indexOf(
+                              construct_illegal_var_name(
+                                  name, index, member_name));
+    return move_pointer(memory_location);
+}
+
 // Helper functions
+
+function construct_illegal_var_name(array_name, index, member_name) {
+    // This is used to access array elements and their members. These variable
+    // names are invalid EBF++ variable names, so there won't be a conflict
+    // with user variables.
+    // The format of the variable name is: #array.index.member
+    return '#' + array_name + '.' + index + '.' + member_name;
+}
 
 function move_pointer(destination) { /*
     Returns code for moving the pointer to a given memory index, and
@@ -199,6 +270,12 @@ function repeat_string(string, times) {
 function crash_with_error(message) {
     console.error('Error: ' + message);
     process.exit(1);
+}
+
+function assert(condition, message) {
+    if (!condition) {
+        crash_with_error(message);
+    }
 }
 
 

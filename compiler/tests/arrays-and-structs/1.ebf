@@ -1,0 +1,6 @@
+; This only uses arrays containing structs, (no further nesting) and static
+; array indexing.
+
+:=point {x y}
+::line point {1 2 / 3 4}
+$:line 0 $$y
