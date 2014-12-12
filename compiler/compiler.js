@@ -8,19 +8,11 @@ if (typeof require !== 'undefined') {
 }
 
 function main() {
-    var parse_only = false;
-
     if (process.argv.length <3) {
         crash_with_error('Need a file to compile. Run with:\n  $ node compiler.js file.ebf');
     }
     var ebfpp_code = fs.readFileSync(process.argv[2], 'utf8');
-    var ast = create_ast(ebfpp_code);
-    if (parse_only) {
-        console.log(ast);
-    } else {
-        compile(ast);
-        console.log(ast);
-    }
+    compile(ebfpp_code);
 }
 
 var pointer = 0;
@@ -79,9 +71,11 @@ function compile(program) { /*
 
     The global variable `pointer` may be changed, according to what happens in
     the program. */
-    for (var i in program) {
-        compile_node(program[i]);
+    var ast = create_ast(program);
+    for (var i in ast) {
+        compile_node(ast[i]);
     }
+    return ast;
 }
 
 function compile_node(node) {
