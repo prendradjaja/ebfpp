@@ -300,4 +300,6 @@ function named_list(fieldnamestr) {
     };
 }
 
-main();
+if (require.main === module) {
+    main();
+}
