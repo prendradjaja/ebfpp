@@ -12,7 +12,12 @@ function main() {
         crash_with_error('Need a file to compile. Run with:\n  $ node compiler.js file.ebf');
     }
     var ebfpp_code = fs.readFileSync(process.argv[2], 'utf8');
-    compile(ebfpp_code);
+    var compiler_output = compile(ebfpp_code);
+    var bf_code = ''
+    for (var i in compiler_output) {
+        bf_code += compiler_output[i].bf_code
+    }
+    console.log(bf_code);
 }
 
 var pointer = 0;
