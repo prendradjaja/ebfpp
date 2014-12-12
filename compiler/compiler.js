@@ -187,6 +187,11 @@ function compile_at_offset(node) {
 }
 
 function compile_multiplier(node) {
+    if (node.cmd === '>') {
+        pointer += node.times;
+    } else if (node.cmd === '<') {
+        pointer -= node.times;
+    }
     return repeat_string(node.cmd, node.times);
 }
 
