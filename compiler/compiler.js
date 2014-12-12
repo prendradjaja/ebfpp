@@ -1,9 +1,11 @@
 /* global require, process, console */
 'use strict';
 
-var parser = require('../ebfpp.js');
-var fs = require('fs');
-var _ = require('underscore');
+if (typeof require !== 'undefined') {
+    var parser = require('../ebfpp.js');
+    var fs = require('fs');
+    var _ = require('underscore');
+}
 
 function main() {
     if (process.argv.length <3) {
@@ -300,6 +302,6 @@ function named_list(fieldnamestr) {
     };
 }
 
-if (require.main === module) {
+if (typeof require !== 'undefined' && require.main === module) {
     main();
 }
