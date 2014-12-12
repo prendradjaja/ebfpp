@@ -23,6 +23,23 @@ img{display:block; margin:0; padding:0; border:none;}
 .imgl{margin:0 8px 8px 0; clear:left;}
 .imgr{margin:0 0 8px 8px; clear:right;}
 
+.locals {
+    border:1px solid #ddd;
+    width: 100%;
+    min-height: 300px;
+    max-height:300px;
+    overflow: scroll;
+}
+
+.locals table {
+    width:100%;
+    padding:2px;
+}
+
+table tr.head_row {
+    border-bottom:1px solid #ddd;
+}
+
 /* ----------------------------------------------Wrapper------------------------------------- */
 
 div.wrapper{display:block; width:100%; margin:0; text-align:left; border-bottom:1px solid #E3E3E3;}
@@ -79,12 +96,28 @@ textarea { resize: none; font-family: Arial, Helvetica, Sans-serif; font-size: 1
 
 /* ----------------------------------------------Content------------------------------------- */
 
-.container{padding:20px 0;}
+.container{padding:9px 0;}
 .content{
-    display:block; float:left; width:50%; 
+    display:block; float:left; width:49%; 
 }
 .contentr{
-    display:block; float:right; width:50%; 
+    display:block; float:right; width:49%; 
+}
+
+p.item_title {
+    border: 1px solid #ddd;
+    font-weight: bold;
+    padding: 2px; 
+    padding-left: 20px; 
+    background: #eeeeee; 
+    border-radius: 5px; 
+    width: 94%;
+}
+
+.textpane {
+    width: 97%;
+    font-family:monospace;
+    font-size:14px;
 }
 
 .notify {

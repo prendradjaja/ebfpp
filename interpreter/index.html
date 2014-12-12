@@ -66,63 +66,36 @@
 <div class="wrapper">
   <div class="container">
     <div class="content">
-      <p id="in_prog_inf" style="
-        font-weight: bold;
-        border: 1px solid #ddd;
-        padding: 2px; 
-        padding-left: 20px; 
-        background: #eeeeee; 
-        border-radius: 5px; 
-        width: 84%;">
+      <p id="in_prog_inf" class='item_title'>
           Input Program
       </p>
-      <textarea id='in_code' name="in_code" style="width:87%;font-family:monospace; font-weight:bold" rows="15"></textarea>
+      <textarea 
+        id='in_code' class='textpane' name="in_code" rows="15">
+      </textarea>
       <br><br> 
-      <p style="
-        font-weight: bold;
-        border: 1px solid #ddd;
-        padding: 2px; 
-        padding-left: 20px; 
-        background: #eeeeee; 
-        border-radius: 5px; 
-        width: 84%;">
+      <p class='item_title'>
           Output
       </p>
-      <textarea readonly id='output' name="output" style="background:#eee;width:87%" rows="5"></textarea>
+      <textarea 
+        readonly class='textpane'  id='output' name="output" style="background:#eee;" rows="5">
+      </textarea>
       <br><br> 
-      <p style="
-        font-weight: bold;
-        border: 1px solid #ddd;
-        padding: 2px; 
-        padding-left: 20px; 
-        background: #eeeeee; 
-        border-radius: 5px; 
-        width: 84%;">
+      <p class='item_title'>
           Input
       </p>
-      <textarea id='input' name="input" style="background:#fff;width:87%" rows="5"></textarea>
+      <textarea 
+        id='input' class='textpane' name="input" style="background:#fff;" rows="5">
+      </textarea>
       <br><br>
-      <p style="
-        border: 1px solid #ddd;
-        font-weight: bold;
-        padding: 2px; 
-        padding-left: 20px; 
-        background: #eeeeee; 
-        border-radius: 5px; 
-        width: 84%;">
+      <p class='item_title'>
          Debug Area 
       </p>
-      <textarea readonly id='debug' name='debug' style="width:87%;background: #eee" rows="4"></textarea>
+      <textarea 
+        readonly id='debug' class='textpane' name='debug' style="background: #eee" rows="4">
+      </textarea>
     </div>
     <div class="contentr" id="proc_env">
-      <p id="proc_env_p" style="
-        font-weight: bold;
-        border: 1px solid #ddd;
-        padding: 2px; 
-        padding-left: 20px; 
-        background: #eeeeee; 
-        border-radius: 5px; 
-        width: 84%;">
+      <p id="proc_env_p" class='item_title'>
          Process Environment
       </p>
       <div class="env_info">
@@ -130,6 +103,12 @@
         Cell Val: <a id='ptr_cell' style='padding-left: 5px'>0</a><br>
         Next Inst: <a id='inst' style='padding-left: 5px'></a><br>
         PC: <a id='pc_inf' style='padding-left: 5px'></a><br />
+        <br>
+        Locals:
+        <div class='locals'>
+          <table id='locals'>
+          </table>
+        </div>
         <br>
         Memory Map:
         <div class='memviewer' id='mmap'>

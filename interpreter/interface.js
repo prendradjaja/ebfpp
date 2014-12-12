@@ -284,6 +284,26 @@ function updateDisplay(datastore)
 {
     setPtr(datastore.pointer);
     updateMemDisp(datastore.memory[datastore.pointer], datastore)
+    updateLocDisp(datastore);
+}
+
+/**
+ * Updates the locals pane
+ *
+ * @param   session     Current interpreter session object.
+ */
+function updateLocDisp(session)
+{
+    var loc_table = document.getElementById('locals');
+    loc_table.innerHTML = 
+          '<colgroup><col span="1" style="width:25%"></colgroup>'+
+          '<tr class="head_row"><td><b>Symbol</b></td><td><b>Value</b></td></tr>'
+    for(var v in session.vars) {
+        var varVal = session.memory[session.varOffset+parseInt(v)]
+        loc_table.innerHTML += 
+            '<tr><td>'+session.vars[v]+'</td>'
+            +'<td>'+varVal+'</td></tr>';
+    }
 }
 
 /**

@@ -114,19 +114,12 @@ function interpret(step, macro)
                 break;
             case 'r_paren':
                 handleRightP();
-                session.pc++;
                 break;
             // TODO: Implement ++ instructions here.
             default:
                 throw new Error("ERR No command attached to " + inst.type);
         }
-        updateDisplay({
-            "pc" : session.pc, 
-            "tokens": tokens, 
-            "memory": memory, 
-            "pointer": session.pointer
-        });
-
+        updateDisplay(session);
         if (session.pc >= tokens.length || step) {
             if (session.pc >= tokens.length) {
                 if(macro === undefined) {
@@ -162,15 +155,24 @@ function handlePrintStr()
 /** Handle Left paren instruction. */
 function handleLeftP()
 {
-    //TODO Implement me
-    throw new ("ERR_NOT_IMPLEMENTED");
+    bracketPcStack.push({pc: session.pc, ptr: session.pointer});
+    return;
 }
 
 /** Handle right paren instruction. */
 function handleRightP()
 {
-    //TODO Implement me
-    throw new ("ERR_NOT_IMPLEMENTED");
+    var stackObject = bracketPcStack.pop()
+    var newPc = stackObject.pc;
+    var newPtr = stackObject.ptr;
+
+    if(memory[newPtr] > 0) {
+        session.pc = newPc;
+        session.pointer = newPtr;
+        return;
+    }
+    session.pc++;
+    return;
 }
 
 /**
