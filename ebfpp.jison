@@ -66,7 +66,7 @@ program
     :
         {$$ = [];}
     | program instruction
-        {$$ = array_concat($1, [$2]);}
+        {$$ = array_concat($1, [instruction_info($2, @2)]);}
     ;
 
 instruction
@@ -336,3 +336,25 @@ function array_concat(a1, a2) {
         throw new Error('Both arguments to array_concat must be arrays');
     }
 }
+
+// NOTE: this function appears also in compiler/compiler.js. This is a hacky
+// solution right now, fix it later. But if you change it here, change it
+// there too.
+function named_list(fieldnamestr) {
+    var fields = fieldnamestr.split(' ');
+    return function () {
+        var arr = arguments;
+        if (arr.length !== fields.length) {
+            crash_with_error('Tried to instantiate a named_list with the wrong number of arguments.');
+        }
+        var obj = {};
+
+        for(var i = 0; i < arr.length; i++) {
+            obj[fields[i]] = arr[i];
+        }
+
+        return obj;
+    };
+}
+
+var instruction_info = named_list('instruction position');

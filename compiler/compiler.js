@@ -8,13 +8,19 @@ if (typeof require !== 'undefined') {
 }
 
 function main() {
+    var parse_only = false;
+
     if (process.argv.length <3) {
         crash_with_error('Need a file to compile. Run with:\n  $ node compiler.js file.ebf');
     }
-    var ebfpp_code = fs.readFileSync(process.argv[2], 'utf8'),
-        ast = parser.parse(ebfpp_code),
-        bf_code = compile(ast);
-    console.log(bf_code);
+    var ebfpp_code = fs.readFileSync(process.argv[2], 'utf8');
+    var ast = create_ast(ebfpp_code);
+    if (parse_only) {
+        console.log(ast);
+    } else {
+        compile(ast);
+        console.log(ast);
+    }
 }
 
 var pointer = 0;
@@ -63,18 +69,27 @@ function current_macro_frame() {
 
 function compile(program) { /*
     program: An array of nodes representing an EBF program.
-    returns: The compiled BF output.
+    returns: The same array, with a few extra fields in each node. The
+        following are the most useful:
+          - ebf_code
+          - bf_code
+        There are also:
+          - preceding_whitespace
+          - raw_ebf_code
 
     The global variable `pointer` may be changed, according to what happens in
     the program. */
-    var output = '';
     for (var i in program) {
-        output += compile_node(program[i]);
+        compile_node(program[i]);
     }
-    return output;
 }
 
-function compile_node(node) { /*
+function compile_node(node) {
+    node.bf_code = _compile_node(node);
+    node.ebf_code = node.raw_ebf_code.replace(/\s/g, '');
+}
+
+function _compile_node(node) { /*
     Compile a single AST node, dispatching to the appropriate function */
     switch (node.type) {
         case 'bf_command':  return compile_bf_command(node);
@@ -84,16 +99,16 @@ function compile_node(node) { /*
         case 'dealloc_var': return compile_dealloc_var(node);
         case 'l_paren':     return compile_l_paren(node);
         case 'r_paren':     return compile_r_paren(node);
-        case 'def_macro':   return compile_def_macro(node);
-        case 'put_argument':   return compile_put_argument(node);
-        case 'put_macro':   return compile_put_macro(node);
+        // case 'def_macro':   return compile_def_macro(node);
+        // case 'put_argument':   return compile_put_argument(node);
+        // case 'put_macro':   return compile_put_macro(node);
         case 'go_offset':   return compile_go_offset(node);
         case 'at_offset':   return compile_at_offset(node);
         case 'multiplier':  return compile_multiplier(node);
-        case 'def_array_init':  return compile_def_array_init(node);
-        case 'goto_index_static':  return compile_goto_index_static(node);
-        case 'def_struct':  return compile_def_struct(node);
-        case 'goto_member': return compile_goto_member(node);
+        // case 'def_array_init':  return compile_def_array_init(node);
+        // case 'goto_index_static':  return compile_goto_index_static(node);
+        // case 'def_struct':  return compile_def_struct(node);
+        // case 'goto_member': return compile_goto_member(node);
         default:
             crash_with_error('unsupported AST node in code generator: ' +
                     node.type);
@@ -290,6 +305,8 @@ function assert(condition, message) {
 // http://stackoverflow.com/questions/8291194/how-to-implement-pythons-namedtuple-in-javascript
 // TODO: make ast_node use this
 
+// NOTE: this function appears also in ../ebfpp.jison. This is a hacky solution
+// right now, fix it later. But if you change it here, change it there too.
 function named_list(fieldnamestr) {
     var fields = fieldnamestr.split(' ');
     return function () {
@@ -305,6 +322,63 @@ function named_list(fieldnamestr) {
 
         return obj;
     };
+}
+
+function create_ast(ebfpp_code) {
+    // TODO: recurse into bodies! -- macro definitions have bodies, and macro
+    // insertions have values which are really also bodies
+    var lines = ebfpp_code.split('\n');
+    var parser_output = parser.parse(ebfpp_code);
+    var prev_pos = { last_line: 1, last_column: 0, first_line: 1, first_column: 0 };
+    var ast = [];
+    for (var i in parser_output) {
+        var pair = parser_output[i];
+        var instruction = pair.instruction;
+        TODO1(instruction);
+        var position = pair.position;
+        instruction.raw_ebf_code = grab_chars(lines, position);
+        instruction.preceding_whitespace = grab_chars(lines, blank_space(prev_pos, position));
+        ast.push(instruction);
+        prev_pos = position;
+    }
+    return ast;
+}
+
+function TODO1(instruction) {
+    switch(instruction.type) {
+        case 'def_macro':
+        case 'put_argument':
+        case 'put_macro':
+        case 'def_array_init':
+        case 'goto_index_static':
+        case 'def_struct':
+        case 'goto_member':
+            crash_with_error('TODO1: ' + instruction.type);
+    }
+}
+
+function grab_chars(lines, position) {
+    var top = position.first_line - 1;
+    var bottom = position.last_line - 1;
+    var left = position.first_column;
+    var right = position.last_column;
+    if (top  === bottom) {
+        return lines[top].slice(left, right);
+    } else {
+        var result = lines[top].slice(left) + '\n';
+        for (var line_num = top + 1; line_num < bottom; line_num++) {
+            result += lines[line_num] + '\n';
+        }
+        result += lines[bottom].slice(0, right);
+        return result;
+    }
+}
+
+function blank_space(p1, p2) {
+    return {first_line: p1.last_line,
+            last_line: p2.first_line,
+            first_column: p1.last_column,
+            last_column: p2.first_column}
 }
 
 if (typeof require !== 'undefined' && require.main === module) {
