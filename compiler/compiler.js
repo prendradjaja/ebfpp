@@ -13,7 +13,7 @@ function main() {
     }
     var ebfpp_code = fs.readFileSync(process.argv[2], 'utf8');
     var compiler_output = entry_point(ebfpp_code);
-    console.log(JSON.stringify(compiler_output, null, 2));
+    console.log(generate_bf_code_of_compiled_ast(compiler_output));
 }
 
 var pointer = 0;
