@@ -36,6 +36,7 @@
 "^"                   return '^'
 "*"                   return '*'
 "~"                   return '~'
+"|"                   return '|'
 
 "\\\\"                return '\\\\'
 "\\"                  return '\\'
@@ -44,10 +45,8 @@
 [0-9]+                return 'NUM'
 [A-Za-z_][A-Za-z0-9_]* return 'ID'
 
-'~"'[^"]*'"'          return '~_STR'
-"~'"[^']*"'"          return '~_STR'
-'|"'[^"]*'"'          return '|_STR'
-"|'"[^']*"'"          return '|_STR'
+'"'[^"]*'"'           return 'STR'
+"'"[^']*"'"           return 'STR'
 
 <<EOF>>               return 'EOF'
 .                     return 'INVALID'
@@ -197,13 +196,13 @@ multiplier
     ;
 
 store_str
-    : '~_STR'
-        {$$ = util.store_str($1.substring(2, $1.length-1));}
+    : '~' STR
+        {$$ = util.store_str($2.substring(1, $2.length-1));}
     ;
 
 print_str
-    : '|_STR'
-        {$$ = util.print_str($1.substring(2, $1.length-1));}
+    : '|' STR
+        {$$ = util.print_str($2.substring(1, $2.length-1));}
     ;
 
 def_array_size

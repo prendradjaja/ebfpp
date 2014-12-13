@@ -132,6 +132,8 @@ function _compile_node(node) { /*
         case 'go_offset':   return compile_go_offset(node);
         case 'at_offset':   return compile_at_offset(node);
         case 'multiplier':  return compile_multiplier(node);
+        case 'store_str':   return compile_store_str(node);
+        case 'print_str':   return compile_print_str(node);
         case 'def_array_init':  return compile_def_array_init(node);
         case 'goto_index_static':  return compile_goto_index_static(node);
         case 'goto_index_dynamic':  return compile_goto_index_dynamic(node);
@@ -241,6 +243,28 @@ function compile_multiplier(node) {
         pointer -= node.times;
     }
     return repeat_string(node.cmd, node.times);
+}
+
+function compile_store_str(node) {
+    var output = '';
+    for (var i = 0; i < node.string.length; i++) {
+        var char_code = node.string.charCodeAt(i);
+        output += _compile_node(util.multiplier('+', char_code));
+        output += parse_and_compile('>');
+    }
+    return output;
+}
+
+function compile_print_str(node) {
+    var output = '';
+    var cell_value = 0;
+    for (var i = 0; i < node.string.length; i++) {
+        var char_code = node.string.charCodeAt(i);
+        output += change_cell_value(cell_value, char_code);
+        output += parse_and_compile('.');
+        cell_value = char_code;
+    }
+    return output;
 }
 
 function compile_def_array_init(node) {
@@ -356,6 +380,17 @@ function move_pointer(destination) { /*
         return repeat_string('<', -distance);
     } else {
         return repeat_string('>', distance);
+    }
+}
+
+function change_cell_value(old_value, new_value) { /*
+    Returns the BF code to change the current cell's value from old_value to
+    new_value. This is used in compile_print_str(). */
+    var difference = new_value - old_value;
+    if (difference > 0) {
+        return _compile_node(util.multiplier('+', difference));
+    } else {
+        return _compile_node(util.multiplier('-', -difference));
     }
 }
 
