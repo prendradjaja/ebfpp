@@ -37,6 +37,7 @@
 "*"                   return '*'
 "~"                   return '~'
 "|"                   return '|'
+"#"                   return '#'
 
 "\\\\"                return '\\\\'
 "\\"                  return '\\'
@@ -92,6 +93,7 @@ instruction
     | for_loop
     | def_struct
     | goto_member
+    | comment
     ;
 
 bf_command
@@ -238,6 +240,11 @@ def_struct
 goto_member
     : '$$' ID
         {$$ = util.goto_member($2);}
+    ;
+
+comment
+    : '#'
+        {$$ = util.comment();}
     ;
 
 // todo: change name to reflect that it's specifically for macros
