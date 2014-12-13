@@ -4,11 +4,10 @@
  * Interpreter GUI logic.
  */
 
-/** True if interpreter session has been created. */
-var hasInit = false
-
-/** True if running in debug mode (enables verbose output). */
-var debug = false;
+var hasInit = false     // True if interpreter session has been created.
+var debug = false;      // True to enable more verbose debugging output.
+var timerInterval;      // Used to set and clear timer interval for Debug button.
+var DBG_INTERVAL = 25   // 25ms 'animation' delay for dbg() (The Debug handler).
 
 /** Handle change in screen size */
 function sizeChange()
@@ -17,8 +16,9 @@ function sizeChange()
 }
 
 /**
- * Called from body.onload DOM event. Used to initialize event handlers
- * and anything you want to run before the interpreter runs. 
+ * Called from body.onload DOM event. Put anything that you want to run before
+ * the interpreter loads in here. Currently used to assign event handlers to 
+ * debugger buttons and runs animation events for the DOM elements.
  */
 function init()
 {
@@ -29,13 +29,13 @@ function init()
         $("#debug_area").animate({opacity:1},1200,function() {})
     }
 
+    // Set up button handlers and whatnot. 
     var id_run = document.getElementById('run');
     var id_dbg= document.getElementById('dbg');
     var id_restart = document.getElementById('restart');
     var id_step = document.getElementById('step');
     var id_sam = document.getElementById('sample1');
     var id_sam2 = document.getElementById('sample2');
-    var id_cont = document.getElementById('continue');
     var id_res = document.getElementById('restartHard');
     var code_win = document.getElementById('in_code');
     code_win.addEventListener('keyup', checkInput, false);
@@ -43,11 +43,12 @@ function init()
     id_sam2.addEventListener('click', function(){loadSample(2)}, false);
     id_restart.addEventListener('click', restart, false);
     id_res.addEventListener('click', hardRestart, false);
+
     running(false);
-    checkInput();
+    checkInput();   
 }
 
-/** Enable running of interpreter functions if possible. */
+/** Enable or disable debugger buttons depending on state. */
 function checkInput()
 {
     var id_run = document.getElementById('run');
@@ -71,7 +72,11 @@ function checkInput()
     }
 }
 
-/** Handler for the run action.  */ 
+/** 
+ * Handler for the run action. Runs the interpreter on the given code. run()
+ * does not provide interactivity while the code runs and will not stop at
+ * breakpoints, use dbg() for that functionality. 
+ */ 
 function run()
 {
     newSession();
@@ -79,18 +84,19 @@ function run()
     interpret({});
 }
 
-/** Handler for the debug action. */
+/** 
+ * Handler for the debug action. dbg() differs from run() in that it:
+ * (1) Animates the code as it reads it and (2) obeys (i.e., stops at) break
+ * points (run() ignores breakpoints). 
+ */
 function dbg()
 {
-    newSession();
-    sigRun(true);
-    interpret({});
+    timerInterval = setInterval(step, DBG_INTERVAL);
 }
-    
 
 /**
  * Construct a new session. This is called in response to either 
- * the run or step buttons being pressed after loading new code.
+ * the run, step, or debug buttons being pressed after loading new code.
  */          
 function newSession()
 {
@@ -99,16 +105,10 @@ function newSession()
     hasInit = true;
 }
 
-/** Resume from a breakpoint.  */
-function contin()
-{
-    sigResume();
-    interpret();
-}
-
 /** Abort session. Start everything over */
 function sigAbrt()
 {
+    clearInterval(timerInterval);
     running(false);
     hasInit = false;
     session = null;
@@ -330,6 +330,7 @@ function sigResume()
 /** Signal the end of the program. */
 function sigTerm()
 {
+    clearInterval(timerInterval);
     signal("DONE", "info")
     running(false);
     hasInit = false;
@@ -403,7 +404,7 @@ function running(y, debug)
         document.getElementById("in_code").style.background = "#eee";
         document.getElementById("in_code").setAttribute("readonly", "true")
         contBtn.removeAttribute("style");
-        contBtn.addEventListener("click", contin, false);
+        contBtn.addEventListener("click", dbg, false);
         reldBtn.setAttribute("style", "color:#059BD8; cursor: normal;");
         runBtn.setAttribute("style", "color:#e3e3e3; cursor:default;")
         runBtn.removeEventListener("click", run, false);
@@ -416,7 +417,7 @@ function running(y, debug)
             $("#proc_env").delay(200).animate({opacity:1},500,function() {})
         }
     } else {
-        contBtn.removeEventListener("click", contin, false);
+        contBtn.removeEventListener("click", dbg, false);
         contBtn.setAttribute("style", "color:#e3e3e3; cursor: default;");
         document.getElementById("in_code").removeAttribute("readonly")
         document.getElementById("in_code").style.background = "#fff";
