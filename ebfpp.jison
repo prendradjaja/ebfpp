@@ -66,7 +66,7 @@ program
     :
         {$$ = [];}
     | program instruction
-        {$$ = array_concat($1, [$2]);}
+        {$$ = array_concat($1, [instruction_info($2, @2)]);}
     ;
 
 instruction

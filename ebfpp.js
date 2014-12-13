@@ -89,8 +89,8 @@ break;
 case 2: case 63: case 67:
 this.$ = [];
 break;
-case 3: case 74:
-this.$ = array_concat($$[$0-1], [$$[$0]]);
+case 3:
+this.$ = array_concat($$[$0-1], [instruction_info($$[$0], _$[$0])]);
 break;
 case 25:
 this.$ = bf_command($$[$0]);
@@ -172,6 +172,9 @@ this.$ = array_concat($$[$0-1], [Number($$[$0])]);
 break;
 case 73:
 this.$ = [Number($$[$0])];
+break;
+case 74:
+this.$ = array_concat($$[$0-1], [$$[$0]]);
 break;
 }
 },

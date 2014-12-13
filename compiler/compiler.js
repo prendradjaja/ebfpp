@@ -13,7 +13,10 @@ function main() {
     }
     var ebfpp_code = fs.readFileSync(process.argv[2], 'utf8');
     var compiler_output = entry_point(ebfpp_code);
-    console.log(generate_bf_code_of_compiled_ast(compiler_output));
+    for (var i in compiler_output) {
+        var node = compiler_output[i];
+        console.log(node.ebf_code + '\t:\t' + node.bf_code);
+    }
 }
 
 var pointer = 0;
@@ -60,8 +63,9 @@ function current_macro_frame() {
     return macro_stack[macro_stack.length - 1];
 }
 
+var lines;
 function entry_point(program) {
-    var lines = program.split('\n');
+    lines = program.split('\n');
     var ast = parser.parse(program);
     return compile(ast);
 }
@@ -74,22 +78,33 @@ function generate_bf_code_of_compiled_ast(compiled_ast) {
     return bf_code;
 }
 
+var pos_stack = [{ last_line: 1, last_column: 0, first_line: 1, first_column: 0 }];
+
 function compile(ast) { /*
     The global variable `pointer` may be changed, according to what happens in
     the program. */
     ast = clone(ast);
+    var prev_pos = pos_stack[pos_stack.length - 1];
     for (var i in ast) {
         ast[i] = clone(ast[i]);
         var node = ast[i];
-        compile_node(node);
+        var instruction = node.instruction;
+        var position = node.position;
+        instruction.raw_ebf_code = grab_chars(lines, position);
+        var space_pos = blank_space(prev_pos, position);
+        instruction.preceding_whitespace = grab_chars(lines, space_pos);
+        pos_stack.push(space_pos);
+        compile_node(instruction);
+        pos_stack.pop();
+        prev_pos = position;
+        ast[i] = instruction;
     }
     return ast;
 }
 
 function compile_node(node) {
     node.bf_code = _compile_node(node);
-    // IMPORTANT TODO: need to clone the object, otherwise each insertion of the same macro will be the same as the last insertion
-    // node.ebf_code = node.raw_ebf_code.replace(/\s/g, '');
+    node.ebf_code = node.raw_ebf_code.replace(/\s/g, '');
 }
 
 function _compile_node(node) { /*
