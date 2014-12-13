@@ -299,7 +299,7 @@ function updateLocDisp(session)
           '<colgroup><col span="1" style="width:25%"></colgroup>'+
           '<tr class="head_row"><td><b>Symbol</b></td><td><b>Value</b></td></tr>'
     for(var v in session.vars) {
-        var varVal = session.memory[session.varOffset+parseInt(v)]
+        var varVal = session.memory[parseInt(v)]
         loc_table.innerHTML += 
             '<tr><td>'+session.vars[v]+'</td>'
             +'<td>'+varVal+'</td></tr>';

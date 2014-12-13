@@ -27,6 +27,7 @@ function initSession(code)
         "macros":           new Array(),
         "inWinOff":         0,
         "savedPcStack":     new Array(),
+        "savedParenTokens": new Array(),
         "memory":           Array.apply(null, new Array(256))
                             .map(Number.prototype.valueOf, 0)
     }
@@ -52,7 +53,7 @@ function interpret(step, macro)
                 interpret_bf_command(inst);
                 break;
             case 'multiplier':
-                handleMult(inst);
+                execSubCode(inst);
                 session.pc++;
                 break;
             case '#':
@@ -68,7 +69,7 @@ function interpret(step, macro)
                 session.pc++;
                 break;
             case 'go_var':
-                handleGoVar(inst.name);
+                execSubCode(inst);
                 session.pc++
                 break;
             case 'dealloc_var':
@@ -84,7 +85,7 @@ function interpret(step, macro)
                 session.pc++;
                 break;
             case 'go_offset':
-                handleGoOffset(inst.offset);
+                execSubCode(inst);
                 session.pc++;
                 break;
             case 'at_offset':
@@ -92,25 +93,19 @@ function interpret(step, macro)
                 session.pc++;
                 break;
             case 'store_str':
-                handleStoreStr(inst.string);
+                execSubCode(inst);
                 session.pc++;
                 break;
             case 'print_str':
-                // NOTE that I changed the semantics of this instruction since
-                // the given semantics seems (1) Pointless and (2) trivial if
-                // implemented in the interpreter versus a compiler.
-                // This version seems much more useful in general. It behaves
-                // like printf for the beginning of a cell range. 
-                // Lets discuss this. 
-                handlePrintStr();
+                execSubCode(inst);
                 session.pc++;
                 break;
             case 'l_paren':
-                handleLeftP();
+                handleLeftP(inst);
                 session.pc++;
                 break;
             case 'r_paren':
-                handleRightP();
+                handleRightP(inst);
                 break;
             // TODO: Implement ++ instructions here.
             default:
@@ -129,73 +124,46 @@ function interpret(step, macro)
 }
 
 /**
- * Handle the store string instruction.
+ * Execute BF code given by this EBF++ instruction.
  *
- * @param   string  Input string to store.
+ * @param   ob      EBF++ Instruction object. 
  */
-function handleStoreStr(string)
-{
-    for(var i in string) {
-        session.memory[session.pointer++] = string[i].charCodeAt();
-    }
-}
-
-/**
- * Handle the multiplier instruction.
- *
- * @param   inst    Object containing instructions.
- */
-function handleMult(ob)
+function execSubCode(ob)
 {
     session.savedTokens.push(session.tokens);
     session.tokens = compile(ob.bf_code)
     session.savedPcStack.push(session.pc);
-    session.pc = 0;
     interpret(false, true);
     session.pc = session.savedPcStack.pop();
     session.tokens = session.savedTokens.pop();
 }
 
-/** Handle the print string instruction. */
-function handlePrintStr()
+
+/** 
+ * Handle Left paren instruction. 
+ *
+ * @param   inst    EBF++ instruction.
+ */
+function handleLeftP(inst)
 {
-    var nextChar;
-    while((nextChar=String.fromCharCode(session.memory[session.pointer++]))!='\u0000') {
-        writeToOutput(nextChar);
-    }
+    session.bracketPcStack.push(session.pc);
 }
 
-/** Handle Left paren instruction. */
-function handleLeftP()
+/** 
+ * Handle right paren instruction.
+ * 
+ * @param   inst    EBF++ instruction.
+ */
+function handleRightP(inst)
 {
-    session.bracketPcStack.push({pc: session.pc, ptr: session.pointer});
-    return;
-}
+    var newPc = session.bracketPcStack.pop()
 
-/** Handle right paren instruction. */
-function handleRightP()
-{
-    var stackObject = session.bracketPcStack.pop()
-    var newPc = stackObject.pc;
-    var newPtr = stackObject.ptr;
-
-    if(session.memory[newPtr] > 0) {
+    if(session.memory[session.pointer] > 0) {
         session.pc = newPc;
-        session.pointer = newPtr;
         return;
     }
     session.pc++;
     return;
-}
-
-/**
- * Move memory pointer to offset from start of macro.
- *
- * @param   offset  Non-negative offset from start of macro.
- */
-function handleGoOffset(offset)
-{
-    session.pointer = session.macroPcStack[session.macroPcStack.length-1].memLoc
 }
 
 /**
@@ -217,9 +185,11 @@ function handleDefMacro(name, body)
 function handlePutMacro(name)
 {
     session.macroPcStack.push({pc: session.pc,memLoc:session.pointer}); 
+    savedTokens.push(session.tokens);
     session.pc = 0;
     interpret(false, session.macros[name]);
     session.pc = session.macroPcStack.pop().pc;
+    session.tokens = savedTokens.pop();
 }
 
 /**
@@ -232,16 +202,6 @@ function handleDelVar(name)
     if(session.vars.pop(name) !== name) {
         throw new Error("Deleted variable didn't match vars array "+name);
     }
-}
-
-/**
- * Move pointer to location of a named variable.
- *
- * @param   name    Variable name to go to.
- */
-function handleGoVar(name)
-{
-    session.pointer = session.vars.indexOf(name);
 }
 
 /**
