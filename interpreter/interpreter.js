@@ -133,6 +133,7 @@ function execSubCode(ob)
     session.savedTokens.push(session.tokens);
     session.tokens = compile(ob.bf_code)
     session.savedPcStack.push(session.pc);
+    session.pc = 0;
     interpret(false, true);
     session.pc = session.savedPcStack.pop();
     session.tokens = session.savedTokens.pop();
@@ -157,6 +158,8 @@ function handleLeftP(inst)
 function handleRightP(inst)
 {
     var newPc = session.bracketPcStack.pop()
+    var sliceCode = inst.bf_code.slice(0,-1)
+    execSubCode({bf_code: sliceCode});
 
     if(session.memory[session.pointer] > 0) {
         session.pc = newPc;
