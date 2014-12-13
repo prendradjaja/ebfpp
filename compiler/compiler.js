@@ -3,6 +3,7 @@
 
 if (typeof require !== 'undefined') {
     var parser = require('../ebfpp.js');
+    var util = require('../util.js'); // do the "vars" need to be removed from this and above?
     var fs = require('fs');
     var _ = require('underscore');
 }
@@ -15,6 +16,10 @@ function main() {
     var compiler_output = compile(ebfpp_code);
     console.log(generate_bf_code_of_compiled_ast(compiler_output));
 }
+
+var PAD_SIZE = 2;
+// Constant representing how many spaces of padding are between array
+// elements.
 
 var pointer = 0;
 // Keeps track of where the pointer goes during the program. This is used
@@ -53,8 +58,9 @@ var last_array_access = {array_name: '', index: 0};
 // Contains information on the last array access made. This is used for the
 // $$ (goto_member) command.
 
-var array_element_types = {};
-// A dictionary mapping names of arrays to the names of their element types.
+var arrays = {};
+// A dictionary mapping array names to arrays.
+var array = named_list('element_type length');
 
 function current_macro_frame() {
     return macro_stack[macro_stack.length - 1];
@@ -99,9 +105,15 @@ function _compile(ast) { /*
     return ast;
 }
 
+function parse_and_compile(ebfpp_code) {
+    return generate_bf_code_of_compiled_ast(_compile(parser.parse(ebfpp_code)));
+}
+
 function compile_node(node) {
     node.bf_code = _compile_node(node);
-    node.ebf_code = node.raw_ebf_code.replace(/\s/g, '');
+    if (typeof node.raw_ebf_code !== 'undefined') {
+        node.ebf_code = node.raw_ebf_code.replace(/\s/g, '');
+    }
 }
 
 function _compile_node(node) { /*
@@ -122,6 +134,8 @@ function _compile_node(node) { /*
         case 'multiplier':  return compile_multiplier(node);
         case 'def_array_init':  return compile_def_array_init(node);
         case 'goto_index_static':  return compile_goto_index_static(node);
+        case 'goto_index_dynamic':  return compile_goto_index_dynamic(node);
+        case 'for_loop':  return compile_for_loop(node);
         case 'def_struct':  return compile_def_struct(node);
         case 'goto_member': return compile_goto_member(node);
         default:
@@ -249,18 +263,61 @@ function compile_def_array_init(node) {
             bf_code += move_pointer(memory_location) + repeat_string('+', value);
         }
     }
-    array_element_types[node.name] = node.element_type;
+    arrays[node.name] = array(node.element_type, node.values.length);
     return bf_code;
 }
 
 function compile_goto_index_static(node) {
     last_array_access.name = node.name;
     last_array_access.index = node.index;
-    var first_member_name = struct_types[array_element_types[node.name]][0];
+    var first_member_name = struct_types[arrays[node.name].element_type][0];
     var memory_location = variables.indexOf(
                               construct_illegal_var_name(
                                   node.name, node.index, first_member_name));
     return move_pointer(memory_location);
+}
+
+function compile_goto_index_dynamic(node) {
+    var output = '';
+    var array_name = node.array_name;
+    var array = arrays[array_name];
+    var array_length = array.length;
+    var struct_members = struct_types[array.element_type];
+    var padless_struct_size = struct_members.length;
+    var full_struct_size = padless_struct_size + PAD_SIZE;
+
+    output += _compile_node(util.go_var(node.index_var));
+    output += parse_and_compile('(-');
+    output += _compile_node(util.goto_index_static(array_name, 0));
+    output += _compile_node(util.multiplier('>', padless_struct_size));
+    output += parse_and_compile('+)');
+    output += _compile_node(util.goto_index_static(array_name, 0));
+    output += _compile_node(util.multiplier('>', padless_struct_size));
+
+    output += parse_and_compile('[');
+        output += parse_and_compile('(-');
+        output += _compile_node(util.multiplier('>', full_struct_size));
+        output += parse_and_compile('+)>(-');
+        output += _compile_node(util.multiplier('>', full_struct_size));
+        output += parse_and_compile('+)');
+        output += _compile_node(util.multiplier('>', full_struct_size));
+        output += parse_and_compile('+<-');
+    output += parse_and_compile(']');
+    output += _compile_node(util.multiplier('<', padless_struct_size));
+    return output;
+}
+
+function compile_for_loop(node) {
+    var array_name = node.array_name;
+    var array_length = arrays[array_name].length;
+    var output = '';
+    for(var i = 0; i < array_length; i++) {
+        // TODO: use constructor
+        var temp_node = {name: array_name, index: i};
+        output += compile_goto_index_static(temp_node);
+        output += generate_bf_code_of_compiled_ast(_compile(node.body));
+    }
+    return output;
 }
 
 function compile_def_struct(node) {

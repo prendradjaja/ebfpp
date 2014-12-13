@@ -72,12 +72,12 @@
   }
 */
 var parser = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[5,29,30,31,32,33,34,35,36,37,39,40,41,42,43,46,47,50,53,54,56,57,58,60,61,62,64,65,66,68,72],$V1=[2,2],$V2=[1,48],$V3=[1,49],$V4=[1,50],$V5=[1,51],$V6=[1,52],$V7=[1,53],$V8=[1,54],$V9=[1,55],$Va=[1,27],$Vb=[1,28],$Vc=[1,29],$Vd=[1,30],$Ve=[1,31],$Vf=[1,32],$Vg=[1,56],$Vh=[1,35],$Vi=[1,57],$Vj=[1,58],$Vk=[1,38],$Vl=[1,40],$Vm=[1,39],$Vn=[1,41],$Vo=[1,42],$Vp=[1,43],$Vq=[1,44],$Vr=[1,45],$Vs=[1,46],$Vt=[1,47],$Vu=[1,101],$Vv=[38,47],$Vw=[49,70],$Vx=[47,72],$Vy=[1,109],$Vz=[47,57,72];
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[5,30,31,32,33,34,35,36,37,38,40,41,42,43,44,47,48,51,54,55,57,58,59,61,62,63,65,66,67,68,70,74],$V1=[2,2],$V2=[1,50],$V3=[1,51],$V4=[1,52],$V5=[1,53],$V6=[1,54],$V7=[1,55],$V8=[1,56],$V9=[1,57],$Va=[1,28],$Vb=[1,29],$Vc=[1,30],$Vd=[1,31],$Ve=[1,32],$Vf=[1,33],$Vg=[1,58],$Vh=[1,36],$Vi=[1,59],$Vj=[1,60],$Vk=[1,39],$Vl=[1,41],$Vm=[1,40],$Vn=[1,42],$Vo=[1,43],$Vp=[1,44],$Vq=[1,45],$Vr=[1,46],$Vs=[1,47],$Vt=[1,48],$Vu=[1,49],$Vv=[1,107],$Vw=[39,48],$Vx=[50,72],$Vy=[48,74],$Vz=[1,116],$VA=[48,58,74];
 var parser = {trace: function trace() { },
 yy: {},
-symbols_: {"error":2,"file":3,"program":4,"EOF":5,"instruction":6,"bf_command":7,"def_var":8,"go_var":9,"at_var":10,"dealloc_var":11,"l_paren":12,"r_paren":13,"def_macro":14,"put_argument":15,"put_macro":16,"go_offset":17,"at_offset":18,"multiplier":19,"store_str":20,"print_str":21,"def_array_size":22,"def_array_init":23,"goto_index_static":24,"goto_index_dynamic":25,"def_struct":26,"goto_member":27,"bf_char":28,"+":29,"-":30,"[":31,"]":32,"<":33,">":34,".":35,",":36,":":37,"ID":38,"$":39,"@":40,"!":41,"(":42,")":43,"def_macro_no_args":44,"def_macro_with_args":45,"{":46,"}":47,"id_list":48,"\\\\\\\\":49,"%":50,"put_macro_no_args":51,"put_macro_with_args":52,"&":53,"&{":54,"arg_list":55,"^":56,"NUM":57,"*":58,"sign":59,"~_STR":60,"|_STR":61,"::":62,"array_values":63,"$:":64,"$!":65,":=":66,"member_name_list":67,"$$":68,"nonempty_id_list":69,"\\\\":70,"nonempty_arg_list":71,"/":72,"struct_values":73,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"EOF",29:"+",30:"-",31:"[",32:"]",33:"<",34:">",35:".",36:",",37:":",38:"ID",39:"$",40:"@",41:"!",42:"(",43:")",46:"{",47:"}",49:"\\\\\\\\",50:"%",53:"&",54:"&{",56:"^",57:"NUM",58:"*",60:"~_STR",61:"|_STR",62:"::",64:"$:",65:"$!",66:":=",68:"$$",70:"\\\\",72:"/"},
-productions_: [0,[3,2],[4,0],[4,2],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[7,1],[28,1],[28,1],[28,1],[28,1],[28,1],[28,1],[28,1],[28,1],[8,2],[9,2],[10,2],[11,2],[12,1],[13,1],[14,1],[14,1],[44,4],[45,6],[15,2],[16,1],[16,1],[51,2],[52,4],[17,2],[18,3],[59,1],[59,1],[19,2],[20,1],[21,1],[22,4],[23,6],[24,3],[25,2],[26,5],[27,2],[48,1],[48,0],[69,3],[69,2],[55,1],[55,0],[71,3],[71,2],[63,3],[63,1],[73,2],[73,1],[67,2],[67,1]],
+symbols_: {"error":2,"file":3,"program":4,"EOF":5,"instruction":6,"bf_command":7,"def_var":8,"go_var":9,"at_var":10,"dealloc_var":11,"l_paren":12,"r_paren":13,"def_macro":14,"put_argument":15,"put_macro":16,"go_offset":17,"at_offset":18,"multiplier":19,"store_str":20,"print_str":21,"def_array_size":22,"def_array_init":23,"goto_index_static":24,"goto_index_dynamic":25,"for_loop":26,"def_struct":27,"goto_member":28,"bf_char":29,"+":30,"-":31,"[":32,"]":33,"<":34,">":35,".":36,",":37,":":38,"ID":39,"$":40,"@":41,"!":42,"(":43,")":44,"def_macro_no_args":45,"def_macro_with_args":46,"{":47,"}":48,"id_list":49,"\\\\\\\\":50,"%":51,"put_macro_no_args":52,"put_macro_with_args":53,"&":54,"&{":55,"arg_list":56,"^":57,"NUM":58,"*":59,"sign":60,"~_STR":61,"|_STR":62,"::":63,"array_values":64,"$:":65,"$!":66,"~":67,":=":68,"member_name_list":69,"$$":70,"nonempty_id_list":71,"\\\\":72,"nonempty_arg_list":73,"/":74,"struct_values":75,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"EOF",30:"+",31:"-",32:"[",33:"]",34:"<",35:">",36:".",37:",",38:":",39:"ID",40:"$",41:"@",42:"!",43:"(",44:")",47:"{",48:"}",50:"\\\\\\\\",51:"%",54:"&",55:"&{",57:"^",58:"NUM",59:"*",61:"~_STR",62:"|_STR",63:"::",65:"$:",66:"$!",67:"~",68:":=",70:"$$",72:"\\\\",74:"/"},
+productions_: [0,[3,2],[4,0],[4,2],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[7,1],[29,1],[29,1],[29,1],[29,1],[29,1],[29,1],[29,1],[29,1],[8,2],[9,2],[10,2],[11,2],[12,1],[13,1],[14,1],[14,1],[45,4],[46,6],[15,2],[16,1],[16,1],[52,2],[53,4],[17,2],[18,3],[60,1],[60,1],[19,2],[20,1],[21,1],[22,4],[23,6],[24,3],[25,3],[26,5],[27,5],[28,2],[49,1],[49,0],[71,3],[71,2],[56,1],[56,0],[73,3],[73,2],[64,3],[64,1],[75,2],[75,1],[69,2],[69,1]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
@@ -86,100 +86,103 @@ switch (yystate) {
 case 1:
  return $$[$0-1]; 
 break;
-case 2: case 63: case 67:
+case 2: case 65: case 69:
 this.$ = [];
 break;
 case 3:
-this.$ = array_concat($$[$0-1], [instruction_info($$[$0], _$[$0])]);
+this.$ = util.array_concat($$[$0-1], [instruction_info($$[$0], _$[$0])]);
 break;
-case 25:
-this.$ = bf_command($$[$0]);
-break;
-case 34:
-this.$ = def_var($$[$0]);
+case 26:
+this.$ = util.bf_command($$[$0]);
 break;
 case 35:
-this.$ = go_var($$[$0]);
+this.$ = util.def_var($$[$0]);
 break;
 case 36:
-this.$ = at_var($$[$0]);
+this.$ = util.go_var($$[$0]);
 break;
 case 37:
-this.$ = dealloc_var($$[$0]);
+this.$ = util.at_var($$[$0]);
 break;
 case 38:
-this.$ = l_paren();
+this.$ = util.dealloc_var($$[$0]);
 break;
 case 39:
-this.$ = r_paren();
+this.$ = util.l_paren();
 break;
-case 42:
-this.$ = def_macro($$[$0-2], [], $$[$0-1]);
+case 40:
+this.$ = util.r_paren();
 break;
 case 43:
-this.$ = def_macro($$[$0-4], $$[$0-3], $$[$0-1]);
+this.$ = util.def_macro($$[$0-2], [], $$[$0-1]);
 break;
 case 44:
-this.$ = put_argument($$[$0]);
+this.$ = util.def_macro($$[$0-4], $$[$0-3], $$[$0-1]);
 break;
-case 47:
-this.$ = put_macro($$[$0], []);
+case 45:
+this.$ = util.put_argument($$[$0]);
 break;
 case 48:
-this.$ = put_macro($$[$0-2], $$[$0-1]);
+this.$ = util.put_macro($$[$0], []);
 break;
 case 49:
-this.$ = go_offset(Number($$[$0]));
+this.$ = util.put_macro($$[$0-2], $$[$0-1]);
 break;
 case 50:
-this.$ = at_offset(Number($$[$0-1] + $$[$0]));
+this.$ = util.go_offset(Number($$[$0]));
 break;
-case 53:
-this.$ = multiplier($$[$0], Number($$[$0-1]));
+case 51:
+this.$ = util.at_offset(Number($$[$0-1] + $$[$0]));
 break;
 case 54:
-this.$ = store_str($$[$0].substring(2, $$[$0].length-1));
+this.$ = util.multiplier($$[$0], Number($$[$0-1]));
 break;
 case 55:
-this.$ = print_str($$[$0].substring(2, $$[$0].length-1));
+this.$ = util.store_str($$[$0].substring(2, $$[$0].length-1));
 break;
 case 56:
-this.$ = def_array_size($$[$0-2], $$[$0-1], Number($$[$0]));
+this.$ = util.print_str($$[$0].substring(2, $$[$0].length-1));
 break;
 case 57:
-this.$ = def_array_init($$[$0-4], $$[$0-3], $$[$0-1]);
+this.$ = util.def_array_size($$[$0-2], $$[$0-1], Number($$[$0]));
 break;
 case 58:
-this.$ = goto_index_static($$[$0-1], Number($$[$0]));
+this.$ = util.def_array_init($$[$0-4], $$[$0-3], $$[$0-1]);
 break;
 case 59:
-this.$ = goto_index_dynamic($$[$0]);
+this.$ = util.goto_index_static($$[$0-1], Number($$[$0]));
 break;
 case 60:
-this.$ = def_struct($$[$0-3], $$[$0-1]);
+this.$ = util.goto_index_dynamic($$[$0-1], $$[$0]);
 break;
 case 61:
-this.$ = goto_member($$[$0]);
+this.$ = util.for_loop($$[$0-3], $$[$0-1]);
 break;
-case 64: case 68: case 70:
-this.$ = array_concat($$[$0-2], [$$[$0]]);
+case 62:
+this.$ = util.def_struct($$[$0-3], $$[$0-1]);
 break;
-case 65: case 69: case 71: case 75:
+case 63:
+this.$ = util.goto_member($$[$0]);
+break;
+case 66: case 70: case 72:
+this.$ = util.array_concat($$[$0-2], [$$[$0]]);
+break;
+case 67: case 71: case 73: case 77:
 this.$ = [$$[$0]];
 break;
-case 72:
-this.$ = array_concat($$[$0-1], [Number($$[$0])]);
+case 74:
+this.$ = util.array_concat($$[$0-1], [Number($$[$0])]);
 break;
-case 73:
+case 75:
 this.$ = [Number($$[$0])];
 break;
-case 74:
-this.$ = array_concat($$[$0-1], [$$[$0]]);
+case 76:
+this.$ = util.array_concat($$[$0-1], [$$[$0]]);
 break;
 }
 },
-table: [o($V0,$V1,{3:1,4:2}),{1:[3]},{5:[1,3],6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,21:19,22:20,23:21,24:22,25:23,26:24,27:25,28:26,29:$V2,30:$V3,31:$V4,32:$V5,33:$V6,34:$V7,35:$V8,36:$V9,37:$Va,39:$Vb,40:$Vc,41:$Vd,42:$Ve,43:$Vf,44:33,45:34,46:$Vg,50:$Vh,51:36,52:37,53:$Vi,54:$Vj,56:$Vk,57:$Vl,58:$Vm,60:$Vn,61:$Vo,62:$Vp,64:$Vq,65:$Vr,66:$Vs,68:$Vt},{1:[2,1]},o($V0,[2,3]),o($V0,[2,4]),o($V0,[2,5]),o($V0,[2,6]),o($V0,[2,7]),o($V0,[2,8]),o($V0,[2,9]),o($V0,[2,10]),o($V0,[2,11]),o($V0,[2,12]),o($V0,[2,13]),o($V0,[2,14]),o($V0,[2,15]),o($V0,[2,16]),o($V0,[2,17]),o($V0,[2,18]),o($V0,[2,19]),o($V0,[2,20]),o($V0,[2,21]),o($V0,[2,22]),o($V0,[2,23]),o($V0,[2,24]),o($V0,[2,25]),{38:[1,59]},{38:[1,60]},{38:[1,61]},{38:[1,62]},o($V0,[2,38]),o($V0,[2,39]),o($V0,[2,40]),o($V0,[2,41]),{38:[1,63]},o($V0,[2,45]),o($V0,[2,46]),{57:[1,64]},{29:[1,66],30:[1,67],59:65},{28:68,29:$V2,30:$V3,31:$V4,32:$V5,33:$V6,34:$V7,35:$V8,36:$V9},o($V0,[2,54]),o($V0,[2,55]),{38:[1,69]},{38:[1,70]},{38:[1,71]},{38:[1,72]},{38:[1,73]},o($V0,[2,26]),o($V0,[2,27]),o($V0,[2,28]),o($V0,[2,29]),o($V0,[2,30]),o($V0,[2,31]),o($V0,[2,32]),o($V0,[2,33]),{38:[1,74]},{38:[1,75]},{38:[1,76]},o($V0,[2,34]),o($V0,[2,35]),o($V0,[2,36]),o($V0,[2,37]),o($V0,[2,44]),o($V0,[2,49]),{57:[1,77]},{57:[2,51]},{57:[2,52]},o($V0,[2,53]),{38:[1,78]},{57:[1,79]},o($V0,[2,59]),{46:[1,80]},o($V0,[2,61]),o($V0,$V1,{4:81,48:82,69:83,49:[2,63],70:[1,84]}),o($V0,[2,47]),{47:[2,67],55:85,71:86,72:[1,87]},o($V0,[2,50]),{46:[1,89],57:[1,88]},o($V0,[2,58]),{38:[1,91],67:90},{6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,21:19,22:20,23:21,24:22,25:23,26:24,27:25,28:26,29:$V2,30:$V3,31:$V4,32:$V5,33:$V6,34:$V7,35:$V8,36:$V9,37:$Va,39:$Vb,40:$Vc,41:$Vd,42:$Ve,43:$Vf,44:33,45:34,46:$Vg,47:[1,92],50:$Vh,51:36,52:37,53:$Vi,54:$Vj,56:$Vk,57:$Vl,58:$Vm,60:$Vn,61:$Vo,62:$Vp,64:$Vq,65:$Vr,66:$Vs,68:$Vt},{49:[1,93]},{49:[2,62],70:[1,94]},{38:[1,95]},{47:[1,96]},{47:[2,66],72:[1,97]},o($V0,$V1,{4:98}),o($V0,[2,56]),{57:$Vu,63:99,73:100},{38:[1,103],47:[1,102]},o($Vv,[2,75]),o($V0,[2,42]),o($V0,$V1,{4:104}),{38:[1,105]},o($Vw,[2,65]),o($V0,[2,48]),o($V0,$V1,{4:106}),o($Vx,[2,69],{6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,21:19,22:20,23:21,24:22,25:23,26:24,27:25,28:26,44:33,45:34,51:36,52:37,29:$V2,30:$V3,31:$V4,32:$V5,33:$V6,34:$V7,35:$V8,36:$V9,37:$Va,39:$Vb,40:$Vc,41:$Vd,42:$Ve,43:$Vf,46:$Vg,50:$Vh,53:$Vi,54:$Vj,56:$Vk,57:$Vl,58:$Vm,60:$Vn,61:$Vo,62:$Vp,64:$Vq,65:$Vr,66:$Vs,68:$Vt}),{47:[1,107],72:[1,108]},o($Vx,[2,71],{57:$Vy}),o($Vz,[2,73]),o($V0,[2,60]),o($Vv,[2,74]),{6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,21:19,22:20,23:21,24:22,25:23,26:24,27:25,28:26,29:$V2,30:$V3,31:$V4,32:$V5,33:$V6,34:$V7,35:$V8,36:$V9,37:$Va,39:$Vb,40:$Vc,41:$Vd,42:$Ve,43:$Vf,44:33,45:34,46:$Vg,47:[1,110],50:$Vh,51:36,52:37,53:$Vi,54:$Vj,56:$Vk,57:$Vl,58:$Vm,60:$Vn,61:$Vo,62:$Vp,64:$Vq,65:$Vr,66:$Vs,68:$Vt},o($Vw,[2,64]),o($Vx,[2,68],{6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,21:19,22:20,23:21,24:22,25:23,26:24,27:25,28:26,44:33,45:34,51:36,52:37,29:$V2,30:$V3,31:$V4,32:$V5,33:$V6,34:$V7,35:$V8,36:$V9,37:$Va,39:$Vb,40:$Vc,41:$Vd,42:$Ve,43:$Vf,46:$Vg,50:$Vh,53:$Vi,54:$Vj,56:$Vk,57:$Vl,58:$Vm,60:$Vn,61:$Vo,62:$Vp,64:$Vq,65:$Vr,66:$Vs,68:$Vt}),o($V0,[2,57]),{57:$Vu,73:111},o($Vz,[2,72]),o($V0,[2,43]),o($Vx,[2,70],{57:$Vy})],
-defaultActions: {3:[2,1],66:[2,51],67:[2,52]},
+table: [o($V0,$V1,{3:1,4:2}),{1:[3]},{5:[1,3],6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,21:19,22:20,23:21,24:22,25:23,26:24,27:25,28:26,29:27,30:$V2,31:$V3,32:$V4,33:$V5,34:$V6,35:$V7,36:$V8,37:$V9,38:$Va,40:$Vb,41:$Vc,42:$Vd,43:$Ve,44:$Vf,45:34,46:35,47:$Vg,51:$Vh,52:37,53:38,54:$Vi,55:$Vj,57:$Vk,58:$Vl,59:$Vm,61:$Vn,62:$Vo,63:$Vp,65:$Vq,66:$Vr,67:$Vs,68:$Vt,70:$Vu},{1:[2,1]},o($V0,[2,3]),o($V0,[2,4]),o($V0,[2,5]),o($V0,[2,6]),o($V0,[2,7]),o($V0,[2,8]),o($V0,[2,9]),o($V0,[2,10]),o($V0,[2,11]),o($V0,[2,12]),o($V0,[2,13]),o($V0,[2,14]),o($V0,[2,15]),o($V0,[2,16]),o($V0,[2,17]),o($V0,[2,18]),o($V0,[2,19]),o($V0,[2,20]),o($V0,[2,21]),o($V0,[2,22]),o($V0,[2,23]),o($V0,[2,24]),o($V0,[2,25]),o($V0,[2,26]),{39:[1,61]},{39:[1,62]},{39:[1,63]},{39:[1,64]},o($V0,[2,39]),o($V0,[2,40]),o($V0,[2,41]),o($V0,[2,42]),{39:[1,65]},o($V0,[2,46]),o($V0,[2,47]),{58:[1,66]},{30:[1,68],31:[1,69],60:67},{29:70,30:$V2,31:$V3,32:$V4,33:$V5,34:$V6,35:$V7,36:$V8,37:$V9},o($V0,[2,55]),o($V0,[2,56]),{39:[1,71]},{39:[1,72]},{39:[1,73]},{39:[1,74]},{39:[1,75]},{39:[1,76]},o($V0,[2,27]),o($V0,[2,28]),o($V0,[2,29]),o($V0,[2,30]),o($V0,[2,31]),o($V0,[2,32]),o($V0,[2,33]),o($V0,[2,34]),{39:[1,77]},{39:[1,78]},{39:[1,79]},o($V0,[2,35]),o($V0,[2,36]),o($V0,[2,37]),o($V0,[2,38]),o($V0,[2,45]),o($V0,[2,50]),{58:[1,80]},{58:[2,52]},{58:[2,53]},o($V0,[2,54]),{39:[1,81]},{58:[1,82]},{39:[1,83]},{47:[1,84]},{47:[1,85]},o($V0,[2,63]),o($V0,$V1,{4:86,49:87,71:88,50:[2,65],72:[1,89]}),o($V0,[2,48]),{48:[2,69],56:90,73:91,74:[1,92]},o($V0,[2,51]),{47:[1,94],58:[1,93]},o($V0,[2,59]),o($V0,[2,60]),o($V0,$V1,{4:95}),{39:[1,97],69:96},{6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,21:19,22:20,23:21,24:22,25:23,26:24,27:25,28:26,29:27,30:$V2,31:$V3,32:$V4,33:$V5,34:$V6,35:$V7,36:$V8,37:$V9,38:$Va,40:$Vb,41:$Vc,42:$Vd,43:$Ve,44:$Vf,45:34,46:35,47:$Vg,48:[1,98],51:$Vh,52:37,53:38,54:$Vi,55:$Vj,57:$Vk,58:$Vl,59:$Vm,61:$Vn,62:$Vo,63:$Vp,65:$Vq,66:$Vr,67:$Vs,68:$Vt,70:$Vu},{50:[1,99]},{50:[2,64],72:[1,100]},{39:[1,101]},{48:[1,102]},{48:[2,68],74:[1,103]},o($V0,$V1,{4:104}),o($V0,[2,57]),{58:$Vv,64:105,75:106},{6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,21:19,22:20,23:21,24:22,25:23,26:24,27:25,28:26,29:27,30:$V2,31:$V3,32:$V4,33:$V5,34:$V6,35:$V7,36:$V8,37:$V9,38:$Va,40:$Vb,41:$Vc,42:$Vd,43:$Ve,44:$Vf,45:34,46:35,47:$Vg,48:[1,108],51:$Vh,52:37,53:38,54:$Vi,55:$Vj,57:$Vk,58:$Vl,59:$Vm,61:$Vn,62:$Vo,63:$Vp,65:$Vq,66:$Vr,67:$Vs,68:$Vt,70:$Vu},{39:[1,110],48:[1,109]},o($Vw,[2,77]),o($V0,[2,43]),o($V0,$V1,{4:111}),{39:[1,112]},o($Vx,[2,67]),o($V0,[2,49]),o($V0,$V1,{4:113}),o($Vy,[2,71],{6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,21:19,22:20,23:21,24:22,25:23,26:24,27:25,28:26,29:27,45:34,46:35,52:37,53:38,30:$V2,31:$V3,32:$V4,33:$V5,34:$V6,35:$V7,36:$V8,37:$V9,38:$Va,40:$Vb,41:$Vc,42:$Vd,43:$Ve,44:$Vf,47:$Vg,51:$Vh,54:$Vi,55:$Vj,57:$Vk,58:$Vl,59:$Vm,61:$Vn,62:$Vo,63:$Vp,65:$Vq,66:$Vr,67:$Vs,68:$Vt,70:$Vu}),{48:[1,114],74:[1,115]},o($Vy,[2,73],{58:$Vz}),o($VA,[2,75]),o($V0,[2,61]),o($V0,[2,62]),o($Vw,[2,76]),{6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,21:19,22:20,23:21,24:22,25:23,26:24,27:25,28:26,29:27,30:$V2,31:$V3,32:$V4,33:$V5,34:$V6,35:$V7,36:$V8,37:$V9,38:$Va,40:$Vb,41:$Vc,42:$Vd,43:$Ve,44:$Vf,45:34,46:35,47:$Vg,48:[1,117],51:$Vh,52:37,53:38,54:$Vi,55:$Vj,57:$Vk,58:$Vl,59:$Vm,61:$Vn,62:$Vo,63:$Vp,65:$Vq,66:$Vr,67:$Vs,68:$Vt,70:$Vu},o($Vx,[2,66]),o($Vy,[2,70],{6:4,7:5,8:6,9:7,10:8,11:9,12:10,13:11,14:12,15:13,16:14,17:15,18:16,19:17,20:18,21:19,22:20,23:21,24:22,25:23,26:24,27:25,28:26,29:27,45:34,46:35,52:37,53:38,30:$V2,31:$V3,32:$V4,33:$V5,34:$V6,35:$V7,36:$V8,37:$V9,38:$Va,40:$Vb,41:$Vc,42:$Vd,43:$Ve,44:$Vf,47:$Vg,51:$Vh,54:$Vi,55:$Vj,57:$Vk,58:$Vl,59:$Vm,61:$Vn,62:$Vo,63:$Vp,65:$Vq,66:$Vr,67:$Vs,68:$Vt,70:$Vu}),o($V0,[2,58]),{58:$Vv,75:118},o($VA,[2,74]),o($V0,[2,44]),o($Vy,[2,72],{58:$Vz})],
+defaultActions: {3:[2,1],68:[2,52],69:[2,53]},
 parseError: function parseError(str, hash) {
     if (hash.recoverable) {
         this.trace(str);
@@ -326,53 +329,8 @@ parse: function parse(input) {
 }};
  /* utility */
 
-// ast_node is adapted from
-// http://stackoverflow.com/questions/8291194/how-to-implement-pythons-namedtuple-in-javascript
-
-function ast_node(nodename, fieldnamestr) {
-    var fields = fieldnamestr.split(' ');
-    return function () {
-        var arr = arguments;
-        var obj = {type: nodename};
-
-        for(var i = 0; i < arr.length; i++) {
-            obj[fields[i]] = arr[i];
-        }
-
-        return obj;
-    };
-};
-
-
-var bf_command  = ast_node('bf_command',  'cmd')          // any of the eight
-                                                          // BF commands
-var multiplier  = ast_node('multiplier',  'cmd times')    // 3+
-var def_var     = ast_node('def_var',     'name')         // :var
-var go_var      = ast_node('go_var',      'name')         // $var
-var at_var      = ast_node('at_var',      'name')         // @var
-var dealloc_var = ast_node('dealloc_var', 'name')         // !var
-var l_paren     = ast_node('l_paren',     '')             // (
-var r_paren     = ast_node('r_paren',     '')             // )
-var def_macro   = ast_node('def_macro',   'name args body')    // {macro ...}
-var put_argument = ast_node('put_argument', 'name')       // %argument
-var put_macro   = ast_node('put_macro',   'name arg_values')    // &macro or &{macro ...}
-var go_offset   = ast_node('go_offset',   'offset')       // ^0
-var at_offset   = ast_node('at_offset',   'offset')       // *-1
-var store_str   = ast_node('store_str',   'string')       // ~"hello"
-var print_str   = ast_node('print_str',   'string')       // |"hello"
-var def_array_size = ast_node('def_array_size', 'name element_type size') // ::arr size
-var def_array_init = ast_node('def_array_init', 'name element_type values') // ::arr {values}
-var goto_index_static = ast_node('goto_index_static', 'name index') //
-var goto_index_dynamic = ast_node('goto_index_dynamic', 'name') //
-var def_struct = ast_node('def_struct', 'name member_names') //
-var goto_member = ast_node('goto_member', 'name') //
-
-function array_concat(a1, a2) {
-    if(a1 instanceof Array && a2 instanceof Array) {
-        return a1.concat(a2);
-    } else {
-        throw new Error('Both arguments to array_concat must be arrays');
-    }
+if (typeof require !== 'undefined') {
+    util = require('./util.js');
 }
 
 // NOTE: this function appears also in compiler/compiler.js. This is a hacky
@@ -728,84 +686,86 @@ case 0:/* skip whitespace */
 break;
 case 1:/* skip comments */
 break;
-case 2:return 29
+case 2:return 30
 break;
-case 3:return 30
+case 3:return 31
 break;
-case 4:return 31
+case 4:return 32
 break;
-case 5:return 32
+case 5:return 33
 break;
-case 6:return 33
+case 6:return 34
 break;
-case 7:return 34
+case 7:return 35
 break;
-case 8:return 35
+case 8:return 36
 break;
-case 9:return 36
+case 9:return 37
 break;
-case 10:return 54
+case 10:return 55
 break;
-case 11:return 62
+case 11:return 63
 break;
-case 12:return 64
+case 12:return 65
 break;
-case 13:return 65
+case 13:return 66
 break;
-case 14:return 66
+case 14:return 68
 break;
-case 15:return 68
+case 15:return 70
 break;
-case 16:return 37
+case 16:return 38
 break;
-case 17:return 39
+case 17:return 40
 break;
-case 18:return 40
+case 18:return 41
 break;
-case 19:return 41
+case 19:return 42
 break;
-case 20:return 42
+case 20:return 43
 break;
-case 21:return 43
+case 21:return 44
 break;
-case 22:return 50
+case 22:return 51
 break;
-case 23:return 53
+case 23:return 54
 break;
-case 24:return 46
+case 24:return 47
 break;
-case 25:return 47
+case 25:return 48
 break;
-case 26:return 56
+case 26:return 57
 break;
-case 27:return 58
+case 27:return 59
 break;
-case 28:return 49
+case 28:return 67
 break;
-case 29:return 70
+case 29:return 50
 break;
 case 30:return 72
 break;
-case 31:return 57
+case 31:return 74
 break;
-case 32:return 38
+case 32:return 58
 break;
-case 33:return 60
+case 33:return 39
 break;
-case 34:return 60
+case 34:return 61
 break;
 case 35:return 61
 break;
-case 36:return 61
+case 36:return 62
 break;
-case 37:return 5
+case 37:return 62
 break;
-case 38:return 'INVALID'
+case 38:return 5
+break;
+case 39:return 'INVALID'
 break;
 }
 },
-rules: [/^(?:\s+)/,/^(?:;.*)/,/^(?:\+)/,/^(?:-)/,/^(?:\[)/,/^(?:\])/,/^(?:<)/,/^(?:>)/,/^(?:\.)/,/^(?:,)/,/^(?:&\{)/,/^(?:::)/,/^(?:\$:)/,/^(?:\$!)/,/^(?::=)/,/^(?:\$\$)/,/^(?::)/,/^(?:\$)/,/^(?:@)/,/^(?:!)/,/^(?:\()/,/^(?:\))/,/^(?:%)/,/^(?:&)/,/^(?:\{)/,/^(?:\})/,/^(?:\^)/,/^(?:\*)/,/^(?:\\\\)/,/^(?:\\)/,/^(?:\/)/,/^(?:[0-9]+)/,/^(?:[A-Za-z_][A-Za-z0-9_]*)/,/^(?:~"[^"]*")/,/^(?:~'[^']*')/,/^(?:\|"[^"]*")/,/^(?:\|'[^']*')/,/^(?:$)/,/^(?:.)/],
-conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38],"inclusive":true}}
+rules: [/^(?:\s+)/,/^(?:;.*)/,/^(?:\+)/,/^(?:-)/,/^(?:\[)/,/^(?:\])/,/^(?:<)/,/^(?:>)/,/^(?:\.)/,/^(?:,)/,/^(?:&\{)/,/^(?:::)/,/^(?:\$:)/,/^(?:\$!)/,/^(?::=)/,/^(?:\$\$)/,/^(?::)/,/^(?:\$)/,/^(?:@)/,/^(?:!)/,/^(?:\()/,/^(?:\))/,/^(?:%)/,/^(?:&)/,/^(?:\{)/,/^(?:\})/,/^(?:\^)/,/^(?:\*)/,/^(?:~)/,/^(?:\\\\)/,/^(?:\\)/,/^(?:\/)/,/^(?:[0-9]+)/,/^(?:[A-Za-z_][A-Za-z0-9_]*)/,/^(?:~"[^"]*")/,/^(?:~'[^']*')/,/^(?:\|"[^"]*")/,/^(?:\|'[^']*')/,/^(?:$)/,/^(?:.)/],
+conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39],"inclusive":true}}
 });
 return lexer;
 })();
