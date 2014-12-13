@@ -91,11 +91,19 @@ function run()
  */
 function dbg()
 {
-    sigResume();
+    step();
     setTimeout(function() {
         timerInterval = setInterval(step, DBG_INTERVAL);
     }, 1000);
 }
+
+/** Resume from a breakpoint in debug mode. */
+function continueFromBreak()
+{
+    signal("Running", "info");
+    timerInterval = setInterval(step, DBG_INTERVAL);
+}
+
 
 /**
  * Construct a new session. This is called in response to either 
@@ -112,7 +120,9 @@ function newSession()
 function sigAbrt()
 {
     clearInterval(timerInterval);
+    updateDisplay(session);
     running(false);
+    signal("","none");
     hasInit = false;
     session = null;
 }
@@ -135,11 +145,10 @@ function step()
 {
     if (hasInit) {
         sigResume();
-        interpret({'step':true});
+        interpret({'step':true, 'dbg':true});
     } else {
-        sigResume()
         newSession();
-        interpret({'step':true});
+        sigResume()
     }
 }
 
@@ -321,12 +330,14 @@ function updateMemDisp(val, datastore)
 function sigBreak(state)
 {
     signal("Stopped at breakpoint. PC: " + state.pc, "notify")
+    clearInterval(timerInterval);
 }
 
 /** Signal a resume from breakpoint. */
 function sigResume()
 {
     running(true, true);
+    updateDisplay(session);
     signal("Running", "info")
 }
 
@@ -407,7 +418,7 @@ function running(y, debug)
         document.getElementById("in_code").style.background = "#eee";
         document.getElementById("in_code").setAttribute("readonly", "true")
         contBtn.removeAttribute("style");
-        contBtn.addEventListener("click", dbg, false);
+        contBtn.addEventListener("click", continueFromBreak, false);
         reldBtn.setAttribute("style", "color:#059BD8; cursor: normal;");
         runBtn.setAttribute("style", "color:#e3e3e3; cursor:default;")
         runBtn.removeEventListener("click", run, false);
@@ -420,7 +431,7 @@ function running(y, debug)
             $("#proc_env").delay(200).animate({opacity:1},500,function() {})
         }
     } else {
-        contBtn.removeEventListener("click", dbg, false);
+        contBtn.removeEventListener("click", continueFromBreak, false);
         contBtn.setAttribute("style", "color:#e3e3e3; cursor: default;");
         document.getElementById("in_code").removeAttribute("readonly")
         document.getElementById("in_code").style.background = "#fff";

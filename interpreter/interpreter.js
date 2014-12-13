@@ -44,9 +44,11 @@ function initSession(code)
  */                  
 function interpret(opts)
 {
+    var wasBreak = false;
     opts = opts || {}
     while(true) {
         var inst = session.tokens[session.pc]
+        if(!inst) { sigTerm(); return; }
         switch (inst.type) {
             case 'bf_command':
                 interpret_bf_command(inst);
@@ -55,11 +57,12 @@ function interpret(opts)
                 execSubCode(inst);
                 session.pc++;
                 break;
-            case '#':
+            case 'breakpoint':
                 if(opts['dbg'] === true) {
-                    sigBreak(session);
                     session.pc++;
-                    return;
+                    sigBreak(session);
+                    wasBreak = true;
+                    break;
                 } else {
                     session.pc++;
                     break;
@@ -116,6 +119,10 @@ function interpret(opts)
                 throw new Error("ERR No command attached to " + inst.type);
         }
         updateDisplay(session);
+        if(wasBreak) {
+            wasBreak = false;
+            return;
+        }
         if (session.pc >= session.tokens.length || opts['step']===true) {
             if (session.pc >= session.tokens.length) {
                 if(opts['macro'] === undefined) {
@@ -123,7 +130,7 @@ function interpret(opts)
                 }
             }
             break;
-        }
+        } 
     }
 }
 
