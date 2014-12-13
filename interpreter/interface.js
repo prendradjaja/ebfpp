@@ -277,12 +277,7 @@ function updateMemDisp(val, datastore)
     var inst_1 = document.getElementById('inst');
     document.getElementById("pc_inf").innerHTML = session.pc
     var nextInst = session.tokens[session.pc]
-    inst_1.innerHTML = 
-        nextInst === undefined 
-        ? 'NONE' 
-        : (nextInst.type === 'bf_command') 
-            ? nextInst.cmd 
-            : nextInst.type
+    inst_1.innerHTML = nextInst === undefined ? 'NONE' : printEBF(nextInst)
 
     var resStr = ""
     var indexStr = ""
@@ -303,7 +298,7 @@ function updateMemDisp(val, datastore)
     var instructions = 
         _.map(
             session.tokens.slice(session.pc-used,session.pc+2*slots),
-            function(x) { return x.type === 'bf_command' ? x.cmd : x.type; }
+            printEBF
         );
     instructions.splice(used,0,'<span>');
     instructions.splice(used+2,0,'</span>');
@@ -436,6 +431,23 @@ function running(y, debug)
                 $(".content").animate({width:'97%'},200,function() {
                     $("#proc_env").css('display', 'none');})})
         }
+    }
+}
+
+/**
+ * Pretty print EBF++ instruction
+ *
+ * @param   inst    Instruction to print
+ */
+function printEBF(inst)
+{
+    switch(inst.type) {
+        case 'bf_command':
+            return inst.cmd;
+        case 'def_var':
+            return inst.ebf_code;
+        default:
+            return inst.ebf_code;
     }
 }
 
