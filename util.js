@@ -51,7 +51,7 @@ var util = (function() {
     var for_loop    = ast_node('for_loop',    'array_name body') //
     var def_struct = ast_node('def_struct', 'name member_names') //
     var goto_member = ast_node('goto_member', 'name') //
-    var comment     = ast_node('comment', '');
+    var breakpoint     = ast_node('breakpoint', '');
 
     return {
         array_concat: array_concat,
@@ -78,7 +78,7 @@ var util = (function() {
         for_loop: for_loop,
         def_struct: def_struct,
         goto_member: goto_member,
-        comment: comment,
+        breakpoint: breakpoint,
     };
 }());
 

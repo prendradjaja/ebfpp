@@ -140,7 +140,7 @@ function _compile_node(node) { /*
         case 'for_loop':  return compile_for_loop(node);
         case 'def_struct':  return compile_def_struct(node);
         case 'goto_member': return compile_goto_member(node);
-        case 'comment':     return compile_comment(node);
+        case 'breakpoint':     return compile_breakpoint(node);
         default:
             crash_with_error('unsupported AST node in code generator: ' +
                     node.type);
@@ -360,7 +360,7 @@ function compile_goto_member(node) {
     return move_pointer(memory_location);
 }
 
-function compile_comment(node) {
+function compile_breakpoint(node) {
     return '#';
 }
 

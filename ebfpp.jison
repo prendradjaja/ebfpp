@@ -93,7 +93,7 @@ instruction
     | for_loop
     | def_struct
     | goto_member
-    | comment
+    | breakpoint
     ;
 
 bf_command
@@ -242,9 +242,9 @@ goto_member
         {$$ = util.goto_member($2);}
     ;
 
-comment
+breakpoint
     : '#'
-        {$$ = util.comment();}
+        {$$ = util.breakpoint();}
     ;
 
 // todo: change name to reflect that it's specifically for macros
