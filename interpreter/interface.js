@@ -91,7 +91,10 @@ function run()
  */
 function dbg()
 {
-    timerInterval = setInterval(step, DBG_INTERVAL);
+    sigResume();
+    setTimeout(function() {
+        timerInterval = setInterval(step, DBG_INTERVAL);
+    }, 1000);
 }
 
 /**
