@@ -8,6 +8,7 @@ var hasInit = false     // True if interpreter session has been created.
 var debug = false;      // True to enable more verbose debugging output.
 var timerInterval;      // Used to set and clear timer interval for Debug button.
 var DBG_INTERVAL = 25   // 25ms 'animation' delay for dbg() (The Debug handler).
+var isRunning = false;  // Whether or not debugger is running.
 
 /** Handle change in screen size */
 function sizeChange()
@@ -51,6 +52,7 @@ function init()
 /** Enable or disable debugger buttons depending on state. */
 function checkInput()
 {
+    if(isRunning) { return; }
     var id_run = document.getElementById('run');
     var id_dbg= document.getElementById('dbg');
     var id_step = document.getElementById('step');
@@ -296,7 +298,7 @@ function updateMemDisp(val, datastore)
 
     var slots = Math.floor(mmap.offsetWidth/(65));
     for (i = datastore.pointer-slots; i < datastore.pointer+slots; i++) {
-        var j = i < 0 ? 256+i : i;
+        var j = i < 0 ? 256+i : i % 256;
         var e = '' + datastore.memory[j]
         var f = '000'.concat(e).substr(e.length)
         if(j == datastore.pointer) { resStr += '<span>' + f + '</span>' }
@@ -407,7 +409,8 @@ function updateLocDisp(session)
 function running(y, debug)
 {
     if(y && !debug) { return; }
-
+    isRunning = y;
+    
     var runBtn = document.getElementById("run")
     var contBtn = document.getElementById('continue');
     var reldBtn = document.getElementById('restart')
