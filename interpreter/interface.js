@@ -14,6 +14,7 @@ var hasInit = false
 function init()
 {
     var id_run = document.getElementById('run');
+    var id_dbg= document.getElementById('dbg');
     var id_restart = document.getElementById('restart');
     var id_step = document.getElementById('step');
     var id_sam = document.getElementById('sample1');
@@ -22,20 +23,25 @@ function init()
     var id_res = document.getElementById('restartHard');
     id_sam.addEventListener('click', function(){loadSample(1)}, false);
     id_sam2.addEventListener('click', function(){loadSample(2)}, false);
-    id_run.addEventListener('click', run, false);
+    id_run.addEventListener('click', function(){run(false)}, false);
+    id_dbg.addEventListener('click', function(){run(true)}, false);
     id_restart.addEventListener('click', restart, false);
     id_step.addEventListener('click', step, false);
     id_res.addEventListener('click', hardRestart, false);
     running(false);
 }
 
-/** Handler for the run action.  */ 
-function run()
+/** 
+ * Handler for the run action.  
+ *
+ * @param   dbg     True if we want to attach the debugger, false otherwise.
+ */ 
+function run(dbg)
 {
     cls();
     sigResume();
     newSession();
-    interpret(false);
+    interpret((dbg) ? {'dbg':true} : {});
 }
 
 /**
@@ -52,7 +58,7 @@ function newSession()
 function contin()
 {
     sigResume();
-    interpret(false);
+    interpret();
 }
 
 /** Hander for the restart action. */
@@ -74,11 +80,11 @@ function step()
 {
     if (hasInit) {
         sigResume();
-        interpret(true);
+        interpret({'step':true});
     } else {
         sigResume()
         newSession();
-        interpret(true);
+        interpret({'step':true});
     }
 }
 

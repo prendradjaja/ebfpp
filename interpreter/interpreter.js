@@ -37,14 +37,14 @@ function initSession(code)
  * Run the interpreter. Behavior of the interpreter is determined by the step
  * argument. 
  *
- * @param   step    True if user is 'step'ing through code. Interpret next 
- *                  instruction and terminate. False to interpret
- *                  entire program, equivalent of 'run'ing program. 
- * @param   macro   Code body of a macro or undefined if we're not interpreting
- *                  a macro.
- */
-function interpret(step, macro)
+ * @param   opts    Options object. Valid options: 
+ *                  'dbg': true for debugger session. 
+ *                  'macro': true if we are interpreting a macro.
+ *                  'step': true if the step button was pressed. 
+ */                  
+function interpret(opts)
 {
+    opts = opts || {}
     sigRun();
     while(true) {
         var inst = session.tokens[session.pc]
@@ -57,9 +57,14 @@ function interpret(step, macro)
                 session.pc++;
                 break;
             case '#':
-                sigBreak(session);
-                session.pc++;
-                return;
+                if(opts['dbg'] === true) {
+                    sigBreak(session);
+                    session.pc++;
+                    return;
+                } else {
+                    session.pc++;
+                    break;
+                }
             case 'def_var':
                 handleDefVar(inst.name);
                 session.pc++
@@ -112,9 +117,9 @@ function interpret(step, macro)
                 throw new Error("ERR No command attached to " + inst.type);
         }
         updateDisplay(session);
-        if (session.pc >= session.tokens.length || step) {
+        if (session.pc >= session.tokens.length || opts['step']===true) {
             if (session.pc >= session.tokens.length) {
-                if(macro === undefined) {
+                if(opts['macro'] === undefined) {
                     sigTerm();
                 }
             }
@@ -134,7 +139,7 @@ function execSubCode(ob)
     session.tokens = compile(ob.bf_code)
     session.savedPcStack.push(session.pc);
     session.pc = 0;
-    interpret(false, true);
+    interpret({'macro':true});
     session.pc = session.savedPcStack.pop();
     session.tokens = session.savedTokens.pop();
 }
@@ -190,7 +195,7 @@ function handlePutMacro(name)
     session.macroPcStack.push({pc: session.pc,memLoc:session.pointer}); 
     savedTokens.push(session.tokens);
     session.pc = 0;
-    interpret(false, session.macros[name]);
+    interpret({'macro':true});
     session.pc = session.macroPcStack.pop().pc;
     session.tokens = savedTokens.pop();
 }
