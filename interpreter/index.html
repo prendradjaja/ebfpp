@@ -20,7 +20,7 @@
 
 <!-- / Homepage Specific -->
 </head>
-<body id="top" onload="init()">
+<body id="top" onload="init()" onresize="sizeChange()">
 <div class="wrapper col0">
   <div id="topline">
     <p>Project Team: John Wilkey, Pandu Rendrajaja, John Tran</p>
@@ -68,27 +68,35 @@
 <div class="wrapper">
   <div class="container">
     <div class="content">
+      <div id="in_code_div">
       <p id="in_prog_inf" class='item_title'>
           Input Program
       </p>
       <textarea id='in_code' class='textpane' name="in_code" rows="15"></textarea>
       <br><br> 
+      </div>
+      <div id='output_div'>
       <p class='item_title'>
-          Output
+          Output <button onclick="writeToOutput()" style='float: right' type='button'>Clear</button> 
       </p>
       <textarea readonly class='textpane'  id='output' name="output" style="background:#eee;" rows="5"></textarea>
       <br><br> 
+      </div>
+      <div id='input_div'>
       <p class='item_title'>
           Input
       </p>
       <textarea id='input' class='textpane' name="input" style="background:#fff;" rows="5"></textarea>
       <br><br>
+      </div>
+      <div id='debug_area'>
       <p class='item_title'>
          Debug Area 
       </p>
       <textarea 
         readonly id='debug' class='textpane' name='debug' style="background: #eee" rows="4">
       </textarea>
+      </div>
     </div>
     <div class="contentr" id="proc_env">
       <p id="proc_env_p" class='item_title'>

@@ -45,7 +45,6 @@ function initSession(code)
 function interpret(opts)
 {
     opts = opts || {}
-    sigRun();
     while(true) {
         var inst = session.tokens[session.pc]
         switch (inst.type) {
