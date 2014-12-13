@@ -4,68 +4,120 @@
  * Interpreter GUI logic.
  */
 
-/** True if interpreter session has been created. */
-var hasInit = false
+var hasInit = false     // True if interpreter session has been created.
+var debug = false;      // True to enable more verbose debugging output.
+var timerInterval;      // Used to set and clear timer interval for Debug button.
+var DBG_INTERVAL = 25   // 25ms 'animation' delay for dbg() (The Debug handler).
+
+/** Handle change in screen size */
+function sizeChange()
+{
+    updateDisplay(session);
+}
 
 /**
- * Called from body.onload DOM event. Used to initialize event handlers
- * and anything you want to run before the interpreter runs. 
+ * Called from body.onload DOM event. Put anything that you want to run before
+ * the interpreter loads in here. Currently used to assign event handlers to 
+ * debugger buttons and runs animation events for the DOM elements.
  */
 function init()
 {
+    // Pretty animation for onload
+    $("#in_code_div").animate({opacity:1},1200,function() {})
+    $("#input_div").animate({opacity:1},1200,function() {})
+    if(debug) {
+        $("#debug_area").animate({opacity:1},1200,function() {})
+    }
+
+    // Set up button handlers and whatnot. 
     var id_run = document.getElementById('run');
     var id_dbg= document.getElementById('dbg');
     var id_restart = document.getElementById('restart');
     var id_step = document.getElementById('step');
     var id_sam = document.getElementById('sample1');
     var id_sam2 = document.getElementById('sample2');
-    var id_cont = document.getElementById('continue');
     var id_res = document.getElementById('restartHard');
+    var code_win = document.getElementById('in_code');
+    code_win.addEventListener('keyup', checkInput, false);
     id_sam.addEventListener('click', function(){loadSample(1)}, false);
     id_sam2.addEventListener('click', function(){loadSample(2)}, false);
-    id_run.addEventListener('click', function(){run(false)}, false);
-    id_dbg.addEventListener('click', function(){run(true)}, false);
     id_restart.addEventListener('click', restart, false);
-    id_step.addEventListener('click', step, false);
     id_res.addEventListener('click', hardRestart, false);
+
     running(false);
+    checkInput();   
+}
+
+/** Enable or disable debugger buttons depending on state. */
+function checkInput()
+{
+    var id_run = document.getElementById('run');
+    var id_dbg= document.getElementById('dbg');
+    var id_step = document.getElementById('step');
+
+    if(readFromCodeWindow().length > 0) {
+        id_run.addEventListener('click', run, false);
+        id_dbg.addEventListener('click', dbg, false);
+        id_step.addEventListener('click', step, false);
+        id_run.setAttribute("style", "color:#059BD8; cursor: normal;");
+        id_dbg.setAttribute("style", "color:#059BD8; cursor: normal;");
+        id_step.setAttribute("style", "color059BD8; cursor: normal;");
+    } else {
+        id_run.setAttribute("style", "color:#e3e3e3; cursor:default;")
+        id_dbg.setAttribute("style", "color:#e3e3e3; cursor:default;")
+        id_step.setAttribute("style", "color:#e3e3e3; cursor:default;")
+        id_run.removeEventListener("click", run, false);
+        id_step.removeEventListener("click", step, false);
+        id_dbg.removeEventListener("click",dbg, false);
+    }
 }
 
 /** 
- * Handler for the run action.  
- *
- * @param   dbg     True if we want to attach the debugger, false otherwise.
+ * Handler for the run action. Runs the interpreter on the given code. run()
+ * does not provide interactivity while the code runs and will not stop at
+ * breakpoints, use dbg() for that functionality. 
  */ 
-function run(dbg)
+function run()
 {
-    cls();
-    sigResume();
     newSession();
-    interpret((dbg) ? {'dbg':true} : {});
+    sigRun(false);
+    interpret({});
+}
+
+/** 
+ * Handler for the debug action. dbg() differs from run() in that it:
+ * (1) Animates the code as it reads it and (2) obeys (i.e., stops at) break
+ * points (run() ignores breakpoints). 
+ */
+function dbg()
+{
+    timerInterval = setInterval(step, DBG_INTERVAL);
 }
 
 /**
  * Construct a new session. This is called in response to either 
- * the run or step buttons being pressed after loading new code.
+ * the run, step, or debug buttons being pressed after loading new code.
  */          
 function newSession()
 {
+    session = null;
     initSession(compile(readFromCodeWindow()));
     hasInit = true;
 }
 
-/** Resume from a breakpoint.  */
-function contin()
+/** Abort session. Start everything over */
+function sigAbrt()
 {
-    sigResume();
-    interpret();
+    clearInterval(timerInterval);
+    running(false);
+    hasInit = false;
+    session = null;
 }
 
 /** Hander for the restart action. */
 function restart()
 {
-    cls();
-    location.reload();
+    sigAbrt();
 }
 
 /** Reset everything (i.e., clear program and all other panes. */
@@ -128,6 +180,7 @@ function debug(msg)
 function writeToInput(msg)
 {
     document.getElementById('in_code').value = msg;
+    checkInput();
 }
 
 /**
@@ -137,8 +190,17 @@ function writeToInput(msg)
  */
 function writeToOutput(msg)
 {
-    if (msg === null) { console.log("TRUE"); }
-    document.getElementById('output').value += msg;
+    var vis = $("#output_div").css('display');
+    if(msg !== undefined) {
+        if(vis === 'none') {
+            $("#output_div").fadeIn(600);
+        }
+        if (msg === null) { console.log("TRUE"); }
+        document.getElementById('output').value += msg;
+    } else {
+        if(vis === 'block') { $("#output_div").fadeOut(300); }
+        $("textarea#output").val("");
+    }
 }
 
 /** Read the output window. */
@@ -215,40 +277,36 @@ function updateMemDisp(val, datastore)
     var inst_1 = document.getElementById('inst');
     document.getElementById("pc_inf").innerHTML = session.pc
     var nextInst = session.tokens[session.pc]
-    inst_1.innerHTML = 
-        nextInst === undefined 
-        ? 'NONE' 
-        : (nextInst.type === 'bf_command') 
-            ? nextInst.cmd 
-            : nextInst.type
+    inst_1.innerHTML = nextInst === undefined ? 'NONE' : printEBF(nextInst)
 
     var resStr = ""
+    var indexStr = ""
 
-    for (i = 0; i < 256; i++) {
-        var e = '' + datastore.memory[i]
+    var slots = Math.floor(mmap.offsetWidth/(65));
+    for (i = datastore.pointer-slots; i < datastore.pointer+slots; i++) {
+        var j = i < 0 ? 256+i : i;
+        var e = '' + datastore.memory[j]
         var f = '000'.concat(e).substr(e.length)
-        if(i == datastore.pointer) {
-            resStr += '_' + f + '_'
-        }
-        else {
-            resStr += f
-        }
-        resStr += '&nbsp&nbsp&nbsp&nbsp&nbsp'
+        if(j == datastore.pointer) { resStr += '<span>' + f + '</span>' }
+        else { resStr += f }
+        resStr += '&nbsp'
+        index = '000'.concat(j.toString()).substr(j.toString().length)
+        indexStr += index+'&nbsp';
     }
 
+    var used = session.pc < 2*slots ? session.pc : 2*slots;
     var instructions = 
         _.map(
-            session.tokens.slice(0),
-            function(x) { return x.type === 'bf_command' ? x.cmd : x.type; }
+            session.tokens.slice(session.pc-used,session.pc+2*slots),
+            printEBF
         );
-    instructions.splice(session.pc,0,'#');
+    instructions.splice(used,0,'<span>');
+    instructions.splice(used+2,0,'</span>');
+    for(var i = used; i<2*slots; i++) {
+        instructions.splice(0,0,'_');
+    }
     inst.innerHTML = instructions.join(" ")
-    var scrollPos = 
-        (3*session.pc / instructions.join(" ").length) * inst.scrollLeftMax
-    inst.scrollLeft = scrollPos
-    mmap.innerHTML = resStr
-    scrollPos = (datastore.pointer/255)*mmap.scrollLeftMax;
-    mmap.scrollLeft = scrollPos;
+    mmap.innerHTML = resStr+'<br>'+indexStr;
     indicator.innerHTML = val;
 }
 
@@ -265,20 +323,34 @@ function sigBreak(state)
 /** Signal a resume from breakpoint. */
 function sigResume()
 {
+    running(true, true);
     signal("Running", "info")
 }
 
 /** Signal the end of the program. */
 function sigTerm()
 {
+    clearInterval(timerInterval);
     signal("DONE", "info")
     running(false);
+    hasInit = false;
+    session = null;
 }
 
-/** Signal that the interpreter is running. */
-function sigRun()
+/** 
+ * Signal that the interpreter is running. 
+ *
+ * @param   dbg     True if running in debugger mode.
+ * */
+function sigRun(dbg)
 {
-    running(true);
+    if(dbg) {
+        signal("Running", "info")
+        running(true, true);
+    } else { 
+        signal("Running", "info")
+        running(true, false);
+    }
 }
 
 /**
@@ -315,32 +387,68 @@ function updateLocDisp(session)
 /**
  * Set GUI indicators that the program is running or not.
  *
- * @param   y   True if interpreter session is running, false otherwise.
+ * @param   y       True if interpreter session is running, false otherwise.
+ * @param   debug   True if running in debugger mode.
  */
-function running(y)
+function running(y, debug)
 {
-    var runButton = document.getElementById("run")
+    if(y && !debug) { return; }
+
+    var runBtn = document.getElementById("run")
     var contBtn = document.getElementById('continue');
     var reldBtn = document.getElementById('restart')
-    
+    var dbgBtn = document.getElementById('dbg');
+
     if (y) {
         reldBtn.innerHTML = "STOP"
         document.getElementById("in_code").style.background = "#eee";
         document.getElementById("in_code").setAttribute("readonly", "true")
         contBtn.removeAttribute("style");
-        runButton.setAttribute("style", "color:#e3e3e3; cursor:default;")
-        runButton.removeEventListener("click", run, false);
-        contBtn.addEventListener("click", contin, false);
-
+        contBtn.addEventListener("click", dbg, false);
+        reldBtn.setAttribute("style", "color:#059BD8; cursor: normal;");
+        runBtn.setAttribute("style", "color:#e3e3e3; cursor:default;")
+        runBtn.removeEventListener("click", run, false);
+        dbgBtn.setAttribute("style", "color:#e3e3e3; cursor:default;")
+        dbgBtn.removeEventListener("click", dbg, false);
+        var proc_style = document.getElementById('proc_env').style.display;
+        if(!proc_style || proc_style === 'none') {
+            $("#proc_env").css('display', 'block');
+            $(".content").animate({width:'49%'},200,function() {})
+            $("#proc_env").delay(200).animate({opacity:1},500,function() {})
+        }
     } else {
-        reldBtn.innerHTML = "Reload"
-        runButton.innerHTML = "Run"
-        contBtn.removeEventListener("click", contin, false);
+        contBtn.removeEventListener("click", dbg, false);
         contBtn.setAttribute("style", "color:#e3e3e3; cursor: default;");
         document.getElementById("in_code").removeAttribute("readonly")
         document.getElementById("in_code").style.background = "#fff";
-        runButton.removeEventListener("click", restart, false);
-        runButton.addEventListener("click", run, false);
+        runBtn.removeEventListener("click", restart, false);
+        runBtn.addEventListener("click", run, false);
+        runBtn.setAttribute("style", "color:#059BD8; cursor: normal;");
+        dbgBtn.addEventListener("click", dbg, false);
+        dbgBtn.setAttribute("style", "color:#059BD8; cursor: normal;");
+        reldBtn.setAttribute("style", "color:#e3e3e3; cursor: default;");
+        if(document.getElementById('proc_env').style.display === 'block') {
+            $("#proc_env").animate({opacity:0},300,function() {
+                $(".content").animate({width:'97%'},200,function() {
+                    $("#proc_env").css('display', 'none');})})
+        }
+    }
+}
+
+/**
+ * Pretty print EBF++ instruction
+ *
+ * @param   inst    Instruction to print
+ */
+function printEBF(inst)
+{
+    switch(inst.type) {
+        case 'bf_command':
+            return inst.cmd;
+        case 'def_var':
+            return inst.ebf_code;
+        default:
+            return inst.ebf_code;
     }
 }
 
@@ -353,7 +461,7 @@ function running(y)
 function signal(msg, lv)
 {
     var x = document.getElementById("in_prog_inf")
-    x.innerHTML = msg
+    x.innerHTML = msg || "Input Program"
 
     if (lv == "info") {
         x.style.backgroundColor = "green";

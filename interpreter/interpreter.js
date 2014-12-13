@@ -45,7 +45,6 @@ function initSession(code)
 function interpret(opts)
 {
     opts = opts || {}
-    sigRun();
     while(true) {
         var inst = session.tokens[session.pc]
         switch (inst.type) {
@@ -313,5 +312,7 @@ function interpret_bf_command(inst) {
             session.bracketPcStack.push(session.pc);
             session.pc++;
             break;
+        default:
+            throw new Error("ERR_NO_INST " + inst);
     }
 }

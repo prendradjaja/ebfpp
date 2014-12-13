@@ -98,11 +98,19 @@ textarea { resize: none; font-family: Arial, Helvetica, Sans-serif; font-size: 1
 
 .container{padding:9px 0;}
 .content{
-    display:block; float:left; width:49%; 
+    display:block; float:left; width:97%; 
 }
 .contentr{
-    display:block; float:right; width:49%; 
+    display:block; 
+    float:right; 
+    width:49%; 
 }
+
+#proc_env { opacity:0; }
+#debug_area { opacity: 0; }
+#in_code_div { opacity: 0; }
+#output_div { display: none; }
+#input_div { opacity: 0; }
 
 p.item_title {
     border: 1px solid #ddd;
@@ -137,6 +145,7 @@ p.item_title {
 }
 
 .viewer {
+    font-family:monospace;
     width: 95%;
     height: 30px;
     padding: 6px;
@@ -148,15 +157,27 @@ p.item_title {
     white-space: nowrap;
 }
 
+.viewer span {
+    color: red;
+    font-weight:bold;
+}
+
 .memviewer {
+    display:block;
+    font-family: monospace;
     width: 95%;
-    height: 30px;
-    padding: 6px;
+    height: 37px;
+    padding: 8px;
     border: 1px solid black;
     background-color: #eeeeee;
-    margin:0px;
+    line-height:22px;
     overflow: scroll; 
     white-space: nowrap;
+}
+
+.memviewer span { 
+    color: red;
+    font-weight:bold;
 }
 
 
