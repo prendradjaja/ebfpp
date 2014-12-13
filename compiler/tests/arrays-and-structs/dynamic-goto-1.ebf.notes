@@ -1,0 +1,27 @@
+:index
+:=Point { x y }
+::quadrilateral Point { 1 2 / 3 4 / 5 6 / 7 8 }
+
+values  | 2  1  2  .  .  3  4  .  .  5  6  .  .  7  8  .  .
+mem ind | 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15
+arr ind | ~  0           1           2           3
+
++>++>>>+++>++++>>>+++++>++++++>>>+++++++>++++++++>>
+
+$index 2+
+
+++
+
+$!quadrilateral index
+
+; move $index into (index 0, #pad0)
+$index (- $pad0 +)
+$pad0
+
+(
+    move pad0 into next pad0
+    move pad1 into next pad1
+    dec next pad0
+    inc next pad1
+    go to next pad0
+)

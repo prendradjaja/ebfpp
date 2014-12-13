@@ -3,6 +3,7 @@
 
 if (typeof require !== 'undefined') {
     var parser = require('../ebfpp.js');
+    var util = require('../util.js'); // do the "vars" need to be removed from this and above?
     var fs = require('fs');
     var _ = require('underscore');
 }
@@ -13,12 +14,12 @@ function main() {
     }
     var ebfpp_code = fs.readFileSync(process.argv[2], 'utf8');
     var compiler_output = compile(ebfpp_code);
-    var bf_code = ''
-    for (var i in compiler_output) {
-        bf_code += compiler_output[i].bf_code
-    }
-    console.log(bf_code);
+    console.log(generate_bf_code_of_compiled_ast(compiler_output));
 }
+
+var PAD_SIZE = 2;
+// Constant representing how many spaces of padding are between array
+// elements.
 
 var pointer = 0;
 // Keeps track of where the pointer goes during the program. This is used
@@ -57,35 +58,62 @@ var last_array_access = {array_name: '', index: 0};
 // Contains information on the last array access made. This is used for the
 // $$ (goto_member) command.
 
-var array_element_types = {};
-// A dictionary mapping names of arrays to the names of their element types.
+var arrays = {};
+// A dictionary mapping array names to arrays.
+var array = named_list('element_type length');
 
 function current_macro_frame() {
     return macro_stack[macro_stack.length - 1];
 }
 
-function compile(program) { /*
-    program: An array of nodes representing an EBF program.
-    returns: The same array, with a few extra fields in each node. The
-        following are the most useful:
-          - ebf_code
-          - bf_code
-        There are also:
-          - preceding_whitespace
-          - raw_ebf_code
+var lines;
+function compile(program) {
+    lines = program.split('\n');
+    var ast = parser.parse(program);
+    return _compile(ast);
+}
 
+function generate_bf_code_of_compiled_ast(compiled_ast) {
+    var bf_code = '';
+    for (var i in compiled_ast) {
+        bf_code += compiled_ast[i].bf_code;
+    }
+    return bf_code;
+}
+
+var pos_stack = [{ last_line: 1, last_column: 0, first_line: 1, first_column: 0 }];
+
+function _compile(ast) { /*
     The global variable `pointer` may be changed, according to what happens in
     the program. */
-    var ast = create_ast(program);
+    ast = clone(ast);
+    var prev_pos = pos_stack[pos_stack.length - 1];
     for (var i in ast) {
-        compile_node(ast[i]);
+        ast[i] = clone(ast[i]);
+        var node = ast[i];
+        var instruction = node.instruction;
+        var position = node.position;
+        instruction.raw_ebf_code = grab_chars(lines, position);
+        var space_pos = blank_space(prev_pos, position);
+        instruction.preceding_whitespace = grab_chars(lines, space_pos);
+        pos_stack.push(space_pos);
+        compile_node(instruction);
+        pos_stack.pop();
+        prev_pos = position;
+        ast[i] = instruction;
     }
     return ast;
 }
 
+function parse_and_compile(ebfpp_code) {
+    return generate_bf_code_of_compiled_ast(_compile(parser.parse(ebfpp_code)));
+}
+
 function compile_node(node) {
     node.bf_code = _compile_node(node);
-    node.ebf_code = node.raw_ebf_code.replace(/\s/g, '');
+    if (typeof node.raw_ebf_code !== 'undefined') {
+        node.ebf_code = node.raw_ebf_code.replace(/\s/g, '');
+    }
 }
 
 function _compile_node(node) { /*
@@ -98,16 +126,20 @@ function _compile_node(node) { /*
         case 'dealloc_var': return compile_dealloc_var(node);
         case 'l_paren':     return compile_l_paren(node);
         case 'r_paren':     return compile_r_paren(node);
-        // case 'def_macro':   return compile_def_macro(node);
-        // case 'put_argument':   return compile_put_argument(node);
-        // case 'put_macro':   return compile_put_macro(node);
+        case 'def_macro':   return compile_def_macro(node);
+        case 'put_argument':   return compile_put_argument(node);
+        case 'put_macro':   return compile_put_macro(node);
         case 'go_offset':   return compile_go_offset(node);
         case 'at_offset':   return compile_at_offset(node);
         case 'multiplier':  return compile_multiplier(node);
-        // case 'def_array_init':  return compile_def_array_init(node);
-        // case 'goto_index_static':  return compile_goto_index_static(node);
-        // case 'def_struct':  return compile_def_struct(node);
-        // case 'goto_member': return compile_goto_member(node);
+        case 'store_str':   return compile_store_str(node);
+        case 'print_str':   return compile_print_str(node);
+        case 'def_array_init':  return compile_def_array_init(node);
+        case 'goto_index_static':  return compile_goto_index_static(node);
+        case 'goto_index_dynamic':  return compile_goto_index_dynamic(node);
+        case 'for_loop':  return compile_for_loop(node);
+        case 'def_struct':  return compile_def_struct(node);
+        case 'goto_member': return compile_goto_member(node);
         default:
             crash_with_error('unsupported AST node in code generator: ' +
                     node.type);
@@ -170,7 +202,9 @@ function compile_def_macro(node) {
 function compile_put_argument(node) {
     var arg_dict = current_macro_frame().arg_dict;
     if (node.name in arg_dict) {
-        return compile(arg_dict[node.name]);
+        var compiled_body = _compile(arg_dict[node.name]);
+        node.inside = compiled_body;
+        return generate_bf_code_of_compiled_ast(compiled_body);
     } else {
         // TODO: make this search up through parents, only giving an error if
         // the argument name is not found in any frame.
@@ -186,7 +220,9 @@ function compile_put_macro(node) {
     var arg_dict = _.object(macro.args, node.arg_values);
 
     macro_stack.push(macro_frame(pointer, arg_dict));
-    var body = compile(macros[node.name].body);
+    var compiled_body = _compile(macros[node.name].body);
+    node.inside = compiled_body;
+    var body = generate_bf_code_of_compiled_ast(compiled_body);
     macro_stack.pop();
     return body;
 }
@@ -209,6 +245,28 @@ function compile_multiplier(node) {
     return repeat_string(node.cmd, node.times);
 }
 
+function compile_store_str(node) {
+    var output = '';
+    for (var i = 0; i < node.string.length; i++) {
+        var char_code = node.string.charCodeAt(i);
+        output += _compile_node(util.multiplier('+', char_code));
+        output += parse_and_compile('>');
+    }
+    return output;
+}
+
+function compile_print_str(node) {
+    var output = '';
+    var cell_value = 0;
+    for (var i = 0; i < node.string.length; i++) {
+        var char_code = node.string.charCodeAt(i);
+        output += change_cell_value(cell_value, char_code);
+        output += parse_and_compile('.');
+        cell_value = char_code;
+    }
+    return output;
+}
+
 function compile_def_array_init(node) {
     var bf_code = '';
     var member_names = struct_types[node.element_type];
@@ -229,18 +287,61 @@ function compile_def_array_init(node) {
             bf_code += move_pointer(memory_location) + repeat_string('+', value);
         }
     }
-    array_element_types[node.name] = node.element_type;
+    arrays[node.name] = array(node.element_type, node.values.length);
     return bf_code;
 }
 
 function compile_goto_index_static(node) {
     last_array_access.name = node.name;
     last_array_access.index = node.index;
-    var first_member_name = struct_types[array_element_types[node.name]][0];
+    var first_member_name = struct_types[arrays[node.name].element_type][0];
     var memory_location = variables.indexOf(
                               construct_illegal_var_name(
                                   node.name, node.index, first_member_name));
     return move_pointer(memory_location);
+}
+
+function compile_goto_index_dynamic(node) {
+    var output = '';
+    var array_name = node.array_name;
+    var array = arrays[array_name];
+    var array_length = array.length;
+    var struct_members = struct_types[array.element_type];
+    var padless_struct_size = struct_members.length;
+    var full_struct_size = padless_struct_size + PAD_SIZE;
+
+    output += _compile_node(util.go_var(node.index_var));
+    output += parse_and_compile('(-');
+    output += _compile_node(util.goto_index_static(array_name, 0));
+    output += _compile_node(util.multiplier('>', padless_struct_size));
+    output += parse_and_compile('+)');
+    output += _compile_node(util.goto_index_static(array_name, 0));
+    output += _compile_node(util.multiplier('>', padless_struct_size));
+
+    output += parse_and_compile('[');
+        output += parse_and_compile('(-');
+        output += _compile_node(util.multiplier('>', full_struct_size));
+        output += parse_and_compile('+)>(-');
+        output += _compile_node(util.multiplier('>', full_struct_size));
+        output += parse_and_compile('+)');
+        output += _compile_node(util.multiplier('>', full_struct_size));
+        output += parse_and_compile('+<-');
+    output += parse_and_compile(']');
+    output += _compile_node(util.multiplier('<', padless_struct_size));
+    return output;
+}
+
+function compile_for_loop(node) {
+    var array_name = node.array_name;
+    var array_length = arrays[array_name].length;
+    var output = '';
+    for(var i = 0; i < array_length; i++) {
+        // TODO: use constructor
+        var temp_node = {name: array_name, index: i};
+        output += compile_goto_index_static(temp_node);
+        output += generate_bf_code_of_compiled_ast(_compile(node.body));
+    }
+    return output;
 }
 
 function compile_def_struct(node) {
@@ -279,6 +380,17 @@ function move_pointer(destination) { /*
         return repeat_string('<', -distance);
     } else {
         return repeat_string('>', distance);
+    }
+}
+
+function change_cell_value(old_value, new_value) { /*
+    Returns the BF code to change the current cell's value from old_value to
+    new_value. This is used in compile_print_str(). */
+    var difference = new_value - old_value;
+    if (difference > 0) {
+        return _compile_node(util.multiplier('+', difference));
+    } else {
+        return _compile_node(util.multiplier('-', -difference));
     }
 }
 
@@ -323,25 +435,23 @@ function named_list(fieldnamestr) {
     };
 }
 
-function create_ast(ebfpp_code) {
-    // TODO: recurse into bodies! -- macro definitions have bodies, and macro
-    // insertions have values which are really also bodies
-    var lines = ebfpp_code.split('\n');
-    var parser_output = parser.parse(ebfpp_code);
-    var prev_pos = { last_line: 1, last_column: 0, first_line: 1, first_column: 0 };
-    var ast = [];
-    for (var i in parser_output) {
-        var pair = parser_output[i];
-        var instruction = pair.instruction;
-        TODO1(instruction);
-        var position = pair.position;
-        instruction.raw_ebf_code = grab_chars(lines, position);
-        instruction.preceding_whitespace = grab_chars(lines, blank_space(prev_pos, position));
-        ast.push(instruction);
-        prev_pos = position;
-    }
-    return ast;
-}
+// function create_ast(ebfpp_code) {
+//     // TODO: recurse into bodies! -- macro definitions have bodies, and macro
+//     // insertions have values which are really also bodies
+//     var prev_pos = { last_line: 1, last_column: 0, first_line: 1, first_column: 0 };
+//     var ast = [];
+//     for (var i in parser_output) {
+//         var pair = parser_output[i];
+//         var instruction = pair.instruction;
+//         TODO1(instruction);
+//         var position = pair.position;
+//         instruction.raw_ebf_code = grab_chars(lines, position);
+//         instruction.preceding_whitespace = grab_chars(lines, blank_space(prev_pos, position));
+//         ast.push(instruction);
+//         prev_pos = position;
+//     }
+//     return ast;
+// }
 
 function TODO1(instruction) {
     switch(instruction.type) {
@@ -378,6 +488,10 @@ function blank_space(p1, p2) {
             last_line: p2.first_line,
             first_column: p1.last_column,
             last_column: p2.first_column}
+}
+
+function clone(obj) {
+    return JSON.parse(JSON.stringify(obj));
 }
 
 if (typeof require !== 'undefined' && require.main === module) {
