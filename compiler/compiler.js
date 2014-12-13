@@ -12,12 +12,8 @@ function main() {
         crash_with_error('Need a file to compile. Run with:\n  $ node compiler.js file.ebf');
     }
     var ebfpp_code = fs.readFileSync(process.argv[2], 'utf8');
-    var compiler_output = compile(ebfpp_code);
-    var bf_code = ''
-    for (var i in compiler_output) {
-        bf_code += compiler_output[i].bf_code
-    }
-    console.log(bf_code);
+    var compiler_output = entry_point(ebfpp_code);
+    console.log(JSON.stringify(compiler_output, null, 2));
 }
 
 var pointer = 0;
@@ -64,28 +60,34 @@ function current_macro_frame() {
     return macro_stack[macro_stack.length - 1];
 }
 
-function compile(program) { /*
-    program: An array of nodes representing an EBF program.
-    returns: The same array, with a few extra fields in each node. The
-        following are the most useful:
-          - ebf_code
-          - bf_code
-        There are also:
-          - preceding_whitespace
-          - raw_ebf_code
+function entry_point(program) {
+    var lines = program.split('\n');
+    var ast = parser.parse(program);
+    return compile(ast);
+}
 
+function generate_bf_code_of_compiled_ast(compiled_ast) {
+    var bf_code = '';
+    for (var i in compiled_ast) {
+        bf_code += compiled_ast[i].bf_code;
+    }
+    return bf_code;
+}
+
+function compile(ast) { /*
     The global variable `pointer` may be changed, according to what happens in
     the program. */
-    var ast = create_ast(program);
     for (var i in ast) {
-        compile_node(ast[i]);
+        var node = ast[i];
+        compile_node(node);
     }
     return ast;
 }
 
 function compile_node(node) {
     node.bf_code = _compile_node(node);
-    node.ebf_code = node.raw_ebf_code.replace(/\s/g, '');
+    // IMPORTANT TODO: need to clone the object, otherwise each insertion of the same macro will be the same as the last insertion
+    // node.ebf_code = node.raw_ebf_code.replace(/\s/g, '');
 }
 
 function _compile_node(node) { /*
@@ -98,16 +100,16 @@ function _compile_node(node) { /*
         case 'dealloc_var': return compile_dealloc_var(node);
         case 'l_paren':     return compile_l_paren(node);
         case 'r_paren':     return compile_r_paren(node);
-        // case 'def_macro':   return compile_def_macro(node);
-        // case 'put_argument':   return compile_put_argument(node);
-        // case 'put_macro':   return compile_put_macro(node);
+        case 'def_macro':   return compile_def_macro(node);
+        case 'put_argument':   return compile_put_argument(node);
+        case 'put_macro':   return compile_put_macro(node);
         case 'go_offset':   return compile_go_offset(node);
         case 'at_offset':   return compile_at_offset(node);
         case 'multiplier':  return compile_multiplier(node);
-        // case 'def_array_init':  return compile_def_array_init(node);
-        // case 'goto_index_static':  return compile_goto_index_static(node);
-        // case 'def_struct':  return compile_def_struct(node);
-        // case 'goto_member': return compile_goto_member(node);
+        case 'def_array_init':  return compile_def_array_init(node);
+        case 'goto_index_static':  return compile_goto_index_static(node);
+        case 'def_struct':  return compile_def_struct(node);
+        case 'goto_member': return compile_goto_member(node);
         default:
             crash_with_error('unsupported AST node in code generator: ' +
                     node.type);
@@ -170,7 +172,9 @@ function compile_def_macro(node) {
 function compile_put_argument(node) {
     var arg_dict = current_macro_frame().arg_dict;
     if (node.name in arg_dict) {
-        return compile(arg_dict[node.name]);
+        var compiled_body = compile(arg_dict[node.name]);
+        node.inside = compiled_body;
+        return generate_bf_code_of_compiled_ast(compiled_body);
     } else {
         // TODO: make this search up through parents, only giving an error if
         // the argument name is not found in any frame.
@@ -186,7 +190,9 @@ function compile_put_macro(node) {
     var arg_dict = _.object(macro.args, node.arg_values);
 
     macro_stack.push(macro_frame(pointer, arg_dict));
-    var body = compile(macros[node.name].body);
+    var compiled_body = compile(macros[node.name].body);
+    node.inside = compiled_body;
+    var body = generate_bf_code_of_compiled_ast(compiled_body);
     macro_stack.pop();
     return body;
 }
@@ -323,25 +329,23 @@ function named_list(fieldnamestr) {
     };
 }
 
-function create_ast(ebfpp_code) {
-    // TODO: recurse into bodies! -- macro definitions have bodies, and macro
-    // insertions have values which are really also bodies
-    var lines = ebfpp_code.split('\n');
-    var parser_output = parser.parse(ebfpp_code);
-    var prev_pos = { last_line: 1, last_column: 0, first_line: 1, first_column: 0 };
-    var ast = [];
-    for (var i in parser_output) {
-        var pair = parser_output[i];
-        var instruction = pair.instruction;
-        TODO1(instruction);
-        var position = pair.position;
-        instruction.raw_ebf_code = grab_chars(lines, position);
-        instruction.preceding_whitespace = grab_chars(lines, blank_space(prev_pos, position));
-        ast.push(instruction);
-        prev_pos = position;
-    }
-    return ast;
-}
+// function create_ast(ebfpp_code) {
+//     // TODO: recurse into bodies! -- macro definitions have bodies, and macro
+//     // insertions have values which are really also bodies
+//     var prev_pos = { last_line: 1, last_column: 0, first_line: 1, first_column: 0 };
+//     var ast = [];
+//     for (var i in parser_output) {
+//         var pair = parser_output[i];
+//         var instruction = pair.instruction;
+//         TODO1(instruction);
+//         var position = pair.position;
+//         instruction.raw_ebf_code = grab_chars(lines, position);
+//         instruction.preceding_whitespace = grab_chars(lines, blank_space(prev_pos, position));
+//         ast.push(instruction);
+//         prev_pos = position;
+//     }
+//     return ast;
+// }
 
 function TODO1(instruction) {
     switch(instruction.type) {
