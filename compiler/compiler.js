@@ -12,11 +12,8 @@ function main() {
         crash_with_error('Need a file to compile. Run with:\n  $ node compiler.js file.ebf');
     }
     var ebfpp_code = fs.readFileSync(process.argv[2], 'utf8');
-    var compiler_output = entry_point(ebfpp_code);
-    for (var i in compiler_output) {
-        var node = compiler_output[i];
-        console.log(node.ebf_code + '\t:\t' + node.bf_code);
-    }
+    var compiler_output = compile(ebfpp_code);
+    console.log(generate_bf_code_of_compiled_ast(compiler_output));
 }
 
 var pointer = 0;
@@ -64,10 +61,10 @@ function current_macro_frame() {
 }
 
 var lines;
-function entry_point(program) {
+function compile(program) {
     lines = program.split('\n');
     var ast = parser.parse(program);
-    return compile(ast);
+    return _compile(ast);
 }
 
 function generate_bf_code_of_compiled_ast(compiled_ast) {
@@ -80,7 +77,7 @@ function generate_bf_code_of_compiled_ast(compiled_ast) {
 
 var pos_stack = [{ last_line: 1, last_column: 0, first_line: 1, first_column: 0 }];
 
-function compile(ast) { /*
+function _compile(ast) { /*
     The global variable `pointer` may be changed, according to what happens in
     the program. */
     ast = clone(ast);
@@ -189,7 +186,7 @@ function compile_def_macro(node) {
 function compile_put_argument(node) {
     var arg_dict = current_macro_frame().arg_dict;
     if (node.name in arg_dict) {
-        var compiled_body = compile(arg_dict[node.name]);
+        var compiled_body = _compile(arg_dict[node.name]);
         node.inside = compiled_body;
         return generate_bf_code_of_compiled_ast(compiled_body);
     } else {
@@ -207,7 +204,7 @@ function compile_put_macro(node) {
     var arg_dict = _.object(macro.args, node.arg_values);
 
     macro_stack.push(macro_frame(pointer, arg_dict));
-    var compiled_body = compile(macros[node.name].body);
+    var compiled_body = _compile(macros[node.name].body);
     node.inside = compiled_body;
     var body = generate_bf_code_of_compiled_ast(compiled_body);
     macro_stack.pop();
