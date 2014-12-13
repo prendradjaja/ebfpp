@@ -77,7 +77,9 @@ function generate_bf_code_of_compiled_ast(compiled_ast) {
 function compile(ast) { /*
     The global variable `pointer` may be changed, according to what happens in
     the program. */
+    ast = clone(ast);
     for (var i in ast) {
+        ast[i] = clone(ast[i]);
         var node = ast[i];
         compile_node(node);
     }
@@ -382,6 +384,10 @@ function blank_space(p1, p2) {
             last_line: p2.first_line,
             first_column: p1.last_column,
             last_column: p2.first_column}
+}
+
+function clone(obj) {
+    return JSON.parse(JSON.stringify(obj));
 }
 
 if (typeof require !== 'undefined' && require.main === module) {
