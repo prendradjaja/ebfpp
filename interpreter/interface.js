@@ -9,6 +9,7 @@ var debug = false;      // True to enable more verbose debugging output.
 var timerInterval;      // Used to set and clear timer interval for Debug button.
 var DBG_INTERVAL = 25   // 25ms 'animation' delay for dbg() (The Debug handler).
 var isRunning = false;  // Whether or not debugger is running.
+var inputOffset = 0;    // Offset into char array of user input pane. 
 
 /** Handle change in screen size */
 function sizeChange()
@@ -246,10 +247,24 @@ function readFromCodeWindow()
     return document.getElementById('in_code').value;
 }
 
-/** Read the contents of the input box and return as a string array */
+/** Return the next character from the input character array */
 function readFromInput()
 {
-    return document.getElementById('input').value;
+    var allInput = document.getElementById('input').innerHTML;
+    var div = document.createElement("div")
+    div.innerHTML = allInput;
+    var bareInput = div.textContent
+    bareInput = bareInput.substr(inputOffset, bareInput.length);
+
+    if (bareInput.length > 0) {
+        updateInputDisp();
+        return allInput.charCodeAt(inputOffset++);
+    } else {
+        var content = prompt("Enter a single character input")
+        if(content === null) { sigAbrt(); return; }
+        var c = content[0]
+        return c.charCodeAt(0)
+    }
 }
 
 /** Change the pointer address indicator  */
@@ -400,6 +415,18 @@ function updateLocDisp(session)
     }
 }
 
+/** Update the input window graphic to reflect current input cursor position. */
+function updateInputDisp()
+{
+    var elem = document.getElementById('input')
+    var x = elem.innerHTML;
+    if(x.indexOf("<span") == -1) { x = "<span contenteditable='false'></span>"+x; }
+    var loc = x.indexOf("</span>");
+    var y = x.substr(0,loc) + x.substr(loc+7,1)+"</span>"
+        +x.substr(loc+8,x.length)
+    elem.innerHTML = y;
+}
+
 /**
  * Set GUI indicators that the program is running or not.
  *
@@ -411,10 +438,11 @@ function running(y, debug)
     if(y && !debug) { return; }
     isRunning = y;
     
-    var runBtn = document.getElementById("run")
+    var runBtn  = document.getElementById("run")
     var contBtn = document.getElementById('continue');
     var reldBtn = document.getElementById('restart')
-    var dbgBtn = document.getElementById('dbg');
+    var dbgBtn  = document.getElementById('dbg');
+    var stepBtn = document.getElementById('step');
 
     if (y) {
         reldBtn.innerHTML = "STOP"
@@ -439,16 +467,22 @@ function running(y, debug)
         document.getElementById("in_code").removeAttribute("readonly")
         document.getElementById("in_code").style.background = "#fff";
         runBtn.removeEventListener("click", restart, false);
-        runBtn.addEventListener("click", run, false);
-        runBtn.setAttribute("style", "color:#059BD8; cursor: normal;");
-        dbgBtn.addEventListener("click", dbg, false);
-        dbgBtn.setAttribute("style", "color:#059BD8; cursor: normal;");
+        stepBtn.removeEventListener("click", step, false);
+        stepBtn.setAttribute("style", "color:#e3e3e3; cursor:default;")
+
+        setTimeout(function () {
+            checkInput();
+            signal("","none");
+        }, 1000);
         reldBtn.setAttribute("style", "color:#e3e3e3; cursor: default;");
         if(document.getElementById('proc_env').style.display === 'block') {
             $("#proc_env").animate({opacity:0},300,function() {
                 $(".content").animate({width:'97%'},200,function() {
                     $("#proc_env").css('display', 'none');})})
         }
+        document.getElementById('input').innerHTML = 
+            document.getElementById('input').textContent;
+        inputOffset = 0;
     }
 }
 

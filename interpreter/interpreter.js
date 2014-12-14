@@ -72,7 +72,6 @@ function interpret(opts)
                 session.pc++
                 break;  
             case 'at_var':
-                handleAtVar(inst.name);
                 session.pc++;
                 break;
             case 'go_var':
@@ -96,7 +95,6 @@ function interpret(opts)
                 session.pc++;
                 break;
             case 'at_offset':
-                handleAtOff(inst.offset);
                 session.pc++;
                 break;
             case 'store_str':
@@ -219,30 +217,6 @@ function handleDelVar(name)
 }
 
 /**
- * Handle at_var instruction.
- *
- * @param   name    Name of variable we're indexing to.
- */
-function handleAtVar(name)
-{
-    throw new Error("ERR NOT IMPLEMENTED");
-    // TODO: Not sure about this function yet. 
-    // session.varOffset = session.pointer - vars.indexOf(name)
-}
-
-/**
- * Handle at_offset instruction.
- *
- * @param   offset  Offset to index to.
- */
-function handleAtOff(offset)
-{
-    throw new Error("ERR NOT IMPLEMENTED");
-    // TODO: Not sure about this function yet.
-    // session.varOffset += offset
-}
-
-/**
  * Handle variable definition instruction. 
  *
  * @param   name    Variable name.
@@ -293,14 +267,7 @@ function interpret_bf_command(inst) {
             session.pc++;
             break;
         case ',':
-            var inputWinContent = readFromInput();
-            if (inputWinContent.length > 0) {
-                session.memory[session.pointer] = inputWinContent.charCodeAt(session.inWinOff++);
-            } else {
-                var content = prompt("Enter a single character input")
-                var c = content[0]
-                session.memory[session.pointer] = c.charCodeAt(0)
-            }
+            session.memory[session.pointer] = readFromInput();
             session.pc++;
             break;
         case '.':
