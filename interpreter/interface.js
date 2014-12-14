@@ -430,7 +430,7 @@ function running(y, debug)
         var proc_style = document.getElementById('proc_env').style.display;
         if(!proc_style || proc_style === 'none') {
             $("#proc_env").css('display', 'block');
-            $(".content").animate({width:'49%'},200,function() {})
+            $(".content").animate({width:'37%'},200,function() {})
             $("#proc_env").delay(200).animate({opacity:1},500,function() {})
         }
     } else {

@@ -25,8 +25,9 @@ img{display:block; margin:0; padding:0; border:none;}
 
 .locals {
     border:1px solid #ddd;
-    width: 100%;
-    min-height: 300px;
+    background: #fff;
+    width: 98%;
+    min-height: 100px;
     max-height:300px;
     overflow: scroll;
 }
@@ -67,7 +68,7 @@ div.wrapper h1, div.wrapper h2, div.wrapper h3, div.wrapper h4, div.wrapper h5, 
 
 /* ----------------------------------------------Generalise------------------------------------- */
 
-#header, #topline, #topbar, #breadcrumb, .container, #hpage_cats, #adblock, #socialise, #footer, #copyright{display:block; position:relative; width:92%; margin:0 auto;}
+#header, #topline, #topbar, #breadcrumb, .container, #hpage_cats, #adblock, #socialise, #footer, #copyright{display:block; position:relative; width:99%; margin:0 auto;}
 
 /* ----------------------------------------------TopBar------------------------------------- */
 
@@ -98,32 +99,51 @@ textarea { resize: none; font-family: Arial, Helvetica, Sans-serif; font-size: 1
 
 .container{padding:9px 0;}
 .content{
-    display:block; float:left; width:97%; 
+    display:block; float:left; width:97%;
 }
 .contentr{
     display:block; 
     float:right; 
-    width:49%; 
+    width:60%; 
+    padding-bottom:10px;
 }
 
-#proc_env { opacity:0; }
-#debug_area { opacity: 0; }
-#in_code_div { opacity: 0; }
-#output_div { display: none; }
-#input_div { opacity: 0; }
+#input_div, #in_code_div, #debug_area, #proc_env { 
+    opacity: 0; 
+    border: 1px solid #ddd;    
+    border-radius: 5px;
+    padding-left: 5px;
+    padding-right:5px;
+    padding-bottom:5px;
+    margin:10px;
+    background:#eee;
+}
+#output_div { 
+    display: none; 
+    border: 1px solid #ddd;    
+    border-radius: 5px;
+    padding-left: 5px;
+    padding-right:5px;
+    padding-bottom:5px;
+    margin:10px;
+    background:#eee;
+}
 
 p.item_title {
-    border: 1px solid #ddd;
     font-weight: bold;
-    padding: 2px; 
     padding-left: 20px; 
+    padding-left: 5px;
     background: #eeeeee; 
     border-radius: 5px; 
-    width: 94%;
+    width: 95%;
 }
 
 .textpane {
-    width: 97%;
+    border: 1px solid #ddd;
+    padding: 2px; 
+    background: #eeeeee; 
+    border-radius: 5px; 
+    width: 99%;
     font-family:monospace;
     font-size:14px;
 }
@@ -138,23 +158,23 @@ p.item_title {
 }
 
 .env_info {
-    border: 1px solid #eee;
-    border-radius: 5px;
+    background: #fff;
     padding: 5px;
-    width: 96%;
+    width: 98%;
 }
 
 .viewer {
     font-family:monospace;
-    width: 95%;
+    width: 96%;
     height: 30px;
     padding: 6px;
     border: 1px solid black;
-    background-color: #eeeeee;
+    background: #fff;
     margin:0px;
     overflow: scroll;
     text-align: justify;
     white-space: nowrap;
+    border: 2px solid #ddd;
 }
 
 .viewer span {
@@ -169,10 +189,11 @@ p.item_title {
     height: 37px;
     padding: 8px;
     border: 1px solid black;
-    background-color: #eeeeee;
+    background-color: #fff;
     line-height:22px;
     overflow: scroll; 
     white-space: nowrap;
+    border: 2px solid #ddd;
 }
 
 .memviewer span { 
