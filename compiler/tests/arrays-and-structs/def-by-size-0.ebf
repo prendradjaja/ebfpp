@@ -1,0 +1,6 @@
+; Test whether or not the correct number of elements are allocated.
+
+:= foo {a b c}
+:: arr foo 1
+:a
+$a

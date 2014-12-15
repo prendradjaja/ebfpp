@@ -142,6 +142,7 @@ function _compile_node(node) { /*
         case 'multiplier':  return compile_multiplier(node);
         case 'store_str':   return compile_store_str(node);
         case 'print_str':   return compile_print_str(node);
+        case 'def_array_size':  return compile_def_array_size(node);
         case 'def_array_init':  return compile_def_array_init(node);
         case 'goto_index_static':  return compile_goto_index_static(node);
         case 'goto_index_dynamic':  return compile_goto_index_dynamic(node);
@@ -274,6 +275,19 @@ function compile_print_str(node) {
         cell_value = char_code;
     }
     return output;
+}
+
+function compile_def_array_size(node) {
+    var member_names = struct_types[node.element_type];
+    var member_names_with_pad = add_padding_names(member_names);
+    _(node.size).times(function(i) {
+        for (var j in member_names_with_pad) {
+            var var_name = construct_illegal_var_name(node.name, i, member_names_with_pad[j]);
+            variables.push(var_name);
+        }
+    });
+    arrays[node.name] = array(node.element_type, node.size);
+    return '';
 }
 
 function compile_def_array_init(node) {
