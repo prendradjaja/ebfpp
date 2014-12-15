@@ -21,28 +21,28 @@ var PAD_SIZE = 2;
 // Constant representing how many spaces of padding are between array
 // elements.
 
-var pointer = 0;
+var pointer;
 // Keeps track of where the pointer goes during the program. This is used
 // for variables.
 
-var variables = [];
+var variables;
 // A stack (implemented as an array) representing memory allocation.
 // - The index of a variable name is its location in memory.
 // - Each new variable is pushed onto the stack.
 // - Deallocating a variable pops off the stack.
 // - At the moment, arrays cannot be deallocated.
 
-var macros = {};
+var macros;
 // A dictionary mapping macro names to macros.
 var macro = named_list('args body');
 
-var paren_stack = [];
+var paren_stack;
 // A stack of memory indices used by lparen and rparen.
 // - Every time the program enters a () loop, (not a [] loop!) the current
 //   memory index is pushed to the stack.
 // - Exiting the loop pops off the stack.
 
-var macro_stack = [];
+var macro_stack;
 // A stack of macro_frames.
 // - Whenever a macro is inserted, a new frame is pushed to the stack.
 // - Exiting a macro pops off the stack.
@@ -51,14 +51,14 @@ var macro_frame = named_list('anchor arg_dict');
 //     This is used for the ^ (go_offset) command.
 // arg_dict: A dictionary mapping argument names to values.
 
-var struct_types = {};
+var struct_types;
 // A dictionary mapping names of struct types to lists of their member names.
 
-var last_array_access = {array_name: '', index: 0};
+var last_array_access;
 // Contains information on the last array access made. This is used for the
 // $$ (goto_member) command.
 
-var arrays = {};
+var arrays;
 // A dictionary mapping array names to arrays.
 var array = named_list('element_type length');
 
@@ -70,6 +70,14 @@ var lines;
 function compile(program) {
     lines = program.split('\n');
     var ast = parser.parse(program);
+    pointer = 0;
+    variables = [];
+    macros = {};
+    paren_stack = [];
+    macro_stack = [];
+    struct_types = {};
+    last_array_access = {array_name: '', index: 0};
+    arrays = {};
     return _compile(ast);
 }
 
