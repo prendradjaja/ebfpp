@@ -279,7 +279,7 @@ function compile_print_str(node) {
 function compile_def_array_init(node) {
     var bf_code = '';
     var member_names = struct_types[node.element_type];
-    var member_names_with_pad = member_names.concat('#pad0', '#pad1');
+    var member_names_with_pad = add_padding_names(member_names);
     for (var i in node.values) {
         var struct_values = node.values[i];
         assert(struct_values.length == member_names.length,
@@ -287,7 +287,7 @@ function compile_def_array_init(node) {
                node.name);
 
         // Add on two dummy "padding" variables to the end of
-        var struct_values_with_pad = struct_values.concat(0, 0);
+        var struct_values_with_pad = add_padding_values(struct_values);
         for (var j in struct_values_with_pad) {
             var value = struct_values_with_pad[j];
             var var_name = construct_illegal_var_name(node.name, i, member_names_with_pad[j]);
@@ -380,6 +380,24 @@ function construct_illegal_var_name(array_name, index, member_name) {
     // with user variables.
     // The format of the variable name is: #array.index.member
     return '#' + array_name + '.' + index + '.' + member_name;
+}
+
+function add_padding_names(member_names) { /*
+    Copy the array passed in, adding #pad0, #pad1, ..., #padN to it.
+    N = PAD_SIZE */
+    var new_array = member_names.slice();
+    _(PAD_SIZE).times(function(i) {
+        new_array.push('#pad' + i);
+    });
+    return new_array;
+}
+
+function add_padding_values(struct_values) {
+    var new_array = struct_values.slice();
+    _(PAD_SIZE).times(function(unused) {
+        new_array.push(0);
+    });
+    return new_array;
 }
 
 function move_pointer(destination) { /*
