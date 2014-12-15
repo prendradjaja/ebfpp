@@ -1,0 +1,6 @@
+; Test whether or not we can access elements correctly.
+
+:= foo {a b c}
+:: arr foo 3
+:a
+$:arr 1 . $$b

@@ -21,28 +21,28 @@ var PAD_SIZE = 2;
 // Constant representing how many spaces of padding are between array
 // elements.
 
-var pointer = 0;
+var pointer;
 // Keeps track of where the pointer goes during the program. This is used
 // for variables.
 
-var variables = [];
+var variables;
 // A stack (implemented as an array) representing memory allocation.
 // - The index of a variable name is its location in memory.
 // - Each new variable is pushed onto the stack.
 // - Deallocating a variable pops off the stack.
 // - At the moment, arrays cannot be deallocated.
 
-var macros = {};
+var macros;
 // A dictionary mapping macro names to macros.
 var macro = named_list('args body');
 
-var paren_stack = [];
+var paren_stack;
 // A stack of memory indices used by lparen and rparen.
 // - Every time the program enters a () loop, (not a [] loop!) the current
 //   memory index is pushed to the stack.
 // - Exiting the loop pops off the stack.
 
-var macro_stack = [];
+var macro_stack;
 // A stack of macro_frames.
 // - Whenever a macro is inserted, a new frame is pushed to the stack.
 // - Exiting a macro pops off the stack.
@@ -51,14 +51,14 @@ var macro_frame = named_list('anchor arg_dict');
 //     This is used for the ^ (go_offset) command.
 // arg_dict: A dictionary mapping argument names to values.
 
-var struct_types = {};
+var struct_types;
 // A dictionary mapping names of struct types to lists of their member names.
 
-var last_array_access = {array_name: '', index: 0};
+var last_array_access;
 // Contains information on the last array access made. This is used for the
 // $$ (goto_member) command.
 
-var arrays = {};
+var arrays;
 // A dictionary mapping array names to arrays.
 var array = named_list('element_type length');
 
@@ -70,6 +70,14 @@ var lines;
 function compile(program) {
     lines = program.split('\n');
     var ast = parser.parse(program);
+    pointer = 0;
+    variables = [];
+    macros = {};
+    paren_stack = [];
+    macro_stack = [];
+    struct_types = {};
+    last_array_access = {array_name: '', index: 0};
+    arrays = {};
     return _compile(ast);
 }
 
@@ -134,6 +142,7 @@ function _compile_node(node) { /*
         case 'multiplier':  return compile_multiplier(node);
         case 'store_str':   return compile_store_str(node);
         case 'print_str':   return compile_print_str(node);
+        case 'def_array_size':  return compile_def_array_size(node);
         case 'def_array_init':  return compile_def_array_init(node);
         case 'goto_index_static':  return compile_goto_index_static(node);
         case 'goto_index_dynamic':  return compile_goto_index_dynamic(node);
@@ -268,10 +277,23 @@ function compile_print_str(node) {
     return output;
 }
 
+function compile_def_array_size(node) {
+    var member_names = struct_types[node.element_type];
+    var member_names_with_pad = add_padding_names(member_names);
+    _(node.size).times(function(i) {
+        for (var j in member_names_with_pad) {
+            var var_name = construct_illegal_var_name(node.name, i, member_names_with_pad[j]);
+            variables.push(var_name);
+        }
+    });
+    arrays[node.name] = array(node.element_type, node.size);
+    return '';
+}
+
 function compile_def_array_init(node) {
     var bf_code = '';
     var member_names = struct_types[node.element_type];
-    var member_names_with_pad = member_names.concat('#pad0', '#pad1');
+    var member_names_with_pad = add_padding_names(member_names);
     for (var i in node.values) {
         var struct_values = node.values[i];
         assert(struct_values.length == member_names.length,
@@ -279,7 +301,7 @@ function compile_def_array_init(node) {
                node.name);
 
         // Add on two dummy "padding" variables to the end of
-        var struct_values_with_pad = struct_values.concat(0, 0);
+        var struct_values_with_pad = add_padding_values(struct_values);
         for (var j in struct_values_with_pad) {
             var value = struct_values_with_pad[j];
             var var_name = construct_illegal_var_name(node.name, i, member_names_with_pad[j]);
@@ -372,6 +394,24 @@ function construct_illegal_var_name(array_name, index, member_name) {
     // with user variables.
     // The format of the variable name is: #array.index.member
     return '#' + array_name + '.' + index + '.' + member_name;
+}
+
+function add_padding_names(member_names) { /*
+    Copy the array passed in, adding #pad0, #pad1, ..., #padN to it.
+    N = PAD_SIZE */
+    var new_array = member_names.slice();
+    _(PAD_SIZE).times(function(i) {
+        new_array.push('#pad' + i);
+    });
+    return new_array;
+}
+
+function add_padding_values(struct_values) {
+    var new_array = struct_values.slice();
+    _(PAD_SIZE).times(function(unused) {
+        new_array.push(0);
+    });
+    return new_array;
 }
 
 function move_pointer(destination) { /*
