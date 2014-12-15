@@ -189,11 +189,20 @@ function interpret(opts)
  */
 function execSubCode(ob)
 {
+    var localSession = {};
+    debugLocalSession(localSession);
+
     session.savedTokens.push(session.tokens);
     session.tokens = compile(ob.bf_code)
     session.savedPcStack.push(session.pc);
+    
+    savedSession = session;
+
     session.pc = 0;
     interpret({'macro':true});
+
+    session = savedSession;    
+
     session.pc = session.savedPcStack.pop();
     session.tokens = session.savedTokens.pop();
 }
