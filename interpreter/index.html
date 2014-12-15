@@ -48,6 +48,7 @@
     <div id="topnav">
       <ul>
         <li><a id='run'  href="#">Run</a></li>
+        <li><a id='compile'  href="#">Compile</a></li>
         <li><a id='dbg'  href="#">Debug</a></li>
         <li><a id='step' href="#">Step</a></li>
         <li><a id='continue' href='#'>Continue</a></li>
@@ -74,6 +75,12 @@
       </p>
       <textarea id='in_code' class='textpane' name="in_code" rows="15"></textarea>
       <br>
+      </div>
+      <div id='compile_div'>
+      <p class='item_title'>
+          Compiled Code<button onclick="removeCompiledCode()" style='float: right' type='button'>Discard</button> 
+      </p>
+      <textarea class='textpane' id='compiled' name="compiled" style="background:#fff;" rows="15"></textarea>
       </div>
       <div id='output_div'>
       <p class='item_title'>

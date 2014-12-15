@@ -57,22 +57,47 @@ function checkInput()
     var id_run = document.getElementById('run');
     var id_dbg= document.getElementById('dbg');
     var id_step = document.getElementById('step');
+    var id_cmp = document.getElementById('compile');
 
     if(readFromCodeWindow().length > 0) {
         id_run.addEventListener('click', run, false);
         id_dbg.addEventListener('click', dbg, false);
         id_step.addEventListener('click', step, false);
+        id_cmp.addEventListener('click', compileAST, false);
         id_run.setAttribute("style", "color:#059BD8; cursor: normal;");
         id_dbg.setAttribute("style", "color:#059BD8; cursor: normal;");
         id_step.setAttribute("style", "color059BD8; cursor: normal;");
+        id_cmp.setAttribute("style", "color059BD8; cursor: normal;");
     } else {
         id_run.setAttribute("style", "color:#e3e3e3; cursor:default;")
         id_dbg.setAttribute("style", "color:#e3e3e3; cursor:default;")
         id_step.setAttribute("style", "color:#e3e3e3; cursor:default;")
+        id_cmp.setAttribute("style", "color:#e3e3e3; cursor:default;")
         id_run.removeEventListener("click", run, false);
         id_step.removeEventListener("click", step, false);
         id_dbg.removeEventListener("click",dbg, false);
+        id_cmp.removeEventListener("click",compileAST, false);
     }
+}
+
+/** Remove compiled code window. */
+function removeCompiledCode()
+{
+     $('#compile_div').fadeOut(300); 
+     $('textarea#compiled').val(''); 
+}
+
+/** Display compiled version of input code. Don't actually run code. */
+function compileAST()
+{
+    var vis = $("#compile_div").css('display');
+    if(vis === 'none') {
+        $("#compile_div").fadeIn(600);
+    }
+    var compiledRaw = compile(readFromCodeWindow());
+    
+    document.getElementById('compiled').value = 
+        _.map(compiledRaw,function(x){return printEBF(x,{'expand':true});}).join("");
 }
 
 /** 
@@ -210,7 +235,6 @@ function writeToOutput(msg)
         if(vis === 'none') {
             $("#output_div").fadeIn(600);
         }
-        if (msg === null) { console.log("TRUE"); }
         document.getElementById('output').value += msg;
     } else {
         if(vis === 'block') { $("#output_div").fadeOut(300); }
@@ -362,7 +386,7 @@ function sigResume()
 function sigTerm()
 {
     clearInterval(timerInterval);
-    signal("DONE", "info")
+    signal("DONE", "blue")
     running(false);
     hasInit = false;
     session = null;
@@ -443,6 +467,7 @@ function running(y, debug)
     var reldBtn = document.getElementById('restart')
     var dbgBtn  = document.getElementById('dbg');
     var stepBtn = document.getElementById('step');
+    var cmpBtn = document.getElementById('compile');
 
     if (y) {
         reldBtn.innerHTML = "STOP"
@@ -452,7 +477,9 @@ function running(y, debug)
         contBtn.addEventListener("click", continueFromBreak, false);
         reldBtn.setAttribute("style", "color:#059BD8; cursor: normal;");
         runBtn.setAttribute("style", "color:#e3e3e3; cursor:default;")
+        cmpBtn.setAttribute("style", "color:#e3e3e3; cursor:default;")
         runBtn.removeEventListener("click", run, false);
+        cmpBtn.removeEventListener("click", compileAST, false);
         dbgBtn.setAttribute("style", "color:#e3e3e3; cursor:default;")
         dbgBtn.removeEventListener("click", dbg, false);
         var proc_style = document.getElementById('proc_env').style.display;
@@ -490,16 +517,31 @@ function running(y, debug)
  * Pretty print EBF++ instruction
  *
  * @param   inst    Instruction to print
+ * @param   opts    Optional function options.
  */
-function printEBF(inst)
+function printEBF(inst, opts)
 {
-    switch(inst.type) {
-        case 'bf_command':
-            return inst.cmd;
-        case 'def_var':
-            return inst.ebf_code;
-        default:
-            return inst.ebf_code;
+    opts = opts || {}
+    if(opts['expand'] === true) {
+        switch(inst.type) {
+            case 'bf_command':
+                return inst.cmd;
+            case 'def_var':
+                return inst.ebf_code;
+            case 'multiplier':
+                return inst.bf_code;
+            default:
+                return inst.ebf_code;
+        }
+    } else {
+        switch(inst.type) {
+            case 'bf_command':
+                return inst.cmd;
+            case 'def_var':
+                return inst.ebf_code;
+            default:
+                return inst.ebf_code;
+        }
     }
 }
 
@@ -519,6 +561,9 @@ function signal(msg, lv)
         x.style.color = "white"
     } else if(lv == "notify") {
         x.style.backgroundColor = "red";
+        x.style.color = "white"
+    } else if(lv === "blue") {
+        x.style.backgroundColor = "blue";
         x.style.color = "white"
     } else {
         x.style.backgroundColor = "#eee"
