@@ -430,13 +430,41 @@ function updateLocDisp(session)
     var loc_table = document.getElementById('locals');
     loc_table.innerHTML = 
           '<colgroup><col span="1" style="width:25%"></colgroup>'+
-          '<tr class="head_row"><td><b>Symbol</b></td><td><b>Value</b></td></tr>'
+          '<tr class="head_row"><td><b>Symbol</b></td><td><b>Value</b></td>'+
+          '<td><b>Kind</b></td></tr>'
     for(var v in session.vars) {
         var varVal = session.memory[parseInt(v)]
         loc_table.innerHTML += 
             '<tr><td>'+session.vars[v]+'</td>'
-            +'<td>'+varVal+'</td></tr>';
+            +'<td>'+varVal+'</td>'+'<td>Variable</td></tr>';
     }
+    for(var m in session.macros) {
+        var macro = session.macros[m]
+        var macroString = ""
+        var count = 0;
+
+        for(var inst in macro) {
+            macroString += printEBF(macro[inst].instruction);
+            if(++count > 10) { break; }
+        }
+        loc_table.innerHTML += 
+            '<tr><td>'+m+'</td>'
+            +'<td>'+macroString+((count > 10)?"...":"")+
+            '</td>'+'<td>Macro</td></tr>';
+    }
+    for(var s in session.structs) {
+        loc_table.innerHTML += 
+            '<tr><td>'+s+'</td>'
+            +'<td>'+'Implement Me'+
+            '</td>'+'<td>Struct</td></tr>';
+    }
+    for(var a in session.arrays) {
+        loc_table.innerHTML += 
+            '<tr><td>'+a+'</td>'
+            +'<td>'+'Implement Me'+
+            '</td>'+'<td>Array</td></tr>';
+    }
+
 }
 
 /** Update the input window graphic to reflect current input cursor position. */
@@ -521,6 +549,7 @@ function running(y, debug)
  */
 function printEBF(inst, opts)
 {
+    // TODO Finish implementing pretty printing for remaining data types.
     opts = opts || {}
     if(opts['expand'] === true) {
         switch(inst.type) {

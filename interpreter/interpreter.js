@@ -25,6 +25,8 @@ function initSession(code)
         "savedTokens":      new Array(),
         "vars":             new Array(),
         "macros":           new Array(),
+        "arrays":           new Array(),
+        "structs":          new Array(),
         "inWinOff":         0,
         "savedPcStack":     new Array(),
         "savedParenTokens": new Array(),
@@ -83,7 +85,7 @@ function interpret(opts)
                 session.pc++
                 break;
             case 'put_macro':
-                handlePutMacro(name);
+                execSubCode(inst)
                 session.pc++
                 break;
             case 'def_macro':
@@ -112,8 +114,37 @@ function interpret(opts)
             case 'r_paren':
                 handleRightP(inst);
                 break;
-            // TODO: Implement ++ instructions here.
+            case 'def_array_init':
+                // TODO Finish me. Do something with the debugger with these.
+                session.arrays[inst.name] = inst.values;
+                execSubCode(inst)
+                session.pc++
+                break;
+            case 'goto_index_static':
+                // TODO Finish me. Do something with the debugger with these.
+                execSubCode(inst);
+                session.pc++
+                break;
+            case 'goto_index_dynamic':
+                // TODO Implement Me
+            case 'goto_member':
+                // TODO Finish me. Do something with the debugger with these.
+                execSubCode(inst);
+                session.pc++
+                break;
+            case 'def_struct':
+                // TODO add value to GUI.
+                session.structs[inst.name] = inst.member_names
+                session.pc++;
+                break;
+            case 'def_array_size':
+                // TODO Implement Me
+            case 'put_argument':
+                // TODO Implement Me
+            case 'for_loop':
+                // TODO Implement Me...NOT IN COMPILER YET.
             default:
+                signal("ERROR: " + inst.type + " not implemented");
                 throw new Error("ERR No command attached to " + inst.type);
         }
         updateDisplay(session);
@@ -187,21 +218,6 @@ function handleRightP(inst)
 function handleDefMacro(name, body)
 {
     session.macros[name] = body;
-}
-
-/**
- * Invoke macro.
- *
- * @param   name    Name of macro.
- */
-function handlePutMacro(name)
-{
-    session.macroPcStack.push({pc: session.pc,memLoc:session.pointer}); 
-    savedTokens.push(session.tokens);
-    session.pc = 0;
-    interpret({'macro':true});
-    session.pc = session.macroPcStack.pop().pc;
-    session.tokens = savedTokens.pop();
 }
 
 /**
