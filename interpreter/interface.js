@@ -366,7 +366,7 @@ function updateMemDisp(val, datastore)
     var instructions = 
         _.map(
             session.tokens.slice(session.pc-used,session.pc+slots),
-            function(x) { return count++ + ': '+ printEBF(x) + '<br>' }
+            function(x) { return session.pc-used+(count++) + ': '+ printEBF(x) + '<br>' }
         );
     instructions.splice(used,0,'<span>');
     instructions.splice(used+2,0,'</span>');
