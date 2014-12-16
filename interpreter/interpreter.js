@@ -46,7 +46,6 @@ function initSession(code)
  */                  
 function interpret(opts)
 {
-    var localSession = {};
     var wasBreak = false;
     opts = opts || {}
     while(true) {
@@ -171,8 +170,6 @@ function interpret(opts)
  */
 function execSubCode(ob)
 {
-    var localSession = {};
-
     session.savedTokens.push(session.tokens);
     session.tokens = compile(ob.bf_code)
     session.savedPcStack.push(session.pc);
