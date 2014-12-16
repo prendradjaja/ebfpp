@@ -152,11 +152,12 @@ function newSession()
 {
     session = null;
     try {
-        initSession(compile(readFromCodeWindow()));
+        var compiledCode = compile(readFromCodeWindow());
     } catch(err) {
         signal(err, 'notify');
-        sigAbrt();
+	throw err
     }
+    initSession(compiledCode);
     hasInit = true;
 }
 
