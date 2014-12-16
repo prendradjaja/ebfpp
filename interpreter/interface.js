@@ -458,11 +458,14 @@ function updateLocDisp(session)
             +'<td>'+'Implement Me'+
             '</td>'+'<td>Struct</td></tr>';
     }
-    for(var a in session.arrays) {
+    var sessionArrays = session.arrays;
+    for (i = 0; i < sessionArrays.length; i += 1)  {
+        var arr = sessionArrays[i];
         loc_table.innerHTML += 
-            '<tr><td>'+a+'</td>'
-            +'<td>'+'Implement Me'+
-            '</td>'+'<td>Array</td></tr>';
+            '<tr><td>' + arr.name +'</td>'
+            +'<td>'+'Size: '+ arr.size +
+            '</td>'+'<td>Array Contains Structs of Type ' + arr.element_type
+            + '</td></tr>';
     }
 
 }

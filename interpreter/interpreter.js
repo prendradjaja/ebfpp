@@ -158,6 +158,9 @@ function interpret(opts)
                 break;
             case 'def_array_size':
                 // TODO Implement Me
+                handleDefArraySize(inst);
+                session.pc++;
+                break;
             case 'put_argument':
                 // TODO Implement Me
             case 'for_loop':
@@ -207,6 +210,30 @@ function execSubCode(ob)
     session.tokens = session.savedTokens.pop();
 }
 
+
+
+/** Handles defining arrays containing structs of typle inst.element_type.
+ *  Stores a dictionary of array info inside session.arrays.
+ *  @param inst     instruction contains array name and struct type. */
+function handleDefArraySize(inst) {
+    var structExist = 0;
+   
+    for (struct in session.structs) {
+        if (session.structs.indexOf(inst.element_type)) {
+            structExist += 1;
+        }
+    }
+
+    if (structExist < 1) {
+        throw new Error("Cannot implement array " + inst.name + "due to no "
+                + "existing struct of type " + inst.element_type);
+    }
+
+    arrayInfo = {name: inst.name, element_type: inst.element_type,
+             size: inst.size};
+    
+    session.arrays.push(arrayInfo);
+}
 
 /** 
  * Handle Left paren instruction. 
