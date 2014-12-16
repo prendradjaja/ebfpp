@@ -1,3 +1,6 @@
+; This is the example from our class presentation, which served as a
+; motivating example for parameterized macros.
+
 :n1 +
 :n2 > 2+
 :n3 > 3+

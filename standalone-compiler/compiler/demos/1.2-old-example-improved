@@ -1,3 +1,5 @@
+; This is the same as 1.1-old-example, but written in a slightly nicer way.
+
 :n1 +
 :n2 > 2+
 :n3 > 3+
