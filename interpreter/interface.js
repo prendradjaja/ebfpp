@@ -90,14 +90,19 @@ function removeCompiledCode()
 /** Display compiled version of input code. Don't actually run code. */
 function compileAST()
 {
+    try {
+        var compiledRaw = compile(readFromCodeWindow());
+    } catch(err) {
+        signal(err,"notify");
+        return;
+    }
     var vis = $("#compile_div").css('display');
     if(vis === 'none') {
         $("#compile_div").fadeIn(600);
     }
-    var compiledRaw = compile(readFromCodeWindow());
-    
     document.getElementById('compiled').value = 
-        _.map(compiledRaw,function(x){return printEBF(x,{'expand':true});}).join("");
+        _.map(compiledRaw,function(x){
+            return x.bf_code}).join("").replace(/#/g,"");
 }
 
 /** 
@@ -140,7 +145,12 @@ function continueFromBreak()
 function newSession()
 {
     session = null;
-    initSession(compile(readFromCodeWindow()));
+    try {
+        initSession(compile(readFromCodeWindow()));
+    } catch(err) {
+        signal(err, 'notify');
+        sigAbrt();
+    }
     hasInit = true;
 }
 
@@ -444,7 +454,9 @@ function updateLocDisp(session)
         var count = 0;
 
         for(var inst in macro) {
-            macroString += printEBF(macro[inst].instruction);
+            macroString += (macro[inst].instruction.cmd === undefined ?
+                ' [...] ' : macro[inst].instruction.cmd)
+            console.log(macroString)
             if(++count > 10) { break; }
         }
         loc_table.innerHTML += 
@@ -453,21 +465,49 @@ function updateLocDisp(session)
             '</td>'+'<td>Macro</td></tr>';
     }
     for(var s in session.structs) {
+        var members = session.structs[s].member_names;
+        var memberStr = ""
+        var count = 0;
+        for(var n in members) {
+            memberStr+=members[n]+'&nbsp';
+            if(++count > 10) { break; }
+        }
+
         loc_table.innerHTML += 
             '<tr><td>'+s+'</td>'
-            +'<td>'+'Implement Me'+
+            +'<td>{ '+memberStr+((count > 10)?"...}":" }")+
             '</td>'+'<td>Struct</td></tr>';
     }
-    var sessionArrays = session.arrays;
-    for (i = 0; i < sessionArrays.length; i += 1)  {
-        var arr = sessionArrays[i];
-        loc_table.innerHTML += 
-            '<tr><td>' + arr.name +'</td>'
-            +'<td>'+'Size: '+ arr.size +
-            '</td>'+'<td>Array Contains Structs of Type ' + arr.element_type
-            + '</td></tr>';
-    }
+    for(var a in session.arrays) {
+        var arrWeAreAt = session.atArrIndex == null ? undefined : session.atArrIndex.name
+        var arrIndex = session.atArrIndex == null ? undefined : session.atArrIndex.index
+        var members = session.arrays[a].values
+        var memberStr = ""
+        var count = 0;
 
+        for(var n in members) {
+            if(count == arrIndex && arrWeAreAt == a) {
+                memberStr+='<span style="background:yellow">{';
+                for(var i in members[n]) {
+                    if(parseInt(i) == session.atStrIndex) {
+                        memberStr += '<span style="color:red; text-decoration:underline;font-size:16px;">'+members[n][i]+'</span>' 
+                    } else {
+                        memberStr += members[n][i]
+                    }
+                    if(parseInt(i) < members[n].length-1) {memberStr+=','}
+                }
+                memberStr += '}' + '</span>&nbsp';
+            } else {
+                memberStr+= '{'+members[n]+'}&nbsp';
+            }
+            if(++count > 10) { break; }
+        }
+        loc_table.innerHTML += 
+            '<tr><td>'+a+'</td><td>'
+            +(members.type === 'def_array_size' ? '[&nbsp]' : 
+            '[&nbsp'+memberStr+((count > 10)?"...]":" ]"))+
+            '</td>'+'<td>Array of '+session.arrays[a].element_type+'</td></tr>';
+    }
 }
 
 /** Update the input window graphic to reflect current input cursor position. */
@@ -548,32 +588,14 @@ function running(y, debug)
  * Pretty print EBF++ instruction
  *
  * @param   inst    Instruction to print
- * @param   opts    Optional function options.
  */
-function printEBF(inst, opts)
+function printEBF(inst)
 {
-    // TODO Finish implementing pretty printing for remaining data types.
-    opts = opts || {}
-    if(opts['expand'] === true) {
-        switch(inst.type) {
-            case 'bf_command':
-                return inst.cmd;
-            case 'def_var':
-                return inst.ebf_code;
-            case 'multiplier':
-                return inst.bf_code;
-            default:
-                return inst.ebf_code;
-        }
-    } else {
-        switch(inst.type) {
-            case 'bf_command':
-                return inst.cmd;
-            case 'def_var':
-                return inst.ebf_code;
-            default:
-                return inst.ebf_code;
-        }
+    switch(inst.type) {
+        case 'bf_command':
+            return inst.cmd;
+        default:
+            return inst.ebf_code;
     }
 }
 
