@@ -1,0 +1,5 @@
+{printdots \ x \ tmp \\
+  %tmp 46+
+  %x (- %tmp .)
+  &{zero / %tmp}
+  %x}

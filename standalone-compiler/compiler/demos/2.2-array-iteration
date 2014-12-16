@@ -1,0 +1,13 @@
+:=Pair {first second}
+::list Pair           {65 97 / 66 98 / 67 99}
+; these are ascii for   A  a    B  b    C  c
+
+; You can also iterate through arrays.
+
+~list {
+  ; inside the loop body, you can use $$ to access the members of each struct
+  $$first .
+  $$second ...
+}
+
+; If you run the program, it prints out AaaaBbbbCccc

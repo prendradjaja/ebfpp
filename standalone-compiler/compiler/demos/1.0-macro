@@ -1,0 +1,13 @@
+; define macro
+{pour \ src \ dst \\
+  %src [- %dst+ %src]}
+
+; define and initialize variables
+:a :b
+$a 3+
+$b 2+
+
+; use macro
+&{pour / $a / $b}
+; this expands to
+; $a [- $b+ $a]

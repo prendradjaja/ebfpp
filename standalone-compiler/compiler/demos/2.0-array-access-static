@@ -1,0 +1,10 @@
+:=Pair {first second}
+::list Pair           {65 97 / 66 98 / 67 99}
+; these are ascii for   A  a    B  b    C  c
+
+; you can access an array index
+$:list 1
+
+; and then access the members in that struct
+$$first .
+$$second .
