@@ -1,0 +1,7 @@
+; Print out x dots.
+; tmp is assumed to be zero, and is zero afterwards.
+{printdots \ x \ tmp \\
+  %tmp 46+
+  %x (- %tmp .)
+  &{zero / %tmp}
+  %x}

@@ -1,0 +1,14 @@
+!'stdlib'
+!'printdots'
+
+:=Int {val}
+::list Int {1 / 3 / 10}
+
+:sum
+:t
+
+~list {
+  &{add / $$val / $sum / $t}
+}
+
+&{printdots / $sum / $t}
