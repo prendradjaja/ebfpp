@@ -68,7 +68,7 @@ function interpret(opts)
     opts = opts || {}
     while(true) {
         var inst = session.tokens[session.pc]
-        if(!inst) { sigTerm(); return; }
+        if(!inst) { return; }
         debugLocalSession(localSession);
         switch (inst.type) {
             case 'bf_command':
@@ -134,40 +134,37 @@ function interpret(opts)
                 handleRightP(inst);
                 break;
             case 'def_array_init':
-                // TODO Finish me. Do something with the debugger with these.
                 session.arrays[inst.name] = inst.values;
                 execSubCode(inst)
                 session.pc++
                 break;
             case 'goto_index_static':
-                // TODO Finish me. Do something with the debugger with these.
                 execSubCode(inst);
                 session.pc++
                 break;
             case 'goto_index_dynamic':
-                // TODO Implement Me
+                execSubCode(inst);
+                session.pc++;
+                break;
             case 'goto_member':
-                // TODO Finish me. Do something with the debugger with these.
                 execSubCode(inst);
                 session.pc++
                 break;
             case 'def_struct':
-                // TODO add value to GUI.
-                session.structs[inst.name] = inst.member_names
+                session.structs[inst.name] = inst
                 session.pc++;
                 break;
             case 'def_array_size':
-                // TODO Implement Me
-                handleDefArraySize(inst);
+                session.arrays[inst.name] = inst;
                 session.pc++;
                 break;
             case 'put_argument':
-                // TODO Implement Me
+                ;
             case 'for_loop':
-                // TODO Implement Me...NOT IN COMPILER YET.
+                ;
             default:
-                signal("ERROR: " + inst.type + " not implemented");
-                throw new Error("ERR No command attached to " + inst.type);
+                execSubCode(inst);
+                session.pc++;
         }
         updateDisplay(session);
         if(wasBreak) {
@@ -199,41 +196,17 @@ function execSubCode(ob)
     session.tokens = compile(ob.bf_code)
     session.savedPcStack.push(session.pc);
     
-    savedSession = session;
+    // savedSession = session;
 
     session.pc = 0;
     interpret({'macro':true});
 
-    session = savedSession;    
+    // session = savedSession;    
 
     session.pc = session.savedPcStack.pop();
     session.tokens = session.savedTokens.pop();
 }
 
-
-
-/** Handles defining arrays containing structs of typle inst.element_type.
- *  Stores a dictionary of array info inside session.arrays.
- *  @param inst     instruction contains array name and struct type. */
-function handleDefArraySize(inst) {
-    var structExist = 0;
-   
-    for (struct in session.structs) {
-        if (session.structs.indexOf(inst.element_type)) {
-            structExist += 1;
-        }
-    }
-
-    if (structExist < 1) {
-        throw new Error("Cannot implement array " + inst.name + "due to no "
-                + "existing struct of type " + inst.element_type);
-    }
-
-    arrayInfo = {name: inst.name, element_type: inst.element_type,
-             size: inst.size};
-    
-    session.arrays.push(arrayInfo);
-}
 
 /** 
  * Handle Left paren instruction. 
