@@ -146,12 +146,12 @@ function interpret(opts)
                 session.arrays[inst.name] = inst;
                 session.pc++;
                 break;
+            case 'nop':
+                break;
             case 'put_argument':
                 ;
             case 'for_loop':
                 ;
-            case 'nop':
-                break;
             default:
                 execSubCode(inst);
                 session.pc++;
