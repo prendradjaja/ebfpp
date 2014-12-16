@@ -50,7 +50,7 @@ function interpret(opts)
     opts = opts || {}
     while(true) {
         var inst = session.tokens[session.pc]
-        if(!inst) { return; }
+        if(!inst) { inst = {type: 'nop'} }
         switch (inst.type) {
             case 'bf_command':
                 interpret_bf_command(inst);
@@ -143,6 +143,8 @@ function interpret(opts)
                 ;
             case 'for_loop':
                 ;
+            case 'nop':
+                break;
             default:
                 execSubCode(inst);
                 session.pc++;
@@ -174,12 +176,12 @@ function execSubCode(ob)
     session.tokens = compile(ob.bf_code)
     session.savedPcStack.push(session.pc);
     
-    // savedSession = session;
+    savedSession = session;
 
     session.pc = 0;
     interpret({'macro':true});
 
-    // session = savedSession;    
+    session = savedSession;    
 
     session.pc = session.savedPcStack.pop();
     session.tokens = session.savedTokens.pop();
