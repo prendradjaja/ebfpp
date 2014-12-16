@@ -1,0 +1,14 @@
+; This is an example of iterating through an array.
+
+:=Pair {first second}
+::list Pair           {65 97 / 66 98 / 67 99}
+; these are ascii for   A  a    B  b    C  c
+#
+; iterate through all elements in list
+~list {
+  ; inside the loop body, you can use $$ to access the members of each struct,
+  ; just as before.
+  $$first .
+  $$second ...
+}
+#

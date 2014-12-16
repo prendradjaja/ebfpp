@@ -38,11 +38,17 @@ function init()
     var id_step = document.getElementById('step');
     var id_sam = document.getElementById('sample1');
     var id_sam2 = document.getElementById('sample2');
+    var id_sam3 = document.getElementById('sample3');
+    var id_sam4 = document.getElementById('sample4');
+    var id_sam5 = document.getElementById('sample5');
     var id_res = document.getElementById('restartHard');
     var code_win = document.getElementById('in_code');
     code_win.addEventListener('keyup', checkInput, false);
     id_sam.addEventListener('click', function(){loadSample(1)}, false);
     id_sam2.addEventListener('click', function(){loadSample(2)}, false);
+    id_sam3.addEventListener('click', function(){loadSample(3)}, false);
+    id_sam4.addEventListener('click', function(){loadSample(4)}, false);
+    id_sam5.addEventListener('click', function(){loadSample(5)}, false);
     id_restart.addEventListener('click', restart, false);
     id_res.addEventListener('click', hardRestart, false);
 

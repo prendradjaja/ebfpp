@@ -1,0 +1,18 @@
+; This is an example of using arrays and structs, using a static (index is a
+; number, and therefore known at compile time) array access.
+
+; define struct type called 'Pair' with two members, 'first' and 'second'
+:=Pair {first second}
+
+; define and initialize an array of Pairs
+::list Pair           {65 97 / 66 98 / 67 99}
+; these are ascii for   A  a    B  b    C  c
+#
+; access array index 1
+$:list 1
+
+; and then access the members in that struct. Note that we know which struct
+; we're accessing based on the most recent array access.
+$$first .
+$$second .
+#

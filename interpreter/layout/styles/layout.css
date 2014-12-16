@@ -145,6 +145,7 @@ textarea { resize: none; font-family: Arial, Helvetica, Sans-serif; font-size: 1
     height: 50px;
     overflow:scroll;
     outline:0px solid transparent;
+    overflow-x:hidden;
 }
 
 #input br{
@@ -173,6 +174,7 @@ p.item_title {
     font-family:monospace;
     font-size:14px;
     resize:vertical;
+    overflow-x:hidden;
 }
 
 .notify {

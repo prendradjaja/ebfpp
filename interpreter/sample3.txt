@@ -1,0 +1,18 @@
+; This is an example of the extended macro system, which allows for arguments
+; in macros.
+
+; define macro. src and dst are arguments, which are substituted into the body
+; with %src and %dst.
+{pour \ src \ dst \\
+  %src [- %dst+ %src]}
+
+; define and initialize variables
+:a :b
+$a 3+
+$b 2+
+#
+; use macro, supplying $a and $b as arguments.
+&{pour / $a / $b}
+; this expands to
+; $a [- $b+ $a]
+#
