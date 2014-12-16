@@ -102,7 +102,7 @@ function compileAST()
     }
     document.getElementById('compiled').value = 
         _.map(compiledRaw,function(x){
-            return x.bf_code}).join("");
+            return x.bf_code}).join("").replace(/#/g,"");
 }
 
 /** 
@@ -454,7 +454,9 @@ function updateLocDisp(session)
         var count = 0;
 
         for(var inst in macro) {
-            macroString += printEBF(macro[inst].instruction);
+            macroString += (macro[inst].instruction.cmd === undefined ?
+                ' [...] ' : macro[inst].instruction.cmd)
+            console.log(macroString)
             if(++count > 10) { break; }
         }
         loc_table.innerHTML += 
@@ -477,19 +479,34 @@ function updateLocDisp(session)
             '</td>'+'<td>Struct</td></tr>';
     }
     for(var a in session.arrays) {
-        var members = session.arrays[a]
+        var arrWeAreAt = session.atArrIndex == null ? undefined : session.atArrIndex.name
+        var arrIndex = session.atArrIndex == null ? undefined : session.atArrIndex.index
+        var members = session.arrays[a].values
         var memberStr = ""
         var count = 0;
 
         for(var n in members) {
-            memberStr+='{'+members[n]+'}'+'&nbsp';
+            if(count == arrIndex && arrWeAreAt == a) {
+                memberStr+='<span style="background:yellow">{';
+                for(var i in members[n]) {
+                    if(parseInt(i) == session.atStrIndex) {
+                        memberStr += '<span style="color:red; text-decoration:underline;font-size:16px;">'+members[n][i]+'</span>' 
+                    } else {
+                        memberStr += members[n][i]
+                    }
+                    if(parseInt(i) < members[n].length-1) {memberStr+=','}
+                }
+                memberStr += '}' + '</span>&nbsp';
+            } else {
+                memberStr+= '{'+members[n]+'}&nbsp';
+            }
             if(++count > 10) { break; }
         }
         loc_table.innerHTML += 
             '<tr><td>'+a+'</td><td>'
             +(members.type === 'def_array_size' ? '[&nbsp]' : 
             '[&nbsp'+memberStr+((count > 10)?"...]":" ]"))+
-            '</td>'+'<td>Array</td></tr>';
+            '</td>'+'<td>Array of '+session.arrays[a].element_type+'</td></tr>';
     }
 }
 
@@ -577,8 +594,6 @@ function printEBF(inst)
     switch(inst.type) {
         case 'bf_command':
             return inst.cmd;
-        case 'def_var':
-            return inst.ebf_code;
         default:
             return inst.ebf_code;
     }

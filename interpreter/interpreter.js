@@ -31,7 +31,9 @@ function initSession(code)
         "savedPcStack":     new Array(),
         "savedParenTokens": new Array(),
         "memory":           Array.apply(null, new Array(256))
-                            .map(Number.prototype.valueOf, 0)
+                            .map(Number.prototype.valueOf, 0),
+        "atArrIndex":       null,
+        "atStrIndex":       null
     }
 }
 
@@ -115,11 +117,12 @@ function interpret(opts)
                 handleRightP(inst);
                 break;
             case 'def_array_init':
-                session.arrays[inst.name] = inst.values;
+                session.arrays[inst.name] = inst;
                 execSubCode(inst)
                 session.pc++
                 break;
             case 'goto_index_static':
+                session.atArrIndex = {name: inst.name, index: inst.index};
                 execSubCode(inst);
                 session.pc++
                 break;
@@ -128,6 +131,10 @@ function interpret(opts)
                 session.pc++;
                 break;
             case 'goto_member':
+                var currentArray = session.arrays[session.atArrIndex.name];
+                var structType = session.structs[currentArray.element_type]
+                var memIndex = structType.member_names.indexOf(inst.name)
+                session.atStrIndex = memIndex
                 execSubCode(inst);
                 session.pc++
                 break;
