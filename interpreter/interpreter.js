@@ -10,23 +10,6 @@
 session = null;
 
 /** 
- *  Used for debugLocalSession(). Not related to EBF++ debugger. s stands for
- *  session. 
- */
-sDebug = true;
-
-/** 
- *  Hacky workaround for session to be viewable in the browser upon inspection
- *  a little easier.
- *  @param localSession used for viewing session easier 
- */
-function debugLocalSession(localSession) {
-    if (sDebug) {
-        localSession.session = session;
-    }
-}
-
-/** 
  * Initialize a new interpreter session. 
  *
  * @param   code    Input AST of EBF++ program.
@@ -69,7 +52,6 @@ function interpret(opts)
     while(true) {
         var inst = session.tokens[session.pc]
         if(!inst) { return; }
-        debugLocalSession(localSession);
         switch (inst.type) {
             case 'bf_command':
                 interpret_bf_command(inst);
@@ -190,7 +172,6 @@ function interpret(opts)
 function execSubCode(ob)
 {
     var localSession = {};
-    debugLocalSession(localSession);
 
     session.savedTokens.push(session.tokens);
     session.tokens = compile(ob.bf_code)
