@@ -20,10 +20,17 @@ function main() {
 var PAD_SIZE = 2;
 // Constant representing how many spaces of padding are between array
 // elements.
+// NOTE: While this is written here as a constant, there DOES EXIST code that
+// depends on it being 2, so this is kinda crappy anyway. >.<
 
 var pointer;
 // Keeps track of where the pointer goes during the program. This is used
 // for variables.
+
+var absolute_pointer;
+// true if the compiler currently knows exactly where the pointer is. false
+// otherwise. In this case, the pointer variable is a RELATIVE position, hence
+// this variable's name.
 
 var variables;
 // A stack (implemented as an array) representing memory allocation.
@@ -71,6 +78,7 @@ function compile(program) {
     lines = program.split('\n');
     var ast = parser.parse(program);
     pointer = 0;
+    absolute_pointer = true;
     variables = [];
     macros = {};
     paren_stack = [];
@@ -325,6 +333,9 @@ function compile_goto_index_static(node) {
 }
 
 function compile_goto_index_dynamic(node) {
+    last_array_access.name = node.array_name;
+    last_array_access.index = 'dynamic';
+
     var output = '';
     var array_name = node.array_name;
     var array = arrays[array_name];
@@ -351,6 +362,10 @@ function compile_goto_index_dynamic(node) {
         output += parse_and_compile('+<-');
     output += parse_and_compile(']');
     output += _compile_node(util.multiplier('<', padless_struct_size));
+
+    pointer = 0;
+    absolute_pointer = false;
+
     return output;
 }
 
@@ -419,8 +434,52 @@ function move_pointer(destination) { /*
     updates the global pointer variable accordingly.
 
     destination: The target memory index. */
-    var distance = destination - pointer;
-    pointer = destination;
+    if (absolute_pointer) {
+        var distance = destination - pointer;
+        pointer = destination;
+        return move_distance(distance);
+    } else {
+        var output = ''
+
+        var array_name = last_array_access.name;
+        var array = arrays[array_name];
+        var struct_members = struct_types[array.element_type];
+        var padless_struct_size = struct_members.length;
+        var full_struct_size = padless_struct_size + PAD_SIZE;
+
+        // go back to the index that was accessed previously
+        output += move_distance(-pointer);
+        pointer = 0;
+
+        // go to pad1
+        output += _compile_node(util.multiplier('>', full_struct_size - 1));
+        output += '[';
+            // move pad1
+            output += '[-';
+            output += _compile_node(util.multiplier('<', full_struct_size));
+            output += '+';
+            output += _compile_node(util.multiplier('>', full_struct_size));
+            output += ']';
+
+            // decrement it
+            output += _compile_node(util.multiplier('<', full_struct_size));
+            output += '-';
+        output += ']';
+
+        // restore pointer
+        pointer = variables.indexOf(construct_illegal_var_name(array_name, 0, '#pad1'));
+        absolute_pointer = true;
+
+        // output += '>'
+
+        // do move_pointer again
+        output += move_pointer(destination);
+
+        return output;
+    }
+}
+
+function move_distance(distance) {
     if (distance < 0) {
         return repeat_string('<', -distance);
     } else {
