@@ -360,7 +360,7 @@ function updateMemDisp(val, datastore)
         indexStr += index+'&nbsp';
     }
 
-    slots = slots - 4 
+    slots = Math.floor(inst.offsetHeight/30)
     var count = 0;
     var used = session.pc < slots ? session.pc : slots;
     var instructions = 
@@ -430,6 +430,7 @@ function sigRun(dbg)
  */
 function updateDisplay(datastore)
 {
+    if(datastore === null) { return; }
     setPtr(datastore.pointer);
     updateMemDisp(datastore.memory[datastore.pointer], datastore)
     updateLocDisp(datastore);
