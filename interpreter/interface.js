@@ -353,22 +353,27 @@ function updateMemDisp(val, datastore)
         if(j == datastore.pointer) { resStr += '<span>' + f + '</span>' }
         else { resStr += f }
         resStr += '&nbsp'
-        index = '000'.concat(j.toString()).substr(j.toString().length)
+        index = 
+            (j == datastore.pointer)
+            ? '<span style="color:blue">'+'000'.concat(j.toString()).substr(j.toString().length)+'</span>'
+            : '000'.concat(j.toString()).substr(j.toString().length)
         indexStr += index+'&nbsp';
     }
 
-    var used = session.pc < 2*slots ? session.pc : 2*slots;
+    slots = slots - 4 
+    var count = 0;
+    var used = session.pc < slots ? session.pc : slots;
     var instructions = 
         _.map(
-            session.tokens.slice(session.pc-used,session.pc+2*slots),
-            printEBF
+            session.tokens.slice(session.pc-used,session.pc+slots),
+            function(x) { return count++ + ': '+ printEBF(x) + '<br>' }
         );
     instructions.splice(used,0,'<span>');
     instructions.splice(used+2,0,'</span>');
-    for(var i = used; i<2*slots; i++) {
-        instructions.splice(0,0,'_');
+    for(var i = used; i<slots; i++) {
+        instructions.splice(0,0,'<br>');
     }
-    inst.innerHTML = instructions.join(" ")
+    inst.innerHTML = instructions.join("")
     mmap.innerHTML = resStr+'<br>'+indexStr;
     indicator.innerHTML = val;
 }
@@ -453,9 +458,14 @@ function updateLocDisp(session)
         var macroString = ""
         var count = 0;
 
-        for(var inst in macro) {
-            macroString += (macro[inst].instruction.cmd === undefined ?
-                ' [...] ' : macro[inst].instruction.cmd)
+        for(var inst in macro.body) {
+            var hasSub = macro.body[inst].instruction.cmd;
+            if(hasSub === undefined) {
+                macroString += macro.ebf_code
+                break;
+            } else {
+                macroString += hasSub
+            }
             console.log(macroString)
             if(++count > 10) { break; }
         }

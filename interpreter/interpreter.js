@@ -91,7 +91,7 @@ function interpret(opts)
                 session.pc++
                 break;
             case 'def_macro':
-                handleDefMacro(inst.name,inst.body);
+                handleDefMacro(inst);
                 session.pc++;
                 break;
             case 'go_offset':
@@ -227,12 +227,11 @@ function handleRightP(inst)
 /**
  * Define a macro.
  *
- * @param   name    Name of macro.
- * @param   body    Code body for macro.
+ * @param   inst    Instruction defining macro.
  */
-function handleDefMacro(name, body)
+function handleDefMacro(inst)
 {
-    session.macros[name] = body;
+    session.macros[inst.name] = inst
 }
 
 /**
