@@ -102,6 +102,7 @@ function compileAST()
         signal(err,"notify");
         return;
     }
+    signal("", "none");
     var vis = $("#compile_div").css('display');
     if(vis === 'none') {
         $("#compile_div").fadeIn(600);

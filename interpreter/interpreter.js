@@ -33,7 +33,8 @@ function initSession(code)
         "memory":           Array.apply(null, new Array(256))
                             .map(Number.prototype.valueOf, 0),
         "atArrIndex":       null,
-        "atStrIndex":       null
+        "atStrIndex":       null,
+        "skipBracket":      new Array()
     }
 }
 
@@ -313,8 +314,20 @@ function interpret_bf_command(inst) {
             session.pc++;
             break;
         case '[':
-            session.bracketPcStack.push(session.pc);
-            session.pc++;
+            if(session.memory[session.pointer] > 0) {
+                session.bracketPcStack.push(session.pc);
+                session.pc++;
+            } else {
+                session.skipBracket.push(inst);
+                while(session.skipBracket.length > 0) {
+                    var nextInst = session.tokens[++session.pc]
+                    if(nextInst.cmd === '[') {
+                        session.skipBracket.push(inst);
+                    } else if(nextInst.cmd === ']') {
+                        session.skipBracket.pop();
+                    }
+                }
+            }
             break;
         default:
             throw new Error("ERR_NO_INST " + inst);
