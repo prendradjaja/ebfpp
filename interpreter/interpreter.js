@@ -34,7 +34,8 @@ function initSession(code)
                             .map(Number.prototype.valueOf, 0),
         "atArrIndex":       null,
         "atStrIndex":       null,
-        "skipBracket":      new Array()
+        "skipBracket":      new Array(),
+        "skipParen":        new Array()
     }
 }
 
@@ -202,8 +203,21 @@ function execSubCode(ob)
  * @param   inst    EBF++ instruction.
  */
 function handleLeftP(inst)
-{
-    session.bracketPcStack.push(session.pc);
+{            
+    if(session.memory[session.pointer] > 0) {
+        session.bracketPcStack.push(session.pc);
+        session.pc++;
+    } else {
+        session.skipParen.push(inst);
+        while(session.skipParen.length > 0) {
+            var nextInst = session.tokens[++session.pc]
+            if(nextInst.cmd === '(') {
+                session.skipParen.push(inst);
+            } else if(nextInst.cmd === ')') {
+                session.skipParen.pop();
+            }
+        }
+    }
 }
 
 /** 
