@@ -99,7 +99,18 @@ function compileAST()
     try {
         var compiledRaw = compile(readFromCodeWindow());
     } catch(err) {
-        signal(err,"notify");
+        if(err.message.indexOf("recursion") >= 0||err.message.indexOf("stack")) {
+            signal(
+                "NOTE: The features that this code uses are not yet available"
+                +" in the graphical debugger. Please use the provided"
+                +" command line tools to run this program. See the Wiki"
+                +" page on our BitBucket repository (linked in upper right"
+                +" corner of this page) for more information"
+                ,'notify'
+            )
+        } else {
+            signal("Please check your code. Parse said " + err,"notify");
+        }
         return;
     }
     signal("", "none");
