@@ -72,6 +72,7 @@ program
 
 instruction
     : bf_command
+    | include
     | def_var
     | go_var
     | at_var
@@ -110,6 +111,11 @@ bf_char
     | '>'
     | '.'
     | ','
+    ;
+
+include
+    : '!' STR
+        {$$ = util.include($2.substring(1, $2.length-1));}
     ;
 
 def_var

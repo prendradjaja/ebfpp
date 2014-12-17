@@ -89,6 +89,12 @@ function compile(program) {
     return _compile(ast);
 }
 
+function compile_file(filename) {
+    var ebfpp_code = fs.readFileSync(filename, 'utf8');
+    var ast = parser.parse(ebfpp_code);
+    return generate_bf_code_of_compiled_ast(_compile(ast));
+}
+
 function generate_bf_code_of_compiled_ast(compiled_ast) {
     var bf_code = '';
     for (var i in compiled_ast) {
@@ -136,6 +142,7 @@ function _compile_node(node) { /*
     Compile a single AST node, dispatching to the appropriate function */
     switch (node.type) {
         case 'bf_command':  return compile_bf_command(node);
+        case 'include':     return compile_include(node);
         case 'def_var':     return compile_def_var(node);
         case 'go_var':      return compile_go_var(node);
         case 'at_var':      return compile_at_var(node);
@@ -175,6 +182,11 @@ function compile_bf_command(node) {
         pointer += 1;
     }
     return node.cmd;
+}
+
+function compile_include(node) {
+    assert(fs.existsSync(node.file), 'Trying to include nonexistent file: ' + node.file);
+    return compile_file(node.file);
 }
 
 function compile_def_var(node) {

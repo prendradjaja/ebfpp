@@ -31,6 +31,7 @@ var util = (function() {
     var bf_command  = ast_node('bf_command',  'cmd')          // any of the eight
                                                               // BF commands
     var multiplier  = ast_node('multiplier',  'cmd times')    // 3+
+    var include     = ast_node('include',     'file')         // !'file'
     var def_var     = ast_node('def_var',     'name')         // :var
     var go_var      = ast_node('go_var',      'name')         // $var
     var at_var      = ast_node('at_var',      'name')         // @var
@@ -58,6 +59,7 @@ var util = (function() {
         ast_node: ast_node,
         bf_command: bf_command,
         multiplier: multiplier,
+        include: include,
         def_var: def_var,
         go_var: go_var,
         at_var: at_var,
