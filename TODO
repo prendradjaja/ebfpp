@@ -2,7 +2,7 @@ Correctness:
 - passes automated tests
 
 JS compiler:
-_ add tests for "demo"
+x add tests for "demo"
 _ structured into modules
 _ has good documentation
 
@@ -13,6 +13,10 @@ _ how to compile parser
 _ how to install fs and underscore
 _ linter
 _ directory structure
+_ aliases
+
+x Makefile exists, with rules for:
+_ tests
 
 Other documentation:
 _ properly attribute EVERYTHING
