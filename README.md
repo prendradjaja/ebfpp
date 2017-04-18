@@ -18,14 +18,15 @@ with:
 
 `make interpreter`
 
-You can then run it like so:
+You can then run it like so: (Try it out in the included
+`hello-world.bf`!)
 
-`./bff4/bff4 < some-file.bf`
+`./bff4/bff4 < hello-world.bf`
 
 Or, more conveniently:
 
     . aliases.sh
-    bf < some-file.bf
+    bf < hello-world.bf
 
 
 [ebfpp]: https://prendradjaja.github.io/ebfpp-demo/
