@@ -83,7 +83,7 @@ for (cat, tl) in tests.items():
       
 total = 0
 max_total = 0  
-print ("\nScores:")
+print ("\nResult:")
 for cat in categories:
     print ("\t" + cat + ": " + str(scores[cat]) + " passed out of " + str(max_scores[cat]))
     if (scores[cat] < max_scores[cat]):
