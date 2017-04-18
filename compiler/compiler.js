@@ -14,7 +14,7 @@ function main() {
     }
     var ebfpp_code = fs.readFileSync(process.argv[2], 'utf8');
     var compiler_output = compile(ebfpp_code);
-    console.log(generate_bf_code_of_compiled_ast(compiler_output));
+    console.log(generate_code(compiler_output));
 }
 
 var PAD_SIZE = 2;
@@ -92,10 +92,10 @@ function compile(program) {
 function compile_file(filename) {
     var ebfpp_code = fs.readFileSync(filename, 'utf8');
     var ast = parser.parse(ebfpp_code);
-    return generate_bf_code_of_compiled_ast(_compile(ast));
+    return generate_code(_compile(ast));
 }
 
-function generate_bf_code_of_compiled_ast(compiled_ast) {
+function generate_code(compiled_ast) {
     var bf_code = '';
     for (var i in compiled_ast) {
         bf_code += compiled_ast[i].bf_code;
@@ -128,7 +128,7 @@ function _compile(ast) { /*
 }
 
 function parse_and_compile(ebfpp_code) {
-    return generate_bf_code_of_compiled_ast(_compile(parser.parse(ebfpp_code)));
+    return generate_code(_compile(parser.parse(ebfpp_code)));
 }
 
 function compile_node(node) {
@@ -234,7 +234,7 @@ function compile_put_argument(node) {
     if (node.name in arg_dict) {
         var compiled_body = _compile(arg_dict[node.name]);
         node.inside = compiled_body;
-        return generate_bf_code_of_compiled_ast(compiled_body);
+        return generate_code(compiled_body);
     } else {
         // TODO: make this search up through parents, only giving an error if
         // the argument name is not found in any frame.
@@ -252,7 +252,7 @@ function compile_put_macro(node) {
     macro_stack.push(macro_frame(pointer, arg_dict));
     var compiled_body = _compile(macros[node.name].body);
     node.inside = compiled_body;
-    var body = generate_bf_code_of_compiled_ast(compiled_body);
+    var body = generate_code(compiled_body);
     macro_stack.pop();
     return body;
 }
@@ -389,7 +389,7 @@ function compile_for_loop(node) {
         // TODO: use constructor
         var temp_node = {name: array_name, index: i};
         output += compile_goto_index_static(temp_node);
-        output += generate_bf_code_of_compiled_ast(_compile(node.body));
+        output += generate_code(_compile(node.body));
     }
     return output;
 }
