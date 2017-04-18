@@ -14,6 +14,7 @@ _ how to install fs and underscore
 _ linter
 _ directory structure
 _ aliases
+_ example code
 
 x Makefile exists, with rules for:
 _ tests
