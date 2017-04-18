@@ -13,8 +13,8 @@ function main() {
         crash_with_error('Need a file to compile. Run with:\n  $ node compiler.js file.ebf');
     }
     var ebfpp_code = fs.readFileSync(process.argv[2], 'utf8');
-    var compiler_output = compile(ebfpp_code);
-    console.log(generate_code(compiler_output));
+    var compiled_ast = compile(ebfpp_code);
+    console.log(generate_code(compiled_ast));
 }
 
 var PAD_SIZE = 2;
