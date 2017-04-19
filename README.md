@@ -53,6 +53,8 @@ You should see five dots appear in your terminal.
 ### Helpers
 - `aliases.sh`: Useful shortcuts for working with this project.
 - `language-notes.pdf`: Cheat sheet (two pages) of BF, EBF, and EBF++ syntax.
+- `bff4/`: The [bff4] BF interpreter by Oleg Mazonka. This is *not* our
+  work.
 
 ### Included code
 This repo includes:
