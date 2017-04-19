@@ -11,17 +11,17 @@ x has acceptable documentation
 Readme:
 x bff4
 x how to run
-  _ how to run parser
+  x how to run parser
 _ how to compile parser
 _ how to install fs and underscore
 _ linter
 x directory structure
-_ aliases
+x aliases
 _ example code
 _ TODOs in readme
 
 x Makefile exists, with rules for:
-_ tests
+x tests
 
 Other documentation:
 _ properly attribute EVERYTHING

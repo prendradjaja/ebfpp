@@ -37,6 +37,11 @@ It should compile very quickly. Now you can run the demo program!
 You should see five dots appear in your terminal.
 
 
+## Tests
+
+Run `make test`. To add tests, see "Adding tests" [below](#adding-tests).
+
+
 ## Directory structure
 
 ### The compiler
@@ -67,13 +72,14 @@ This repo includes:
 
 ### Adding tests
 Tests are in subdirectories of `compiler/tests/`. Add subdirectories as needed
-for organization; `run_tests.py` will find them automatically.
+for organization; `run_tests.py` will find them automatically. Within each
+subdirectory, place follows as such:
 
-- (any test subdirectory): File structure is:
-  - `TEST_NAME.ebf`: EBF++ code to be compiled.
-  - `TEST_NAME.ebf.out`: Expected BF output.
-  - `TEST_NAME.ebf.tmp`: Actual output by the compiler. This is
-    `.gitignore`d.
+- `TEST_NAME.ebf`: EBF++ code to be compiled.
+- `TEST_NAME.ebf.out`: Expected BF output.
+
+You may see files like `TEST_NAME.ebf.tmp`. These are "actual" output from a
+previous test run. These files are `.gitignore`d.
 
 ## Parser.js
 To use the standalone parser, use the `parse` alias:
