@@ -7,8 +7,8 @@ See [here][ebfpp] for more information on EBF++, a language developed by Pandu
 Rendradjaja, John Tran, and John Wilkey.
 
 ## Requirements
-- gcc
-- make
+- `gcc` and `make` (For running BF code. Not necessary for running the EBF++
+  compiler itself.)
 - TODO js requirements
 
 ## Getting started
