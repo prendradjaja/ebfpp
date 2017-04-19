@@ -60,8 +60,8 @@ You should see five dots appear in your terminal.
 ### Included code
 This repo includes:
 
-- `demo-1.ebf`: A fancy way of printing `.....` to the screen
-  (demonstrates EBF++ macros).
+- `demo-1.ebf`: A program demonstrating EBF++ macros. All it does it print
+  `.....` to stdout.
 - `hello-world.bf`: Hello World in plain BF.
 - A variety short examples under `compiler/tests/`.
 
