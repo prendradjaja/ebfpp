@@ -37,7 +37,7 @@ It should compile very quickly. Now you can run the demo program!
 You should see five dots appear in your terminal.
 
 
-## Directory structure and files
+## Directory structure
 
 ### The compiler
 - `compiler/`
