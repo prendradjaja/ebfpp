@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/prendradjaja/ebfpp/issues"
   },
-  "homepage": "https://github.com/prendradjaja/ebfpp#readme"
+  "homepage": "https://github.com/prendradjaja/ebfpp#readme",
+  "dependencies": {
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "jison": "^0.4.17"
+  }
 }
