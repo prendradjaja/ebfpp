@@ -4,7 +4,7 @@ Correctness:
 JS compiler:
 x add tests for "demo"
 _ structured into modules
-_ has good documentation
+x has acceptable documentation
 
 Readme:
 x bff4
