@@ -6,12 +6,16 @@ This is a compiler for the [EBF++][ebfpp] language, an extension of
 See [here][ebfpp] for more information on EBF++, a language developed by Pandu
 Rendradjaja, John Tran, and John Wilkey.
 
-## Requirements
-- `gcc` and `make` (For running BF code. Not necessary for running the EBF++
-  compiler itself.)
-- TODO js requirements
+## Dependencies
+- underscore
+- jison
 
 ## Getting started
+### Requirements
+- `gcc` and `make` (For running BF code. Not necessary for running the EBF++
+  compiler itself.)
+- `npm`
+
 There are a couple of aliases in `aliases.sh`. Let's start by sourcing those:
 
     . aliases.sh
