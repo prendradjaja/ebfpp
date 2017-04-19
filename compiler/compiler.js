@@ -18,10 +18,9 @@ function main() {
 }
 
 var PAD_SIZE = 2;
-// Constant representing how many spaces of padding are between array
-// elements.
-// NOTE: While this is written here as a constant, there DOES EXIST code that
-// depends on it being 2, so this is kinda crappy anyway. >.<
+// Number of cells of padding between array elements.
+// TODO: While this is written here as a constant, there DOES EXIST code that
+// depends on it being 2: fix this.
 
 var pointer;
 // Keeps track of where the pointer goes during the program. This is used
@@ -29,8 +28,7 @@ var pointer;
 
 var absolute_pointer;
 // true if the compiler currently knows exactly where the pointer is. false
-// otherwise. In this case, the pointer variable is a RELATIVE position, hence
-// this variable's name.
+// otherwise: in this case, the pointer variable is a RELATIVE position.
 
 var variables;
 // A stack (implemented as an array) representing memory allocation.
@@ -105,9 +103,10 @@ function generate_code(compiled_ast) {
 
 var pos_stack = [{ last_line: 1, last_column: 0, first_line: 1, first_column: 0 }];
 
-function _compile(ast) { /*
-    The global variable `pointer` may be changed, according to what happens in
-    the program. */
+function _compile(ast) {
+    // The global variable `pointer` may be changed. For example, an >
+    // instruction increments the pointer.
+
     ast = clone(ast);
     var prev_pos = pos_stack[pos_stack.length - 1];
     for (var i in ast) {
@@ -549,37 +548,6 @@ function named_list(fieldnamestr) {
 
         return obj;
     };
-}
-
-// function create_ast(ebfpp_code) {
-//     // TODO: recurse into bodies! -- macro definitions have bodies, and macro
-//     // insertions have values which are really also bodies
-//     var prev_pos = { last_line: 1, last_column: 0, first_line: 1, first_column: 0 };
-//     var ast = [];
-//     for (var i in parser_output) {
-//         var pair = parser_output[i];
-//         var instruction = pair.instruction;
-//         TODO1(instruction);
-//         var position = pair.position;
-//         instruction.raw_ebf_code = grab_chars(lines, position);
-//         instruction.preceding_whitespace = grab_chars(lines, blank_space(prev_pos, position));
-//         ast.push(instruction);
-//         prev_pos = position;
-//     }
-//     return ast;
-// }
-
-function TODO1(instruction) {
-    switch(instruction.type) {
-        case 'def_macro':
-        case 'put_argument':
-        case 'put_macro':
-        case 'def_array_init':
-        case 'goto_index_static':
-        case 'def_struct':
-        case 'goto_member':
-            crash_with_error('TODO1: ' + instruction.type);
-    }
 }
 
 function grab_chars(lines, position) {
