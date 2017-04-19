@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "make test",
-    "generate-parser": "jison compiler/ebfpp.jison -p slr -o compiler/ebfpp.js"
+    "generate-parser": "jison compiler/grammar.jison -p slr -o compiler/grammar.js"
   },
   "repository": {
     "type": "git",

@@ -1,7 +1,7 @@
 // Run with:
 //   $ node parser.js [file]
 
-var parser = require('./ebfpp.js');
+var parser = require('./grammar.js');
 var fs = require('fs');
 var util = require('util');
 
