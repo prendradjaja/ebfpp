@@ -17,6 +17,7 @@ _ linter
 _ directory structure
 _ aliases
 _ example code
+_ TODOs in readme
 
 x Makefile exists, with rules for:
 _ tests
