@@ -2,8 +2,8 @@
 'use strict';
 
 if (typeof require !== 'undefined') {
-    var parser = require('../ebfpp.js');
-    var util = require('../util.js'); // do the "vars" need to be removed from this and above?
+    var parser = require('./ebfpp.js');
+    var util = require('./util.js'); // do the "vars" need to be removed from this and above?
     var fs = require('fs');
     var _ = require('underscore');
 }
