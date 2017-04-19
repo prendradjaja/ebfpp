@@ -10,7 +10,7 @@ x has acceptable documentation
 
 Readme:
 x bff4
-_ how to run
+x how to run
 _ how to compile parser
 _ how to install fs and underscore
 _ linter
@@ -24,3 +24,6 @@ _ tests
 
 Other documentation:
 _ properly attribute EVERYTHING
+
+Other:
+_ Remove the old python compiler?
