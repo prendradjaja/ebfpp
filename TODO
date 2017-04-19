@@ -4,6 +4,8 @@ Correctness:
 JS compiler:
 x add tests for "demo"
 _ structured into modules
+  _ probably should rename util and separate it into ast nodes and ...
+    arrayconcat. note that it's used in ebfpp.jison AND in compiler.js
 x has acceptable documentation
 
 Readme:
