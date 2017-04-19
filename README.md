@@ -6,40 +6,43 @@ This is the compiler for the [EBF++][ebfpp] language, an extension of
 See [here][ebfpp] for more information on EBF++, a language developed by Pandu
 Rendradjaja, John Tran, and John Wilkey.
 
-## Dependencies
-- underscore
-- jison
-
 ## Getting started
 ### Requirements
 - `gcc` and `make` (For running BF code. Not necessary for running the EBF++
   compiler itself.)
 - `npm`
 
+### First steps
 There are a couple of aliases in `aliases.sh`. Let's start by sourcing those:
 
     . aliases.sh
+
+Next, install the necessary packages:
+
+    npm install
 
 Now let's compile `demo-1.ebf` with the `compile` alias:
 
     compile demo-1.ebf > demo-1.bf
 
-To run this program, you'll need a BF interpreter. Unfortunately, even a
-language as simple as BF has a wide range of implementation-specific
-behaviors. Our favorite implementation is [bff4] by Oleg Mazonka, so (for best
-results) please use it when running our code.
-
-For convenience, `bff4.c` is included in this repo. Compile the interpreter
-with:
+The result is the BF program `demo-1.bf`. To run this, you'll need a BF
+interpreter. For convenience, [bff4] by Oleg Mazonka is included. You'll have
+to compile it first, however:
 
     make interpreter
 
-It should compile very quickly. Now you can run the demo program!
+Now you can run the demo program!
 
     bf < demo-1.bf
 
 You should see five dots appear in your terminal.
 
+### Next...
+You only need to compile the interpreter (`make interpreter`) once. In the
+future, you can just use `bf` (assuming you've sourced `aliases.sh`). To
+compile and run in one command, use:
+
+    compile some-file.ebf | bf
 
 ## Tests
 
