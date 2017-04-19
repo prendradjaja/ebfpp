@@ -1,0 +1,73 @@
+; https://gist.github.com/prendradjaja/dc53d95aabb0e9743a944685c882492e/ec90bad4ed02d24c30baa9484e3af30bf4a4e728
+
+; Define variables a and b
+:a :b
+
+; Initialize a = 3, b = 2. $a is EBF for "go to the cell where a is stored."
+$a 3+
+$b 2+    ; (1) See footnotes below if you're not familiar with BF.
+
+; Define a "pour" macro. Pour is BF's simplest version of "add". In another
+; language, it might look like this: (of course, it's a macro, not a function)
+;
+;   void pour(*src, *dst) {
+;       *dst = *src + *dst;
+;       *src = 0;
+;   }
+{pour \ src \ dst \\  ; Macro arguments: src and dst. When the macro is
+                      ; invoked, these will be variables like a and b.
+  ; Macro body. % is the notation for argument substitution.
+  %src [    ; (2)
+    -
+    %dst+
+    %src
+  ]
+}
+
+; Invoke the macro. It expands to:
+;   $a [- $b+ $a]
+&{pour / $a / $b}
+
+; Now, a = 0 and b = 5. But how can we see that? We need some IO.
+; Store a dot (ASCII 46) in a new variable...
+:dot
+$dot 46+
+
+; ... and then print out b dots. You should see five dots appear as output.
+$b [
+  -
+  $dot .    ; (3)
+  $b
+]
+
+; Voila! Your first EBF++ program.
+
+
+
+;;; Footnotes for BF newbies ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; (1) You found the first footnote! Yay.
+;   + means "increment the current cell."
+;   - means "decrement the current cell."
+
+; (2) The pour pattern is common in BF.
+;   [ ] means "loop while the current cell (i.e. the cell you're at when you
+;     hit a bracket) is nonzero."
+;   < means "move the pointer one cell to the left."
+;   > means "move the pointer one cell to the right."
+;
+; So if you want to pour from one cell into a cell three to its right, you
+; write:
+;
+;   [
+;     -        ; Decrement the "source" cell.
+;     >>> +    ; Increment the "destination" cell.
+;     <<<      ; Move back to the original cell.
+;   ]
+;
+; This macro is simply the "location-agnostic" version: It takes advantage of
+; EBF++ variables to save the programmer from worrying about how many >'s and
+; <'s to use.
+
+; (3) . means "print a single character, reading the current cell as an ASCII
+;       value."
