@@ -55,6 +55,7 @@ You should see five dots appear in your terminal.
 - `language-notes.pdf`: Cheat sheet (two pages) of BF, EBF, and EBF++ syntax.
 - `bff4/`: The [bff4] BF interpreter by Oleg Mazonka. This is *not* our
   work.
+  - You'll have to compile it first with `make interpreter`.
 
 ### Included code
 This repo includes:
