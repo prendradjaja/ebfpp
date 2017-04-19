@@ -1,6 +1,6 @@
 # EBF++ compiler
 
-This is a compiler for the [EBF++][ebfpp] language, an extension of
+This is the compiler for the [EBF++][ebfpp] language, an extension of
 [Brainf\*ck][bf] (BF). It turns EBF++ code into plain BF.
 
 See [here][ebfpp] for more information on EBF++, a language developed by Pandu
