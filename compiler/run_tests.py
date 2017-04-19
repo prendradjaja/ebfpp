@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Adapted from an autograder for CS 164.
+
 import os, sys, subprocess, difflib, time, signal
 from sys import platform, argv
 
