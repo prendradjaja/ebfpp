@@ -1,0 +1,19 @@
+{
+  "name": "ebfpp-compiler",
+  "version": "0.0.0",
+  "description": "This is a compiler for the [EBF++][ebfpp] language, an extension of [Brainf\\*ck][bf] (BF). It turns EBF++ code into plain BF.",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prendradjaja/ebfpp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/prendradjaja/ebfpp/issues"
+  },
+  "homepage": "https://github.com/prendradjaja/ebfpp#readme"
+}
