@@ -1,5 +1,7 @@
 # EBF++ compiler
 
+https://github.com/prendradjaja/ebfpp/tree/compiler-only
+
 This is the compiler for the [EBF++][ebfpp] language, an extension of
 [Brainf\*ck][bf] (BF). It turns EBF++ code into plain BF.
 
