@@ -6,6 +6,10 @@ This is the compiler for the [EBF++][ebfpp] language, an extension of
 See [here][ebfpp] for more information on EBF++, a language developed by Pandu
 Rendradjaja, John Tran, and John Wilkey.
 
+This compiler is 99% the work of Pandu Rendradjaja, with some pair programming
+involved. `run_tests.py` is adapted from an autograder for CS 164 at UC
+Berkeley. `bff4.c` is the work of Oleg Mazonka.
+
 ## Getting started
 ### Requirements
 - `gcc` and `make` (For running BF code. Not necessary for running the EBF++
