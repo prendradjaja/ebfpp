@@ -1,3 +1,5 @@
+// EBF++ is the work of Pandu Rendradjaja, John Tran, and John Wilkey.
+
 var util = (function() {
     function hello() {
         console.log('hello');

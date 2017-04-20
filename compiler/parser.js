@@ -1,3 +1,5 @@
+// EBF++ is the work of Pandu Rendradjaja, John Tran, and John Wilkey.
+//
 // Run with:
 //   $ node parser.js [file]
 

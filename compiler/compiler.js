@@ -1,9 +1,10 @@
-/* global require, process, console */
+// EBF++ is the work of Pandu Rendradjaja, John Tran, and John Wilkey.
+
 'use strict';
 
 if (typeof require !== 'undefined') {
     var parser = require('./grammar.js');
-    var util = require('./util.js'); // do the "vars" need to be removed from this and above?
+    var util = require('./util.js');
     var fs = require('fs');
     var _ = require('underscore');
 }
